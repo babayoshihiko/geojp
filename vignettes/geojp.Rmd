@@ -1,0 +1,131 @@
+---
+title: "geojp"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{geojp}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## パッケージのインストールと読み込み
+
+これは最初だけ必要です。ただし、まだ
+開発途中ですので、定期的に繰り返すと良いでしょう。
+
+```{r eval = FALSE}
+install.packages("remotes")
+remotes::install_github("babayoshihiko/geojp")
+```
+
+パッケージ **geojp** を読み込み (attach) ます。
+
+```{r setup}
+library(geojp)
+```
+
+## 国勢調査
+
+国勢調査の境界情報を読み込みましょう。都道府県コード (code_pref) と市町村コード (code_muni) を指定します。宮城県 (4) の大崎市 (215) の例です。
+
+```{r}
+sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215)
+head(sfCensus)
+```
+
+国勢調査は、列数が多いので、重要なものだけ切り取ってあります。
+
+政令指定都市は、行政区単位になってしまいます。`read_census_odcity` 関数は、政令指定都市名を指定して全ての区を返します。
+
+```{r}
+sfCensus2 <- geojp::read_census_odcity("京都市")
+head(sfCensus2)
+```
+
+## 国土数値情報
+
+国土数値情報の用途地域を読み込みましょう。都道府県コード (code_pref) と市町村コード (code_muni) を指定します。平成23（2011）年度、令和元（2019）年度があるので、今回は平成23年度版を試します。
+
+国土数値情報については、[国土数値情報ダウンロードサービス](https://nlftp.mlit.go.jp/ksj/index.html) を参照。
+
+返り値は `sf` オブジェクトです。
+
+```{r}
+sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011)
+```
+
+用途地域クラスを示す `A29_004` と `A29_005` 列は、因子型(factor) になっています。
+
+
+```{r}
+levels(sfYouto$A29_005)
+```
+
+追加の属性情報を設定しています。"col" は、色分けの際に使用する列名です。"palette" は、色分け用のカラーパレットです。これは、日本工業規格（JIS）に基づいた用途地域の色にできる限り合わせてあります。
+
+```{r}
+attr(sfYouto, "palette")
+```
+
+## tmap
+
+パッケージ **tmap** を使って、用途地域を表示してみましょう。最後のフォント指定は、macOS のみ必要です。
+
+```{r}
+library(tmap)
+# Create a map.
+myTm <- tm_shape(sfYouto) +
+          tm_polygons(col = attr(sfYouto, "col"), palette = attr(sfYouto, "palette"), alpha = 0.8) + 
+           tm_borders()
+myTm <- myTm +
+      tm_scale_bar() +
+      tm_layout(title = "京都市",
+                legend.outside = FALSE, 
+                fontfamily = "HiraginoSans-W3")
+```
+
+プロットを表示しましょう。
+
+```{r}
+myTm
+```
+
+保存する場合は、`tmap_save()` 関数を使います。
+
+```{r eval = FALSE}
+tmap_save(tm = myTm, filename = "map.png")
+```
+
+国勢調査と用途地域を重ね合わせることもできます。
+
+```{r}
+library(tmap)
+tmap_mode("view")
+# Create a map.
+myTm <- myTm +
+          tm_shape(sfCensus2) +
+          tm_polygons("JINKO", alpha = 0.8) 
+myTm <- tm_shape(sfYouto) +
+          tm_polygons(col = attr(sfYouto, "col"), palette = attr(sfYouto, "palette"), alpha = 0.8) + 
+           tm_borders()
+myTm <- myTm +
+      tm_scale_bar() +
+      tm_layout(title = "京都市",
+                legend.outside = FALSE, 
+                fontfamily = "HiraginoSans-W3")
+myTm
+```
+
+## mapview
+
+```{r}
+library(mapview)
+mapviewOptions(fgb = FALSE) # needed when creating web pages
+mapview(sfYouto[attr(sfYouto, "col")], col.regions = attr(sfYouto, "palette"), fgb = FALSE)
+```
