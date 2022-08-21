@@ -6,7 +6,8 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of geojp is to …
+The goal of geojp is to provide an easy access to various geographical
+data of Japan.
 
 ## Installation
 

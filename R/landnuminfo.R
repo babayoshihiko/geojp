@@ -95,7 +95,7 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
 #' Download spatial data of Land Use of Japan
 #'
 #' @description
-#' Function to download spatial data of  land uses. The returned value is an sf obect with extra
+#' Function to download spatial data of  land uses. The returned value is an sf object with extra
 #' attr "col" and "palette". The "col" is the factored column that indicate the land use classes
 #' and "palette" provides the colour palette based on Japan Industrial Standard.
 #'
@@ -126,11 +126,38 @@ read_landnuminfo_landuse <- function(code_pref, code_muni, year = 2019, data_dir
   return(sf)
 }
 
+#' Download spatial data of Location Normalization of Japan
+#'
+#' @description
+#' Function to download spatial data of  land uses. The returned value is an sf object.
+#'
+#' @param code_pref The 2-digit code of a prefecture.
+#' @param code_muni The 3-digit code of a municipality (city, town, or village).
+#' @param year Year of the data. Defaults to 2020.
+#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
+#'
+#'
+#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
+#'
+#' @export
+read_landnuminfo_locnorm <- function(code_pref, code_muni, year = 2020, data_dir = NULL){
+  year = check_year(year)
+  if (year != 2020) stop(paste("The data is not available for year", year))
+
+  sf = read_landnuminfo("A50", code_pref, code_muni, year, filetype = "geojson", geometry = "POLYGON", data_dir = data_dir)
+  sf$A50_006 <- factor(sf$A50_006, levels=c("1","2","3"), labels=c("立地適正化計画区域","居住誘導区域","都市機能誘導区域"))
+
+  attr(sf, "mapname") = "立地適正化計画区域"
+  attr(sf, "col") = "A50_006"
+  attr(sf, "palette") = c("#E2FFE3","#99CDFD","#F87E88")
+  return(sf)
+}
+
 list_landnuminfo <- function(){
-  dfTestedMap <- read.table(text = "MapCode,Year,FileType,MapUnit,MuniColumn,Geometry,Desc
-A29,2019,geojson,muni,A29_003,POLYGON,用途地域
-A29,2011,shp,muni,A29_003,POLYGON,用途地域
-A50,2020,geojson,muni,A50_004,POLYGON,立地適正化計画区域
+  dfTestedMap <- read.table(text = "MapCode,Year,FileType,MapUnit,MuniColumn,Geometry,Desc,URL
+A29,2019,geojson,muni,A29_003,POLYGON,用途地域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html
+A29,2011,shp,muni,A29_003,POLYGON,用途地域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html
+A50,2020,geojson,muni,A50_004,POLYGON,立地適正化計画区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A50-v1_0.html
 A31,2012,shp,pref,,POLYGON,洪水浸水想定区域
 P14,2021,geojson,pref,P14_003,POINT,福祉施設",
   header = TRUE, sep=",", colClasses = "character")
