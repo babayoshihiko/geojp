@@ -63,6 +63,10 @@ find_geojson_file <- function(maptype, code_pref, code_muni, year, data_dir){
                            paste(maptype, "-", year, "_", code_pref, code_muni, ".geojson", sep = ""))
   }
   if (!file.exists(strLNIFile)) {
+    strLNIFile = file.path(data_dir,
+                           paste(maptype, "-", year, "_", code_pref, ".geojson", sep = ""))
+  }
+  if (!file.exists(strLNIFile)) {
     strLNIFile = Sys.glob(file.path(data_dir,
                                     paste(maptype, "-", year, "_", code_pref, "*", sep = ""),
                                     "*",
@@ -116,6 +120,17 @@ find_shp_file <- function(maptype, code_pref, code_muni, year, data_dir){
     strLNIFile = Sys.glob(file.path(data_dir,
                                     "*",
                                     paste(maptype, "-", year, "_", code_pref, code_muni, ".shp", sep = "")))
+  }
+  if (length(strLNIFile) != 1) {
+    strLNIFile = Sys.glob(file.path(data_dir,
+                                    paste(maptype, "-", year, "_", code_pref, "*", sep = ""),
+                                    "*", "*",
+                                    paste(maptype, "-", year, "_", code_pref, ".shp", sep = "")))
+  }
+  if (length(strLNIFile) != 1) {
+    strLNIFile = Sys.glob(file.path(data_dir,
+                                    "*",
+                                    paste(maptype, "-", year, "_", code_pref, ".shp", sep = "")))
   }
   if (length(strLNIFile) != 1) stop(paste("Cannot find shp file in", data_dir))
 

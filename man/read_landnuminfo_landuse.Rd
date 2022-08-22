@@ -11,7 +11,7 @@ read_landnuminfo_landuse(code_pref, code_muni, year = 2019, data_dir = NULL)
 
 \item{code_muni}{The 3-digit code of a municipality (city, town, or village).}
 
-\item{year}{Year of the data. Defaults to 2020.}
+\item{year}{Year of the data. Defaults to 2019.}
 
 \item{data_dir}{The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.}
 }

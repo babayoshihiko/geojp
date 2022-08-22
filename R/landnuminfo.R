@@ -58,13 +58,27 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
   strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/", maptype, "/", maptype, "-", year, "/", maptype, "-", year, "_", code_pref, "_GML.zip", sep = "")
 
   if (!file.exists(strLNIZip)) download.file(strLNIUrl, strLNIZip, mode="wb")
-  unzip(strLNIZip, exdir = strTempDir)
+
 
   if (filetype == "geojson") {
+    unzip(strLNIZip, exdir = strTempDir)
     strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir)
     sfLNI = sf::read_sf(strLNIFile)
   } else if (filetype == "shp") {
-    strLNIFile = find_shp_file(maptype, code_pref, code_muni, year, strTempDir)
+    # Avoid the unzip error due to Japanese filenames
+    # This error happens with maptype = "A31", code_pref = 4, code_muni = 215
+    SHPFiles = c( paste(maptype,"-",year,"_",code_pref,".shp",sep=""),
+                  paste(maptype,"-",year,"_",code_pref,".shx",sep=""),
+                  paste(maptype,"-",year,"_",code_pref,".dbf",sep=""),
+                  paste(maptype,"-",year,"_",code_pref,".prj",sep=""))
+    unzip(strLNIZip, files = SHPFiles, exdir = strTempDir)
+    strLNIFile = file.path(strTempDir,
+                           paste(maptype, "-", year,"_", code_pref,".shp",sep=""))
+    if (!file.exists(strLNIFile)){
+      unzip(strLNIZip, exdir = strTempDir)
+      strLNIFile = find_shp_file(maptype, code_pref, code_muni, year, strTempDir)
+    }
+
     sfLNI = sf::read_sf(strLNIFile, options = "ENCODING=CP932", stringsAsFactors=FALSE)
     # Older data may not have *.prj. Set CRS manually.
     if (is.na(sf::st_crs(sfLNI))) {
@@ -101,7 +115,7 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
 #'
 #' @param code_pref The 2-digit code of a prefecture.
 #' @param code_muni The 3-digit code of a municipality (city, town, or village).
-#' @param year Year of the data. Defaults to 2020.
+#' @param year Year of the data. Defaults to 2019.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
 #'
@@ -129,7 +143,7 @@ read_landnuminfo_landuse <- function(code_pref, code_muni, year = 2019, data_dir
 #' Download spatial data of Location Normalization of Japan
 #'
 #' @description
-#' Function to download spatial data of  land uses. The returned value is an sf object.
+#' Function to download spatial data of Location Normalization. The returned value is an sf object.
 #'
 #' @param code_pref The 2-digit code of a prefecture.
 #' @param code_muni The 3-digit code of a municipality (city, town, or village).
@@ -153,13 +167,68 @@ read_landnuminfo_locnorm <- function(code_pref, code_muni, year = 2020, data_dir
   return(sf)
 }
 
+#' Download spatial data of Flood Inundation Risk of Japan
+#'
+#' @description
+#' Function to download spatial data of Flood Inundation Risk of Japan. The returned value is an sf object.
+#'
+#' @param code_pref The 2-digit code of a prefecture.
+#' @param code_muni The 3-digit code of a municipality (city, town, or village).
+#' @param year Year of the data. Defaults to 2012.
+#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
+#'
+#'
+#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
+#'
+#' @export
+read_landnuminfo_flood <- function(code_pref, code_muni, year = 2012, data_dir = NULL){
+  year = check_year(year)
+  if (year != 2012) stop(paste("The data is not available for year", year))
+
+  sf = read_landnuminfo("A31", code_pref, code_muni, year, filetype = "shp", geometry = "POLYGON", data_dir = data_dir)
+  sf$A31_001 <- factor(sf$A31_001, levels=c(11,12,13,14,15), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～5.0ｍ未満","5.0ｍ以上"))
+
+  attr(sf, "mapname") = "洪水浸水想定区域"
+  attr(sf, "col") = "A31_001"
+  attr(sf, "palette") = c("#EFF3FF","#BDD7E7","#6BAED6","#3182BD","#08519C") # RColorBrewer::brewer.pal(5, "Blues")
+  return(sf)
+}
+
+#' Download spatial data of Welfare Facilities of Japan
+#'
+#' @description
+#' Function to download spatial data of Welfare Facilities of Japan. The returned value is an sf object.
+#'
+#' @param code_pref The 2-digit code of a prefecture.
+#' @param code_muni The 3-digit code of a municipality (city, town, or village).
+#' @param year Year of the data. Defaults to 2012.
+#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
+#'
+#'
+#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
+#'
+#' @export
+read_landnuminfo_welfare <- function(code_pref, code_muni, year = 2021, data_dir = NULL){
+  year = check_year(year)
+  if (year != 2021 & year != 2015 & year != 2011) stop(paste("The data is not available for year", year))
+
+  sf = read_landnuminfo("P14", code_pref, code_muni, year, filetype = "geojson", geometry = "POINT", data_dir = data_dir)
+  sf$P14_005 <- factor(sf$P14_005, levels=c("01","02","03","04","05","06","99"),
+                       labels=c("保護施設","老人福祉施設","障害者支援施設等","身体障害者社会参加支援施設","児童福祉施設等","母子・父子福祉施設","その他の社会福祉施設等"))
+
+  attr(sf, "mapname") = "洪水浸水想定区域"
+  attr(sf, "col") = "P14_005"
+  attr(sf, "palette") = c("#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D") # RColorBrewer::brewer.pal(7, "Dark2")
+  return(sf)
+}
+
 list_landnuminfo <- function(){
   dfTestedMap <- read.table(text = "MapCode,Year,FileType,MapUnit,MuniColumn,Geometry,Desc,URL
 A29,2019,geojson,muni,A29_003,POLYGON,用途地域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html
 A29,2011,shp,muni,A29_003,POLYGON,用途地域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html
 A50,2020,geojson,muni,A50_004,POLYGON,立地適正化計画区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A50-v1_0.html
-A31,2012,shp,pref,,POLYGON,洪水浸水想定区域
-P14,2021,geojson,pref,P14_003,POINT,福祉施設",
+A31,2012,shp,pref,,POLYGON,洪水浸水想定区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A31.html
+P14,2021,geojson,pref,P14_003,POINT,福祉施設,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P14-v2_1.html",
   header = TRUE, sep=",", colClasses = "character")
   print(dfTestedMap)
 }
