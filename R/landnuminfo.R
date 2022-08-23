@@ -33,8 +33,8 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
     }
   }
   if (mode(code_muni) == "numeric"){
-    if (code_muni < 100 || code_muni > 600) {
-      stop("Invalid argument: code_muni must be between 100 and 600.")
+    if (code_muni < 100 || code_muni > 700) {
+      stop("Invalid argument: code_muni must be between 100 and 700.")
     } else {
       code_muni = as.character(code_muni)
     }
@@ -135,6 +135,8 @@ read_landnuminfo_landuse <- function(code_pref, code_muni, year = 2019, data_dir
   sf$A29_005 <- factor(sf$A29_005, levels=c("第一種低層住居専用地域","第二種低層住居専用地域","第一種中高層住居専用地域","第二種中高層住居専用地域","第一種住居地域","第二種住居地域","準住居地域","近隣商業地域","商業地域","準工業地域","工業地域","工業専用地域","田園住居地域","不明"))
 
   attr(sf, "mapname") = "用途地域"
+  attr(sf, "sourceName") = "「国土数値情報（用途地域データ）」（国土交通省）"
+  attr(sf, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html"
   attr(sf, "col") = "A29_005"
   attr(sf, "palette") = c("#00BEA9","#6AD5BD","#A8D666","#FAE294","#F4E268","#F8D79C","#FFB580","#F3A5B9","#EE534F","#B3A8CB","#8AD0E4","#2CB3DE","#F4B187","#FFFFFF")
   return(sf)
@@ -162,6 +164,8 @@ read_landnuminfo_locnorm <- function(code_pref, code_muni, year = 2020, data_dir
   sf$A50_006 <- factor(sf$A50_006, levels=c("1","2","3"), labels=c("立地適正化計画区域","居住誘導区域","都市機能誘導区域"))
 
   attr(sf, "mapname") = "立地適正化計画区域"
+  attr(sf, "sourceName") = "「国土数値情報（立地適正化計画区域データ）」（国土交通省）"
+  attr(sf, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A50-v1_0.html"
   attr(sf, "col") = "A50_006"
   attr(sf, "palette") = c("#E2FFE3","#99CDFD","#F87E88")
   return(sf)
@@ -217,6 +221,8 @@ read_landnuminfo_welfare <- function(code_pref, code_muni, year = 2021, data_dir
                        labels=c("保護施設","老人福祉施設","障害者支援施設等","身体障害者社会参加支援施設","児童福祉施設等","母子・父子福祉施設","その他の社会福祉施設等"))
 
   attr(sf, "mapname") = "洪水浸水想定区域"
+  attr(sf, "sourceName") = "「国土数値情報（洪水浸水想定区域データ）」（国土交通省）"
+  attr(sf, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A31.html"
   attr(sf, "col") = "P14_005"
   attr(sf, "palette") = c("#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D") # RColorBrewer::brewer.pal(7, "Dark2")
   return(sf)

@@ -56,7 +56,7 @@ head(sfCensus)
 
 国勢調査は、列数が多いので、重要なものだけ切り取ってあります。
 
-政令指定都市は、行政区単位になってしまいます。`read_census_odcity` 関数は、政令指定都市名を指定して全ての区を返します。
+政令指定都市は、行政区単位になってしまいます。`read_census_odcity()` 関数は、政令指定都市名を指定して全ての区を返します。
 
 ```{r}
 sfCensus2 <- geojp::read_census_odcity("京都市")
@@ -77,12 +77,18 @@ sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year
 
 用途地域クラスを示す `A29_004` と `A29_005` 列は、因子型(factor) になっています。
 
-
 ```{r}
 levels(sfYouto$A29_005)
 ```
 
-追加の属性情報を設定しています。"col" は、色分けの際に使用する列名です。"palette" は、色分け用のカラーパレットです。これは、日本工業規格（JIS）に基づいた用途地域の色にできる限り合わせてあります。
+追加の属性情報を設定しています。属性は、`attr()` 関数を使って取得します。特に重要な属性として、出典があります。出典は、以下のように取得することができます。
+
+```{r}
+attr(sfYouto, "sourceName")
+attr(sfYouto, "sourceURL")
+```
+
+属性 "col" は、色分けの際に使用する列名です。属性 "palette" は、色分け用のカラーパレットです。これは、日本工業規格（JIS）に基づいた用途地域の色にできる限り合わせてあります。
 
 ```{r}
 attr(sfYouto, "palette")

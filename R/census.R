@@ -29,8 +29,8 @@ read_census_tract <- function(code_pref, code_muni, year = 2020, data_dir = NULL
     }
   }
   if (mode(code_muni) == "numeric"){
-    if (code_muni < 100 || code_muni > 600) {
-      stop("Invalid argument: code_muni must be between 100 and 600.")
+    if (code_muni < 100 || code_muni > 700) {
+      stop("Invalid argument: code_muni must be between 100 and 700.")
     } else {
       code_muni = as.character(code_muni)
     }
