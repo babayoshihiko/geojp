@@ -37,8 +37,8 @@ library(geojp)
 
 ## 国勢調査
 
-国勢調査の境界情報を読み込みましょう。都道府県コード (code\_pref)
-と市町村コード (code\_muni) を指定します。宮城県 (4) の大崎市 (215)
+国勢調査の境界情報を読み込みましょう。都道府県コード (code_pref)
+と市町村コード (code_muni) を指定します。宮城県 (4) の大崎市 (215)
 の例です。
 
 ``` r
@@ -62,7 +62,7 @@ head(sfCensus)
 
 国勢調査は、列数が多いので、重要なものだけ切り取ってあります。
 
-政令指定都市は、行政区単位になってしまいます。`read_census_odcity`
+政令指定都市は、行政区単位になってしまいます。`read_census_odcity()`
 関数は、政令指定都市名を指定して全ての区を返します。
 
 ``` r
@@ -86,8 +86,8 @@ head(sfCensus2)
 
 ## 国土数値情報
 
-国土数値情報の用途地域を読み込みましょう。都道府県コード (code\_pref)
-と市町村コード (code\_muni)
+国土数値情報の用途地域を読み込みましょう。都道府県コード (code_pref)
+と市町村コード (code_muni)
 を指定します。平成23（2011）年度、令和元（2019）年度があるので、今回は平成23年度版を試します。
 
 国土数値情報については、[国土数値情報ダウンロードサービス](https://nlftp.mlit.go.jp/ksj/index.html)
@@ -97,6 +97,8 @@ head(sfCensus2)
 
 ``` r
 sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011)
+#> Warning in unzip(strLNIZip, files = SHPFiles, exdir = strTempDir): zip ファイル
+#> 中には、要求されたファイルは存在しません
 #> Warning in st_collection_extract.sf(sfLNI, type = "POLYGON"): x is already of
 #> type POLYGON.
 ```
@@ -115,8 +117,17 @@ levels(sfYouto$A29_005)
 #> [13] "田園住居地域"             "不明"
 ```
 
-追加の属性情報を設定しています。“col”
-は、色分けの際に使用する列名です。“palette”
+追加の属性情報を設定しています。属性は、`attr()`
+関数を使って取得します。特に重要な属性として、出典があります。出典は、以下のように取得することができます。
+
+``` r
+attr(sfYouto, "sourceName")
+#> [1] "「国土数値情報（用途地域データ）」（国土交通省）"
+attr(sfYouto, "sourceURL")
+#> [1] "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html"
+```
+
+属性 “col” は、色分けの際に使用する列名です。属性 “palette”
 は、色分け用のカラーパレットです。これは、日本工業規格（JIS）に基づいた用途地域の色にできる限り合わせてあります。
 
 ``` r
@@ -153,7 +164,7 @@ myTm
 #> tm_shape prior to each of them).
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
 保存する場合は、`tmap_save()` 関数を使います。
 
@@ -185,7 +196,7 @@ myTm
 #> tm_shape prior to each of them).
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
 
 ## mapview
 
@@ -195,4 +206,4 @@ mapviewOptions(fgb = FALSE) # needed when creating web pages
 mapview(sfYouto[attr(sfYouto, "col")], col.regions = attr(sfYouto, "palette"), fgb = FALSE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />

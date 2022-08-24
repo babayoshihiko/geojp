@@ -49,7 +49,12 @@ library(geojp)
 
 国勢調査の境界情報を読み込みましょう。都道府県コード (code_pref) と市町村コード (code_muni) を指定します。宮城県 (4) の大崎市 (215) の例です。
 
-```{r}
+```{r echo=F, eval=T}
+sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215, data_dir = "~/Download/data.temp")
+head(sfCensus)
+```
+
+```{r echo=T, eval=F}
 sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215)
 head(sfCensus)
 ```
@@ -58,7 +63,12 @@ head(sfCensus)
 
 政令指定都市は、行政区単位になってしまいます。`read_census_odcity()` 関数は、政令指定都市名を指定して全ての区を返します。
 
-```{r}
+```{r echo=F, eval=T}
+sfCensus2 <- geojp::read_census_odcity("京都市", data_dir = "~/Download/data.temp")
+head(sfCensus2)
+```
+
+```{r echo=T, eval=F}
 sfCensus2 <- geojp::read_census_odcity("京都市")
 head(sfCensus2)
 ```
@@ -71,7 +81,11 @@ head(sfCensus2)
 
 返り値は `sf` オブジェクトです。
 
-```{r}
+```{r  echo=F, eval=T}
+sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011, data_dir = "~/Download/data.temp")
+```
+
+```{r  echo=T, eval=F}
 sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011)
 ```
 

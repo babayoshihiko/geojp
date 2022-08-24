@@ -4,12 +4,14 @@
 \alias{read_census_odcity}
 \title{Download spatial data of census tracts of the Japanese Population Census}
 \usage{
-read_census_odcity(city_name, year = 2020)
+read_census_odcity(city_name, year = 2020, data_dir = NULL)
 }
 \arguments{
 \item{city_name}{an Ordnance-Disignated City in Japanese.}
 
 \item{year}{Year of the data. Defaults to 2020.}
+
+\item{data_dir}{The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.}
 }
 \value{
 An `"sf" "data.frame"` object

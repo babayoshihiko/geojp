@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{epsg_Japan_Plane_Rectangular}
 \alias{epsg_Japan_Plane_Rectangular}
-\title{EPSG code of JGD2000 / Japan Plane Rectangular}
+\title{EPSG code of Japan Plane Rectangular}
 \usage{
 epsg_Japan_Plane_Rectangular(code_pref, code_muni = NULL, crs_type = "JGD2000")
 }
