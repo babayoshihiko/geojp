@@ -77,6 +77,10 @@ read_census_tract <- function(code_pref, code_muni, year = 2020, data_dir = NULL
   sfCensus = sfCensus[,c("KEY_CODE","AREA","PERIMETER","JINKO","SETAI")]
   # sfCensus = sf::st_transform(sfCensus, "EPSG:6668")
   sfCensus = sf::st_make_valid(sfCensus)
+  attr(sfCensus, "mapname") = "洪水浸水想定区域"
+
+  attr(sfCensus, "sourceName") = "「国土数値情報（洪水浸水想定区域データ）」（国土交通省）"
+  attr(sfCensus, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A31.html"
 
   return(sfCensus)
 }

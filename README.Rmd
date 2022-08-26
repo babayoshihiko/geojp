@@ -64,13 +64,20 @@ head(sfCensus)
 政令指定都市は、行政区単位になってしまいます。`read_census_odcity()` 関数は、政令指定都市名を指定して全ての区を返します。
 
 ```{r echo=F, eval=T}
-sfCensus2 <- geojp::read_census_odcity("京都市", data_dir = "~/Download/data.temp")
+sfCensus2 <- geojp::read_census_odcity("京都市", data_dir = "~/Downloads/data.noindex")
 head(sfCensus2)
 ```
 
 ```{r echo=T, eval=F}
 sfCensus2 <- geojp::read_census_odcity("京都市")
 head(sfCensus2)
+```
+
+追加の属性情報を設定しています。属性は、`attr()` 関数を使って取得します。特に重要な属性として、出典があります。出典は、以下のように取得することができます。
+
+```{r}
+attr(sfCensus2, "sourceName")
+attr(sfCensus2, "sourceURL")
 ```
 
 ## 国土数値情報

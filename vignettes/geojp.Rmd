@@ -50,6 +50,13 @@ sfCensus2 <- geojp::read_census_odcity("京都市")
 head(sfCensus2)
 ```
 
+追加の属性情報を設定しています。属性は、`attr()` 関数を使って取得します。特に重要な属性として、出典があります。出典は、以下のように取得することができます。
+
+```{r}
+attr(sfCensus2, "sourceName")
+attr(sfCensus2, "sourceURL")
+```
+
 ## 国土数値情報
 
 国土数値情報の用途地域を読み込みましょう。都道府県コード (code_pref) と市町村コード (code_muni) を指定します。平成23（2011）年度、令和元（2019）年度があるので、今回は平成23年度版を試します。
@@ -64,12 +71,18 @@ sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year
 
 用途地域クラスを示す `A29_004` と `A29_005` 列は、因子型(factor) になっています。
 
-
 ```{r}
 levels(sfYouto$A29_005)
 ```
 
-追加の属性情報を設定しています。"col" は、色分けの際に使用する列名です。"palette" は、色分け用のカラーパレットです。これは、日本工業規格（JIS）に基づいた用途地域の色にできる限り合わせてあります。
+追加の属性情報を設定しています。属性は、`attr()` 関数を使って取得します。特に重要な属性として、出典があります。出典は、以下のように取得することができます。
+
+```{r}
+attr(sfYouto, "sourceName")
+attr(sfYouto, "sourceURL")
+```
+
+属性 "col" は、色分けの際に使用する列名です。属性 "palette" は、色分け用のカラーパレットです。これは、日本工業規格（JIS）に基づいた用途地域の色にできる限り合わせてあります。
 
 ```{r}
 attr(sfYouto, "palette")

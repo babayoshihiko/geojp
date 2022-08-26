@@ -37,27 +37,28 @@ library(geojp)
 
 ## 国勢調査
 
-国勢調査の境界情報を読み込みましょう。都道府県コード (code_pref)
-と市町村コード (code_muni) を指定します。宮城県 (4) の大崎市 (215)
+国勢調査の境界情報を読み込みましょう。都道府県コード (code\_pref)
+と市町村コード (code\_muni) を指定します。宮城県 (4) の大崎市 (215)
 の例です。
+
+    #> Simple feature collection with 6 features and 5 fields
+    #> Geometry type: POLYGON
+    #> Dimension:     XY
+    #> Bounding box:  xmin: 140.9491 ymin: 38.57324 xmax: 140.965 ymax: 38.57924
+    #> Geodetic CRS:  JGD2000
+    #> # A tibble: 6 × 6
+    #>   KEY_CODE     AREA PERIMETER JINKO SETAI                               geometry
+    #>   <chr>       <dbl>     <dbl> <dbl> <dbl>                          <POLYGON [°]>
+    #> 1 042150010  42064.      976.   215    59 ((140.9586 38.57839, 140.9582 38.5786…
+    #> 2 042150020  21813.      896.    88    42 ((140.9568 38.57566, 140.9567 38.5757…
+    #> 3 042150030  66933.     1286.   176    68 ((140.9625 38.57528, 140.9623 38.5753…
+    #> 4 042150040  52498.     1233.   156    69 ((140.9605 38.57737, 140.9603 38.577,…
+    #> 5 042150050  75934.     1390.   205   107 ((140.9574 38.57757, 140.9568 38.5778…
+    #> 6 042150060 133863.     1574.   490   191 ((140.9548 38.57702, 140.9547 38.5771…
 
 ``` r
 sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215)
 head(sfCensus)
-#> Simple feature collection with 6 features and 5 fields
-#> Geometry type: POLYGON
-#> Dimension:     XY
-#> Bounding box:  xmin: 140.9491 ymin: 38.57324 xmax: 140.965 ymax: 38.57924
-#> Geodetic CRS:  JGD2011
-#> # A tibble: 6 × 6
-#>   KEY_CODE     AREA PERIMETER JINKO SETAI                               geometry
-#>   <chr>       <dbl>     <dbl> <dbl> <dbl>                          <POLYGON [°]>
-#> 1 042150010  42064.      976.   215    59 ((140.9586 38.57839, 140.9582 38.5786…
-#> 2 042150020  21813.      896.    88    42 ((140.9568 38.57566, 140.9567 38.5757…
-#> 3 042150030  66933.     1286.   176    68 ((140.9625 38.57528, 140.9623 38.5753…
-#> 4 042150040  52498.     1233.   156    69 ((140.9605 38.57737, 140.9603 38.577,…
-#> 5 042150050  75934.     1390.   205   107 ((140.9574 38.57757, 140.9568 38.5778…
-#> 6 042150060 133863.     1574.   490   191 ((140.9548 38.57702, 140.9547 38.5771…
 ```
 
 国勢調査は、列数が多いので、重要なものだけ切り取ってあります。
@@ -65,29 +66,40 @@ head(sfCensus)
 政令指定都市は、行政区単位になってしまいます。`read_census_odcity()`
 関数は、政令指定都市名を指定して全ての区を返します。
 
+    #> Simple feature collection with 6 features and 5 fields
+    #> Geometry type: POLYGON
+    #> Dimension:     XY
+    #> Bounding box:  xmin: 135.7368 ymin: 35.04067 xmax: 135.7477 ymax: 35.05123
+    #> Geodetic CRS:  JGD2000
+    #> # A tibble: 6 × 6
+    #>   KEY_CODE       AREA PERIMETER JINKO SETAI                             geometry
+    #>   <chr>         <dbl>     <dbl> <dbl> <dbl>                        <POLYGON [°]>
+    #> 1 26101001001  55664.     1272.   335   159 ((135.7431 35.04654, 135.743 35.046…
+    #> 2 26101001002  41500.     1040.    96    44 ((135.7403 35.0478, 135.7398 35.047…
+    #> 3 26101001003  49730.      951.   807   435 ((135.7388 35.04569, 135.7394 35.04…
+    #> 4 26101001004 289781.     2896.   867   407 ((135.7471 35.04318, 135.747 35.043…
+    #> 5 26101001005  52556.     1120.   941   424 ((135.7477 35.04751, 135.7477 35.04…
+    #> 6 26101001006  46270.     1051.   449   264 ((135.7473 35.05072, 135.7474 35.05…
+
 ``` r
 sfCensus2 <- geojp::read_census_odcity("京都市")
 head(sfCensus2)
-#> Simple feature collection with 6 features and 5 fields
-#> Geometry type: POLYGON
-#> Dimension:     XY
-#> Bounding box:  xmin: 135.7368 ymin: 35.04067 xmax: 135.7477 ymax: 35.05123
-#> Geodetic CRS:  JGD2011
-#> # A tibble: 6 × 6
-#>   KEY_CODE       AREA PERIMETER JINKO SETAI                             geometry
-#>   <chr>         <dbl>     <dbl> <dbl> <dbl>                        <POLYGON [°]>
-#> 1 26101001001  55664.     1272.   335   159 ((135.7431 35.04654, 135.743 35.046…
-#> 2 26101001002  41500.     1040.    96    44 ((135.7403 35.0478, 135.7398 35.047…
-#> 3 26101001003  49730.      951.   807   435 ((135.7388 35.04569, 135.7394 35.04…
-#> 4 26101001004 289781.     2896.   867   407 ((135.7471 35.04318, 135.747 35.043…
-#> 5 26101001005  52556.     1120.   941   424 ((135.7477 35.04751, 135.7477 35.04…
-#> 6 26101001006  46270.     1051.   449   264 ((135.7473 35.05072, 135.7474 35.05…
+```
+
+追加の属性情報を設定しています。属性は、`attr()`
+関数を使って取得します。特に重要な属性として、出典があります。出典は、以下のように取得することができます。
+
+``` r
+attr(sfCensus2, "sourceName")
+#> [1] "「国土数値情報（洪水浸水想定区域データ）」（国土交通省）"
+attr(sfCensus2, "sourceURL")
+#> [1] "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A31.html"
 ```
 
 ## 国土数値情報
 
-国土数値情報の用途地域を読み込みましょう。都道府県コード (code_pref)
-と市町村コード (code_muni)
+国土数値情報の用途地域を読み込みましょう。都道府県コード (code\_pref)
+と市町村コード (code\_muni)
 を指定します。平成23（2011）年度、令和元（2019）年度があるので、今回は平成23年度版を試します。
 
 国土数値情報については、[国土数値情報ダウンロードサービス](https://nlftp.mlit.go.jp/ksj/index.html)
@@ -95,12 +107,13 @@ head(sfCensus2)
 
 返り値は `sf` オブジェクトです。
 
+    #> Warning in utils::unzip(strLNIZip, files = SHPFiles, exdir = strTempDir): zip フ
+    #> ァイル中には、要求されたファイルは存在しません
+    #> Warning in st_collection_extract.sf(sfLNI, type = "POLYGON"): x is already of
+    #> type POLYGON.
+
 ``` r
 sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011)
-#> Warning in unzip(strLNIZip, files = SHPFiles, exdir = strTempDir): zip ファイル
-#> 中には、要求されたファイルは存在しません
-#> Warning in st_collection_extract.sf(sfLNI, type = "POLYGON"): x is already of
-#> type POLYGON.
 ```
 
 用途地域クラスを示す `A29_004` と `A29_005` 列は、因子型(factor)
@@ -164,7 +177,7 @@ myTm
 #> tm_shape prior to each of them).
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
 
 保存する場合は、`tmap_save()` 関数を使います。
 
@@ -196,7 +209,7 @@ myTm
 #> tm_shape prior to each of them).
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
 
 ## mapview
 
@@ -206,4 +219,4 @@ mapviewOptions(fgb = FALSE) # needed when creating web pages
 mapview(sfYouto[attr(sfYouto, "col")], col.regions = attr(sfYouto, "palette"), fgb = FALSE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
