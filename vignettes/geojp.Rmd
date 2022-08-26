@@ -12,6 +12,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+library(tmap)
+library(mapview)
 ```
 
 ## パッケージのインストールと読み込み

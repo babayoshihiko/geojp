@@ -62,20 +62,20 @@ read_census_tract <- function(code_pref, code_muni, year = 2020, data_dir = NULL
                        year,
                        "&code=",
                        code_pref, code_muni,
-                       "&coordSys=2&format=shape&downloadType=5&datum=2000",
+                       "&coordSys=1&format=shape&downloadType=5&datum=2000",
                        sep = "")
   strCensusZip = file.path(strTempDir,
                            paste("A00200521", year, "DDSWC", code_pref, code_muni, ".zip", sep = ""))
   strCensusFile = file.path(strTempDir,
                             paste(year_suffix, code_pref, code_muni, ".shp", sep = ""))
 
-  if (!file.exists(strCensusZip)) download.file(strCensusUrl, strCensusZip, mode="wb")
-  if (!file.exists(strCensusFile)) unzip(strCensusZip, exdir = strTempDir)
+  if (!file.exists(strCensusZip)) utils::download.file(strCensusUrl, strCensusZip, mode="wb")
+  if (!file.exists(strCensusFile)) utils::unzip(strCensusZip, exdir = strTempDir)
   sfCensus = sf::read_sf(strCensusFile,
                       options = "ENCODING=CP932",
                       stringsAsFactors=FALSE)
-  sfCensus = sfCensus[,c(1,10,11,25,26)]   # columns: KEY_CODE, AREA, PERIMETER, JINKO, SETAI
-  sfCensus = sf::st_transform(sfCensus, "EPSG:6668")
+  sfCensus = sfCensus[,c("KEY_CODE","AREA","PERIMETER","JINKO","SETAI")]
+  # sfCensus = sf::st_transform(sfCensus, "EPSG:6668")
   sfCensus = sf::st_make_valid(sfCensus)
 
   return(sfCensus)
@@ -119,6 +119,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("04", "104", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("04", "105", year, data_dir))
   } else if (city_name == "さいたま" || city_name == "埼玉") {
+    if (year >= 2005){
     sfCity = read_census_tract("11", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("11", "102", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("11", "103", year, data_dir))
@@ -129,6 +130,11 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("11", "108", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("11", "109", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("11", "110", year, data_dir))
+    } else {
+      sfCity = read_census_tract("11", "204", year, data_dir)
+      sfCity = rbind(sfCity, read_census_tract("11", "205", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("11", "220", year, data_dir))
+    }
   } else if (city_name == "千葉") {
     sfCity = read_census_tract("11", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("11", "102", year, data_dir))
@@ -200,26 +206,38 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
       sfCity = read_census_tract("14", "209", year, data_dir)
     }
   } else if (city_name == "新潟") {
-    sfCity = read_census_tract("15", "101", year, data_dir)
-    sfCity = rbind(sfCity, read_census_tract("15", "102", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("15", "103", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("15", "104", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("15", "105", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("15", "106", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("15", "107", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("15", "108", year, data_dir))
+    if (year >= 2007){
+      sfCity = read_census_tract("15", "101", year, data_dir)
+      sfCity = rbind(sfCity, read_census_tract("15", "102", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("15", "103", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("15", "104", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("15", "105", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("15", "106", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("15", "107", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("15", "108", year, data_dir))
+    } else {
+      sfCity = read_census_tract("15", "201", year, data_dir)
+    }
   } else if (city_name == "静岡") {
-    sfCity = read_census_tract("22", "101", year, data_dir)
-    sfCity = rbind(sfCity, read_census_tract("22", "102", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("22", "103", year, data_dir))
+    if (year >= 2007){
+      sfCity = read_census_tract("22", "101", year, data_dir)
+      sfCity = rbind(sfCity, read_census_tract("22", "102", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("22", "103", year, data_dir))
+    } else {
+      sfCity = read_census_tract("22", "201", year, data_dir)
+    }
   } else if (city_name == "浜松") {
-    sfCity = read_census_tract("22", "131", year, data_dir)
-    sfCity = rbind(sfCity, read_census_tract("22", "132", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("22", "133", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("22", "134", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("22", "135", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("22", "136", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("22", "137", year, data_dir))
+    if (year >= 2007){
+      sfCity = read_census_tract("22", "131", year, data_dir)
+      sfCity = rbind(sfCity, read_census_tract("22", "132", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("22", "133", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("22", "134", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("22", "135", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("22", "136", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("22", "137", year, data_dir))
+    } else {
+      sfCity = read_census_tract("22", "202", year, data_dir)
+    }
   } else if (city_name == "名古屋") {
     sfCity = read_census_tract("23", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("23", "102", year, data_dir))
@@ -278,13 +296,17 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("27", "127", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("27", "128", year, data_dir))
   } else if (city_name == "堺") {
-    sfCity = read_census_tract("27", "141", year, data_dir)
-    sfCity = rbind(sfCity, read_census_tract("27", "142", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("27", "143", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("27", "144", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("27", "145", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("27", "146", year, data_dir))
-    sfCity = rbind(sfCity, read_census_tract("27", "147", year, data_dir))
+    if (year >= 2006){
+      sfCity = read_census_tract("27", "141", year, data_dir)
+      sfCity = rbind(sfCity, read_census_tract("27", "142", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("27", "143", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("27", "144", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("27", "145", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("27", "146", year, data_dir))
+      sfCity = rbind(sfCity, read_census_tract("27", "147", year, data_dir))
+    } else {
+      sfCity = read_census_tract("27", "201", year, data_dir)
+    }
   } else if (city_name == "神戸") {
     sfCity = read_census_tract("28", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("28", "102", year, data_dir))

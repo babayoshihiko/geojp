@@ -59,14 +59,19 @@ check_year <- function(x) {
   return (intYear)
 }
 
-#' Check year format
+#' Find the target geojson file
 #'
 #' @description
-#' Function to check and validate year
+#' Function to find the target geojson file in data_dir.
 #'
-#' @param x year in Gregorian or Japanese calendar (eg "R2" and "平成元年度")
+#' @param maptype landnuminfo maptype (eg "A01" and "P01").
+#' @param code_pref The 2-digit code of a prefecture.
+#' @param code_muni The 3-digit code of a municipality (city, town, or village).
+#' @param year Year of the data. Defaults to 2012.
+#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
-#' @return an epsg code
+#'
+#' @return the target filepath
 #'
 #' @export
 find_geojson_file <- function(maptype, code_pref, code_muni, year, data_dir){
@@ -105,6 +110,19 @@ find_geojson_file <- function(maptype, code_pref, code_muni, year, data_dir){
   return(strLNIFile)
 }
 
+#' Find the target shp file
+#'
+#' @description
+#' Function to find the target shp file in data_dir.
+#'
+#' @param maptype landnuminfo maptype (eg "A01" and "P01").
+#' @param code_pref The 2-digit code of a prefecture.
+#' @param code_muni The 3-digit code of a municipality (city, town, or village).
+#' @param year Year of the data. Defaults to 2012.
+#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
+#'
+#'
+#' @return the target filepath
 find_shp_file <- function(maptype, code_pref, code_muni, year, data_dir){
   strLNIFile = file.path(data_dir,
                          paste(maptype, "-", year, "_", code_pref, code_muni, ".shp", sep = ""))

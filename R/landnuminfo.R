@@ -57,11 +57,11 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
                         paste(maptype, "-", year, "_", code_pref, "_GML.zip", sep = ""))
   strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/", maptype, "/", maptype, "-", year, "/", maptype, "-", year, "_", code_pref, "_GML.zip", sep = "")
 
-  if (!file.exists(strLNIZip)) download.file(strLNIUrl, strLNIZip, mode="wb")
+  if (!file.exists(strLNIZip)) utils::download.file(strLNIUrl, strLNIZip, mode="wb")
 
 
   if (filetype == "geojson") {
-    unzip(strLNIZip, exdir = strTempDir)
+    utils::unzip(strLNIZip, exdir = strTempDir)
     strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir)
     sfLNI = sf::read_sf(strLNIFile)
   } else if (filetype == "shp") {
@@ -71,11 +71,11 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
                   paste(maptype,"-",year,"_",code_pref,".shx",sep=""),
                   paste(maptype,"-",year,"_",code_pref,".dbf",sep=""),
                   paste(maptype,"-",year,"_",code_pref,".prj",sep=""))
-    unzip(strLNIZip, files = SHPFiles, exdir = strTempDir)
+    utils::unzip(strLNIZip, files = SHPFiles, exdir = strTempDir)
     strLNIFile = file.path(strTempDir,
                            paste(maptype, "-", year,"_", code_pref,".shp",sep=""))
     if (!file.exists(strLNIFile)){
-      unzip(strLNIZip, exdir = strTempDir)
+      utils::unzip(strLNIZip, exdir = strTempDir)
       strLNIFile = find_shp_file(maptype, code_pref, code_muni, year, strTempDir)
     }
 
@@ -229,7 +229,7 @@ read_landnuminfo_welfare <- function(code_pref, code_muni, year = 2021, data_dir
 }
 
 list_landnuminfo <- function(){
-  dfTestedMap <- read.table(text = "MapCode,Year,FileType,MapUnit,MuniColumn,Geometry,Desc,URL
+  dfTestedMap <- utils::read.table(text = "MapCode,Year,FileType,MapUnit,MuniColumn,Geometry,Desc,URL
 A29,2019,geojson,muni,A29_003,POLYGON,用途地域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html
 A29,2011,shp,muni,A29_003,POLYGON,用途地域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html
 A50,2020,geojson,muni,A50_004,POLYGON,立地適正化計画区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A50-v1_0.html
