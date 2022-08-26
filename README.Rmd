@@ -50,7 +50,7 @@ library(geojp)
 国勢調査の境界情報を読み込みましょう。都道府県コード (code_pref) と市町村コード (code_muni) を指定します。宮城県 (4) の大崎市 (215) の例です。
 
 ```{r echo=F, eval=T}
-sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215, data_dir = "~/Download/data.temp")
+sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215, data_dir = "~/Download/data.noindex")
 head(sfCensus)
 ```
 
@@ -89,7 +89,7 @@ attr(sfCensus2, "sourceURL")
 返り値は `sf` オブジェクトです。
 
 ```{r  echo=F, eval=T}
-sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011, data_dir = "~/Download/data.temp")
+sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011, data_dir = "~/Download/data.noindex")
 ```
 
 ```{r  echo=T, eval=F}
