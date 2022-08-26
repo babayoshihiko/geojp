@@ -104,8 +104,9 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
   if (!is.vector(city_name)) stop("Invalid argument: city_name. Please give one city name only.")
   if (length(city_name) > 1) stop("Invalid argument: city_name. Please give one city name only.")
   city_name = sub("市", "", city_name)
+  city_name_upper =toupper(city_name)
 
-  if (city_name == "札幌" || toupper(city_name) == "SAPPORO") {
+  if (city_name == "札幌" || city_name_upper == "SAPPORO") {
     sfCity = read_census_tract("01", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("01", "102", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("01", "103", year, data_dir))
@@ -116,13 +117,13 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("01", "108", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("01", "109", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("01", "110", year, data_dir))
-  } else if (city_name == "仙台" || toupper(city_name) == "SENDAI") {
+  } else if (city_name == "仙台" || city_name_upper == "SENDAI") {
     sfCity = read_census_tract("04", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("04", "102", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("04", "103", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("04", "104", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("04", "105", year, data_dir))
-  } else if (city_name == "さいたま" || city_name == "埼玉" || toupper(city_name) == "SAITAMA") {
+  } else if (city_name == "さいたま" || city_name == "埼玉" || city_name_upper == "SAITAMA") {
     if (year >= 2005){
     sfCity = read_census_tract("11", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("11", "102", year, data_dir))
@@ -139,7 +140,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
       sfCity = rbind(sfCity, read_census_tract("11", "205", year, data_dir))
       sfCity = rbind(sfCity, read_census_tract("11", "220", year, data_dir))
     }
-  } else if (city_name == "千葉" || toupper(city_name) == "CHIBA"  || toupper(city_name) == "TIBA") {
+  } else if (city_name == "千葉" || city_name_upper == "CHIBA"  || city_name_upper == "TIBA") {
     sfCity = read_census_tract("11", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("11", "102", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("11", "103", year, data_dir))
@@ -150,7 +151,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("11", "108", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("11", "109", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("11", "110", year, data_dir))
-  } else if (city_name == "東京" || city_name == "東京都" || city_name == "２３区" || toupper(city_name) == "TOKYO") {
+  } else if (city_name == "東京" || city_name == "東京都" || city_name == "２３区" || city_name_upper == "TOKYO") {
     sfCity = read_census_tract("13", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("13", "102", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("13", "103", year, data_dir))
@@ -174,7 +175,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("13", "121", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("13", "122", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("13", "123", year, data_dir))
-  } else if (city_name == "横浜" || toupper(city_name) == "YOKOHAMA") {
+  } else if (city_name == "横浜" || city_name_upper == "YOKOHAMA") {
     sfCity = read_census_tract("14", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("14", "102", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("14", "103", year, data_dir))
@@ -193,7 +194,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("14", "116", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("14", "117", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("14", "118", year, data_dir))
-  } else if (city_name == "川崎" || toupper(city_name) == "KAWASAKI") {
+  } else if (city_name == "川崎" || city_name_upper == "KAWASAKI") {
     sfCity = read_census_tract("14", "131", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("14", "132", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("14", "133", year, data_dir))
@@ -201,7 +202,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("14", "135", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("14", "136", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("14", "137", year, data_dir))
-  } else if (city_name == "相模原" || toupper(city_name) == "SAGAMIHARA") {
+  } else if (city_name == "相模原" || city_name_upper == "SAGAMIHARA") {
     if (year >= 2010){
       sfCity = read_census_tract("14", "151", year, data_dir)
       sfCity = rbind(sfCity, read_census_tract("14", "152", year, data_dir))
@@ -209,7 +210,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     } else {
       sfCity = read_census_tract("14", "209", year, data_dir)
     }
-  } else if (city_name == "新潟" || toupper(city_name) == "NIIGATA") {
+  } else if (city_name == "新潟" || city_name_upper == "NIIGATA") {
     if (year >= 2007){
       sfCity = read_census_tract("15", "101", year, data_dir)
       sfCity = rbind(sfCity, read_census_tract("15", "102", year, data_dir))
@@ -222,7 +223,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     } else {
       sfCity = read_census_tract("15", "201", year, data_dir)
     }
-  } else if (city_name == "静岡" || toupper(city_name) == "SHIZUOKA" || toupper(city_name) == "SIZUOKA") {
+  } else if (city_name == "静岡" || city_name_upper == "SHIZUOKA" || city_name_upper == "SIZUOKA") {
     if (year >= 2007){
       sfCity = read_census_tract("22", "101", year, data_dir)
       sfCity = rbind(sfCity, read_census_tract("22", "102", year, data_dir))
@@ -230,7 +231,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     } else {
       sfCity = read_census_tract("22", "201", year, data_dir)
     }
-  } else if (city_name == "浜松" || toupper(city_name) == "HAMAMATSU" || toupper(city_name) == "HAMAMATU") {
+  } else if (city_name == "浜松" || city_name_upper == "HAMAMATSU" || city_name_upper == "HAMAMATU") {
     if (year >= 2007){
       sfCity = read_census_tract("22", "131", year, data_dir)
       sfCity = rbind(sfCity, read_census_tract("22", "132", year, data_dir))
@@ -242,7 +243,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     } else {
       sfCity = read_census_tract("22", "202", year, data_dir)
     }
-  } else if (city_name == "名古屋" || toupper(city_name) == "NAGOYA") {
+  } else if (city_name == "名古屋" || city_name_upper == "NAGOYA") {
     sfCity = read_census_tract("23", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("23", "102", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("23", "103", year, data_dir))
@@ -259,7 +260,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("23", "114", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("23", "115", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("23", "116", year, data_dir))
-  } else if (city_name == "京都" || toupper(city_name) == "KYOTO") {
+  } else if (city_name == "京都" || city_name_upper == "KYOTO") {
     sfCity = read_census_tract("26", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("26", "102", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("26", "103", year, data_dir))
@@ -271,7 +272,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("26", "109", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("26", "110", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("26", "111", year, data_dir))
-  } else if (city_name == "大阪" || toupper(city_name) == "OSAKA") {
+  } else if (city_name == "大阪" || city_name_upper == "OSAKA") {
     sfCity = read_census_tract("27", "102", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("27", "103", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("27", "104", year, data_dir))
@@ -299,7 +300,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("27", "126", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("27", "127", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("27", "128", year, data_dir))
-  } else if (city_name == "堺" || toupper(city_name) == "SAKAI") {
+  } else if (city_name == "堺" || city_name_upper == "SAKAI") {
     if (year >= 2006){
       sfCity = read_census_tract("27", "141", year, data_dir)
       sfCity = rbind(sfCity, read_census_tract("27", "142", year, data_dir))
@@ -311,7 +312,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     } else {
       sfCity = read_census_tract("27", "201", year, data_dir)
     }
-  } else if (city_name == "神戸" || toupper(city_name) == "KOBE") {
+  } else if (city_name == "神戸" || city_name_upper == "KOBE") {
     sfCity = read_census_tract("28", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("28", "102", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("28", "105", year, data_dir))
@@ -321,7 +322,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("28", "109", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("28", "110", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("28", "111", year, data_dir))
-  } else if (city_name == "岡山" || toupper(city_name) == "OKAYAMA") {
+  } else if (city_name == "岡山" || city_name_upper == "OKAYAMA") {
     if (year >= 2010){
       sfCity = read_census_tract("33", "101", year, data_dir)
       sfCity = rbind(sfCity, read_census_tract("33", "102", year, data_dir))
@@ -330,7 +331,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     } else {
       sfCity = read_census_tract("33", "201", year, data_dir)
     }
-  } else if (city_name == "広島" || toupper(city_name) == "HIROSHIMA" || toupper(city_name) == "HIROSIMA") {
+  } else if (city_name == "広島" || city_name_upper == "HIROSHIMA" || city_name_upper == "HIROSIMA") {
     sfCity = read_census_tract("34", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("34", "102", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("34", "103", year, data_dir))
@@ -339,7 +340,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("34", "106", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("34", "107", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("34", "108", year, data_dir))
-  } else if (city_name == "福岡" || toupper(city_name) == "FUKUOKA") {
+  } else if (city_name == "福岡" || city_name_upper == "FUKUOKA") {
     sfCity = read_census_tract("40", "101", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("40", "102", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("40", "103", year, data_dir))
@@ -349,7 +350,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("40", "107", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("40", "108", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("40", "109", year, data_dir))
-  } else if (city_name == "北九州" || toupper(city_name) == "KITAKYUSHU") {
+  } else if (city_name == "北九州" || city_name_upper == "KITAKYUSHU" || city_name_upper == "KITAKYUSYU") {
     sfCity = read_census_tract("40", "131", year, data_dir)
     sfCity = rbind(sfCity, read_census_tract("40", "132", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("40", "133", year, data_dir))
@@ -357,7 +358,7 @@ read_census_odcity <- function(city_name, year = 2020, data_dir = NULL){
     sfCity = rbind(sfCity, read_census_tract("40", "135", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("40", "136", year, data_dir))
     sfCity = rbind(sfCity, read_census_tract("40", "137", year, data_dir))
-  } else if (city_name == "熊本" || toupper(city_name) == "KUMAMOTO") {
+  } else if (city_name == "熊本" || city_name_upper == "KUMAMOTO") {
     if (year >= 2012){
       sfCity = read_census_tract("43", "101", year, data_dir)
       sfCity = rbind(sfCity, read_census_tract("43", "102", year, data_dir))
