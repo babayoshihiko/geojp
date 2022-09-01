@@ -1,0 +1,100 @@
+---
+title: "geojp"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{geojp}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(tmap)
+library(mapview)
+```
+
+## パッケージのインストールと読み込み
+
+これは最初だけ必要です。ただし、まだ
+開発途中ですので、定期的に繰り返すと良いでしょう。
+
+```{r eval = FALSE}
+install.packages("devtools")
+devtools::install_github("babayoshihiko/geojp")
+```
+
+パッケージ **geojp** を読み込み (attach) ます。
+
+```{r setup}
+library(geojp)
+```
+
+## 国土数値情報
+
+国土数値情報の洪水浸水想定区域を読み込みましょう。都道府県コード (code_pref) と市町村コード (code_muni) を指定します。平成24（2012）年度、令和元（2019）年度がありますが、まで平成24年度版のみ対応しています
+
+国土数値情報については、[国土数値情報ダウンロードサービス](https://nlftp.mlit.go.jp/ksj/index.html) を参照。
+
+返り値は `sf` オブジェクトです。
+
+```{r}
+sfFlood <- geojp::read_landnuminfo_flood(code_pref = 4)
+```
+
+用途地域クラスを示す `A31_001` 列は、因子型(factor) になっています。`A31_001` 列は、５段階と７段階がありますが、自動的に判定します。５段階と７段階が混在しているときは、５段階に集約します。
+
+```{r}
+levels(sfFlood$A31_001)
+```
+
+追加の属性情報を設定しています。属性は、`attr()` 関数を使って取得します。特に重要な属性として、出典があります。出典は、以下のように取得することができます。
+
+```{r}
+attr(sfFlood, "sourceName")
+attr(sfFlood, "sourceURL")
+```
+
+属性 "col" は、色分けの際に使用する列名です。属性 "palette" は、色分け用のカラーパレットです。`A31_001` 列が５段階か７段階かにしたがって、パレットも５段階か７段階にします。
+
+```{r}
+attr(sfFlood, "palette")
+```
+
+## tmap
+
+パッケージ **tmap** を使って、用途地域を表示してみましょう。最後のフォント指定は、macOS のみ必要です。
+
+```{r}
+library(tmap)
+# Create a map.
+myTm <- tm_shape(sfFlood) +
+          tm_polygons(col = attr(sfFlood, "col"), palette = attr(sfFlood, "palette"), alpha = 0.8) 
+myTm <- myTm +
+      tm_scale_bar() +
+      tm_layout(title = "宮城県",
+                legend.outside = FALSE, 
+                fontfamily = "HiraginoSans-W3")
+```
+
+プロットを表示しましょう。
+
+```{r}
+myTm
+```
+
+保存する場合は、`tmap_save()` 関数を使います。
+
+```{r eval = FALSE}
+tmap_save(tm = myTm, filename = "map.png")
+```
+
+## mapview
+
+```{r}
+library(mapview)
+mapviewOptions(fgb = FALSE) # needed when creating web pages
+mapview(sfFlood[attr(sfFlood, "col")], col.regions = attr(sfFlood, "palette"), fgb = FALSE)
+```

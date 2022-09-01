@@ -17,11 +17,11 @@
 #' @export
 read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, filetype = "geojson", geometry = NULL, data_dir = NULL){
   strTempDir = tempdir()
-  #if (!is.null(data_dir)) {
-  #  if (dir.exists(data_dir)) {
-  #    strTempDir = data_dir
-  #  }
-  #}
+  if (!is.null(data_dir)) {
+    if (dir.exists(data_dir)) {
+      strTempDir = data_dir
+    }
+  }
 
   if (mode(code_pref) == "numeric"){
     if (code_pref < 0 || code_pref > 47) {
@@ -185,16 +185,35 @@ read_landnuminfo_locnorm <- function(code_pref, code_muni, year = 2020, data_dir
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 #'
 #' @export
-read_landnuminfo_flood <- function(code_pref, code_muni, year = 2012, data_dir = NULL){
+read_landnuminfo_flood <- function(code_pref, year = 2012, data_dir = NULL){
   year = check_year(year)
   if (year != 2012) stop(paste("The data is not available for year", year))
 
-  sfLNI = read_landnuminfo("A31", code_pref, code_muni, year, filetype = "shp", geometry = "POLYGON", data_dir = data_dir)
-  sfLNI$A31_001 <- factor(sfLNI$A31_001, levels=c(11,12,13,14,15), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～5.0ｍ未満","5.0ｍ以上"))
+  sfLNI = read_landnuminfo("A31", code_pref, code_muni = NULL, year, filetype = "shp", geometry = "POLYGON", data_dir = data_dir)
+  if (min(sfLNI$A31_001) >= 20) {
+    sfLNI$A31_001 <- factor(sfLNI$A31_001, levels=c(21,22,23,24,25,26,27), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～3.0ｍ未満","3.0～4.0ｍ未満","4.0～5.0ｍ未満","5.0ｍ以上"))
+    attr(sfLNI, "palette") = c("#EFF3FF","#C6DBEF","#9ECAE1","#6BAED6","#4292C6", "#2171B5","#084594") # RColorBrewer::brewer.pal(5, "Blues")
+  } else if (max(sfLNI$A31_001) >= 15) {
+    sfLNI$A31_001 <- factor(sfLNI$A31_001, levels=c(11,12,13,14,15), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～5.0ｍ未満","5.0ｍ以上"))
+    attr(sfLNI, "palette") = c("#EFF3FF","#BDD7E7","#6BAED6","#3182BD","#08519C") # RColorBrewer::brewer.pal(5, "Blues")
+  } else {
+    sfLNI[sfLNI$A31_001 == 21, "A31_001"] = 11
+    sfLNI[sfLNI$A31_001 == 22, "A31_001"] = 12
+    sfLNI[sfLNI$A31_001 == 23, "A31_001"] = 13
+    sfLNI[sfLNI$A31_001 == 24, "A31_001"] = 14
+    sfLNI[sfLNI$A31_001 == 25, "A31_001"] = 14
+    sfLNI[sfLNI$A31_001 == 26, "A31_001"] = 14
+    sfLNI[sfLNI$A31_001 == 27, "A31_001"] = 15
+    sfLNI$A31_001 <- factor(sfLNI$A31_001, levels=c(11,12,13,14,15), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～5.0ｍ未満","5.0ｍ以上"))
+    attr(sfLNI, "palette") = c("#EFF3FF","#BDD7E7","#6BAED6","#3182BD","#08519C") # RColorBrewer::brewer.pal(5, "Blues")
+  }
+
 
   attr(sfLNI, "mapname") = "洪水浸水想定区域"
   attr(sfLNI, "col") = "A31_001"
-  attr(sfLNI, "palette") = c("#EFF3FF","#BDD7E7","#6BAED6","#3182BD","#08519C") # RColorBrewer::brewer.pal(5, "Blues")
+  attr(sfLNI, "sourceName") = "「国土数値情報（洪水浸水想定区域データ）」（国土交通省）"
+  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A31.html"
+
   return(sfLNI)
 }
 
@@ -220,9 +239,9 @@ read_landnuminfo_welfare <- function(code_pref, code_muni, year = 2021, data_dir
   sfLNI$P14_005 <- factor(sfLNI$P14_005, levels=c("01","02","03","04","05","06","99"),
                           labels=c("保護施設","老人福祉施設","障害者支援施設等","身体障害者社会参加支援施設","児童福祉施設等","母子・父子福祉施設","その他の社会福祉施設等"))
 
-  attr(sfLNI, "mapname") = "洪水浸水想定区域"
-  attr(sfLNI, "sourceName") = "「国土数値情報（洪水浸水想定区域データ）」（国土交通省）"
-  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A31.html"
+  attr(sfLNI, "mapname") = "福祉施設"
+  attr(sfLNI, "sourceName") = "「国土数値情報（福祉施設データ）」（国土交通省）"
+  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P14-v2_1.html#!"
   attr(sfLNI, "col") = "P14_005"
   attr(sfLNI, "palette") = c("#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D") # RColorBrewer::brewer.pal(7, "Dark2")
   return(sfLNI)
