@@ -41,6 +41,11 @@ library(geojp)
 と市町村コード (code\_muni) を指定します。宮城県 (4) の大崎市 (215)
 の例です。
 
+``` r
+sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215)
+head(sfCensus)
+```
+
     #> Simple feature collection with 6 features and 5 fields
     #> Geometry type: POLYGON
     #> Dimension:     XY
@@ -56,15 +61,15 @@ library(geojp)
     #> 5 042150050  75934.     1390.   205   107 ((140.9574 38.57757, 140.9568 38.5778…
     #> 6 042150060 133863.     1574.   490   191 ((140.9548 38.57702, 140.9547 38.5771…
 
-``` r
-sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215)
-head(sfCensus)
-```
-
 国勢調査は、列数が多いので、重要なものだけ切り取ってあります。
 
 政令指定都市は、行政区単位になってしまいます。`read_census_odcity()`
 関数は、政令指定都市名を指定して全ての区を返します。
+
+``` r
+sfCensus2 <- geojp::read_census_odcity("京都市")
+head(sfCensus2)
+```
 
     #> Simple feature collection with 6 features and 5 fields
     #> Geometry type: POLYGON
@@ -80,11 +85,6 @@ head(sfCensus)
     #> 4 26101001004 289781.     2896.   867   407 ((135.7471 35.04318, 135.747 35.043…
     #> 5 26101001005  52556.     1120.   941   424 ((135.7477 35.04751, 135.7477 35.04…
     #> 6 26101001006  46270.     1051.   449   264 ((135.7473 35.05072, 135.7474 35.05…
-
-``` r
-sfCensus2 <- geojp::read_census_odcity("京都市")
-head(sfCensus2)
-```
 
 追加の属性情報を設定しています。属性は、`attr()`
 関数を使って取得します。特に重要な属性として、出典があります。出典は、以下のように取得することができます。
@@ -107,14 +107,15 @@ attr(sfCensus2, "sourceURL")
 
 返り値は `sf` オブジェクトです。
 
+``` r
+sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011)
+```
+
+    #> [1] "Downloaded the file and saved in https://nlftp.mlit.go.jp/ksj/gml/data/A29/A29-11/A29-11_26_GML.zip"
     #> Warning in utils::unzip(strLNIZip, files = SHPFiles, exdir = strTempDir): zip フ
     #> ァイル中には、要求されたファイルは存在しません
     #> Warning in st_collection_extract.sf(sfLNI, type = "POLYGON"): x is already of
     #> type POLYGON.
-
-``` r
-sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011)
-```
 
 用途地域クラスを示す `A29_004` と `A29_005` 列は、因子型(factor)
 になっています。
