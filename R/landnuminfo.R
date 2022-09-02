@@ -57,8 +57,10 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
                         paste(maptype, "-", year, "_", code_pref, "_GML.zip", sep = ""))
   strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/", maptype, "/", maptype, "-", year, "/", maptype, "-", year, "_", code_pref, "_GML.zip", sep = "")
 
-  if (!file.exists(strLNIZip)) utils::download.file(strLNIUrl, strLNIZip, mode="wb")
-
+  if (!file.exists(strLNIZip)) {
+    utils::download.file(strLNIUrl, strLNIZip, mode="wb")
+    print(paste("Downloaded the file and saved in", strLNIUrl))
+  }
 
   if (filetype == "geojson") {
     utils::unzip(strLNIZip, exdir = strTempDir)
