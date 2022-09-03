@@ -1,5 +1,5 @@
 ---
-title: "geojp"
+title: "Using Flood Data"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{geojp}
