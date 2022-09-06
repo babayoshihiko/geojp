@@ -2,7 +2,7 @@
 title: "Using Flood Data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{geojp}
+  %\VignetteIndexEntry{flood}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -32,7 +32,9 @@ devtools::install_github("babayoshihiko/geojp")
 library(geojp)
 ```
 
-## 国土数値情報
+# 国土数値情報
+
+## 洪水浸水想定区域
 
 国土数値情報の洪水浸水想定区域を読み込みましょう。都道府県コード (code_pref) と市町村コード (code_muni) を指定します。平成24（2012）年度、令和元（2019）年度がありますが、平成24年度版のみ対応しています
 
@@ -40,8 +42,12 @@ library(geojp)
 
 返り値は `sf` オブジェクトです。
 
-```{r}
+```{r, eval = FALSE, echo = TRUE}
 sfFlood <- geojp::read_landnuminfo_flood(code_pref = 4)
+```
+
+```{r, eval = TRUE, echo = FALSE}
+sfFlood <- geojp::read_landnuminfo_flood(code_pref = 4, data_dir = "/var/data.noindex")
 ```
 
 用途地域クラスを示す `A31_001` 列は、因子型(factor) になっています。`A31_001` 列は、５段階と７段階がありますが、自動的に判定します。５段階と７段階が混在しているときは、５段階に集約します。
@@ -57,15 +63,29 @@ attr(sfFlood, "sourceName")
 attr(sfFlood, "sourceURL")
 ```
 
-属性 "col" は、色分けの際に使用する列名です。属性 "palette" は、色分け用のカラーパレットです。`A31_001` 列が５段階か７段階かにしたがって、パレットも５段階か７段階にします。
+属性 "col" は、色分けの際に使用する列名です。属性 "palette" は、色分け用のカラーパレットです。`A31_001` 列が５段階か７段階かにしたがって、パレットも５段階または７段階にします。
 
 ```{r}
 attr(sfFlood, "palette")
 ```
 
+## 災害危険区域
+
+建築基準法第 39 条に基づき、地方公共団体（都道府県または市町村）は、津波、高潮、出水等による危険の著しい区域を災害危険区域として条例で指定しています。災害危険区域内では、原則として住宅の建設が禁止されています。
+
+本データは、地方公共団体より提供された災害危険区域の範囲または位置、種別、並びに名称等のデータを、製品仕様書に基づき、都道府県毎に整備したものです。
+
+```{r, eval = FALSE, echo = TRUE}
+sfHazard <- geojp::read_landnuminfo_hazard(code_pref = 4)
+```
+
+```{r, eval = TRUE, echo = FALSE}
+sfHazard <- read_landnuminfo_hazard(code_pref = 4, data_dir = "/var/data.noindex")
+```
+
 ## tmap
 
-パッケージ **tmap** を使って、用途地域を表示してみましょう。最後のフォント指定は、macOS のみ必要です。
+パッケージ **tmap** を使って、洪水浸水地域を表示してみましょう。最後のフォント指定は、macOS のみ必要です。
 
 ```{r}
 library(tmap)
@@ -98,3 +118,30 @@ library(mapview)
 mapviewOptions(fgb = FALSE) # needed when creating web pages
 mapview(sfFlood[attr(sfFlood, "col")], col.regions = attr(sfFlood, "palette"), fgb = FALSE)
 ```
+
+## 重ね合わせ
+
+洪水浸水想定区域と災害危険区域を重ね合わせてみます。災害危険区域の設定は小さく、また洪水浸水想定区域とはあまり整合性が取れていないようです。
+
+```{r}
+library(tmap)
+tmap_mode("view")
+# Create a map.
+myTm <- tm_shape(sfFlood) +
+          tm_polygons(col = attr(sfFlood, "col"), palette = attr(sfFlood, "palette"), alpha = 0.8) 
+myTm <- myTm +
+          tm_shape(sfHazard) +
+          tm_polygons(col = attr(sfHazard, "col"), palette = attr(sfHazard, "palette"), alpha = 0.8) 
+myTm <- myTm +
+      tm_scale_bar() +
+      tm_layout(title = "宮城県",
+                legend.outside = FALSE, 
+                fontfamily = "HiraginoSans-W3")
+myTm
+```
+
+
+
+
+
+

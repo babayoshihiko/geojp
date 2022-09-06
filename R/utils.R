@@ -87,6 +87,11 @@ find_geojson_file <- function(maptype, code_pref, code_muni, year, data_dir){
   }
   if (!file.exists(strLNIFile)) {
     strLNIFile = file.path(data_dir,
+                           paste(maptype, "-", year, "_", code_pref, "_GML", sep = ""),
+                           paste(maptype, "-", year, "_", code_pref, code_muni, ".geojson", sep = ""))
+  }
+  if (!file.exists(strLNIFile)) {
+    strLNIFile = file.path(data_dir,
                            paste(maptype, "-", year, "_", code_pref, ".geojson", sep = ""))
   }
   if (!file.exists(strLNIFile)) {

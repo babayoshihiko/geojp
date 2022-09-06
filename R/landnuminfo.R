@@ -63,7 +63,20 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
   }
 
   if (filetype == "geojson") {
-    utils::unzip(strLNIZip, exdir = strTempDir)
+    GEOJSONFILE = paste(maptype,"-",year,"_",code_pref,code_muni,".geojson",sep="")
+    utils::unzip(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
+    if (code_muni != "") {
+      GEOJSONFILE = paste(maptype,"-",year,"_",code_pref,".geojson",sep="")
+      utils::unzip(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
+    }
+    GEOJSONFILE = file.path(paste(maptype,"-",year,"_",code_pref,"_GML",sep=""),
+                                  GEOJSONFILE)
+    utils::unzip(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
+
+    strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir)
+    if (!file.exists(strLNIFile)){
+      utils::unzip(strLNIZip, exdir = strTempDir)
+    }
     strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir)
     sfLNI = sf::read_sf(strLNIFile)
   } else if (filetype == "shp") {
@@ -239,17 +252,57 @@ read_landnuminfo_welfare <- function(code_pref, code_muni, year = 2021, data_dir
   if (year != 2021 & year != 2015 & year != 2011) stop(paste("The data is not available for year", year))
 
   sfLNI = read_landnuminfo("P14", code_pref, code_muni, year, filetype = "geojson", geometry = "POINT", data_dir = data_dir)
-  sfLNI$P14_005 <- factor(sfLNI$P14_005, levels=c("01","02","03","04","05","06","99"),
+  sfLNI$P14_005_label <- factor(sfLNI$P14_005, levels=c("01","02","03","04","05","06","99"),
                           labels=c("保護施設","老人福祉施設","障害者支援施設等","身体障害者社会参加支援施設","児童福祉施設等","母子・父子福祉施設","その他の社会福祉施設等"))
 
   attr(sfLNI, "mapname") = "福祉施設"
   attr(sfLNI, "sourceName") = "「国土数値情報（福祉施設データ）」（国土交通省）"
-  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P14-v2_1.html#!"
-  attr(sfLNI, "col") = "P14_005"
+  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P14-v2_1.html"
+  attr(sfLNI, "col") = "P14_005_label"
   attr(sfLNI, "palette") = c("#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D") # RColorBrewer::brewer.pal(7, "Dark2")
   return(sfLNI)
 }
 
+#' Download spatial data of Hazard Areas of Japan
+#'
+#' @description
+#' Function to download spatial data of Hazard Areas of Japan. The returned value is an sf object.
+#'
+#' @param code_pref The 2-digit code of a prefecture.
+#' @param year Year of the data. Defaults to 2012.
+#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
+#'
+#'
+#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
+#'
+#' @export
+read_landnuminfo_hazard <- function(code_pref, year = 2021, data_dir = NULL){
+  year = check_year(year)
+  if (year != 2021 & year != 2020) stop(paste("The data is not available for year", year))
+
+  sfLNI = read_landnuminfo("A48", code_pref, NULL, year, filetype = "geojson", geometry = "POLYGON", data_dir = data_dir)
+  sfLNI$A48_007_label <- factor(sfLNI$A48_007, levels=c(1,2,3,4,5,6,7),
+                          labels=c("水害（河川）","水害（海）","水害（河川・海）","急傾斜地崩壊等","地すべり等","火山被害","その他"))
+
+  attr(sfLNI, "mapname") = "災害危険区域"
+  attr(sfLNI, "sourceName") = "「国土数値情報（災害危険区域データ）」（国土交通省）"
+  if (year == 2020) {
+    attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A48-v1_1.html"
+  } else {
+    attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A48-v1_2.html"
+  }
+  attr(sfLNI, "col") = "A48_007_label"
+  attr(sfLNI, "palette") = c("#16A085","#D1F2EB","#1F618D","#229954","#BA4A00","#E74C3C","#808B96")
+
+  return(sfLNI)
+}
+
+#' Print the list of available Land Numerical Information data.
+#'
+#' @description
+#' Print the list of available Land Numerical Information data.
+#'
+#' @export
 list_landnuminfo <- function(){
   dfTestedMap <- utils::read.table(text = "MapCode,Year,FileType,MapUnit,MuniColumn,Geometry,Desc,URL
 A29,2019,geojson,muni,A29_003,POLYGON,用途地域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html
