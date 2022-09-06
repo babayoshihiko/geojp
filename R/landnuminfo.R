@@ -163,12 +163,12 @@ read_landnuminfo_locnorm <- function(code_pref, code_muni, year = 2020, data_dir
   if (year != 2020) stop(paste("The data is not available for year", year))
 
   sfLNI = read_landnuminfo("A50", code_pref, code_muni, year, filetype = "geojson", geometry = "POLYGON", data_dir = data_dir)
-  sfLNI$A50_006 <- factor(sfLNI$A50_006, levels=c("1","2","3"), labels=c("立地適正化計画区域","居住誘導区域","都市機能誘導区域"))
+  sfLNI$A50_006_label <- factor(sfLNI$A50_006, levels=c("1","2","3"), labels=c("立地適正化計画区域","居住誘導区域","都市機能誘導区域"))
 
   attr(sfLNI, "mapname") = "立地適正化計画区域"
   attr(sfLNI, "sourceName") = "「国土数値情報（立地適正化計画区域データ）」（国土交通省）"
   attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A50-v1_0.html"
-  attr(sfLNI, "col") = "A50_006"
+  attr(sfLNI, "col") = "A50_006_label"
   attr(sfLNI, "palette") = c("#E2FFE3","#99CDFD","#F87E88")
   return(sfLNI)
 }
@@ -193,26 +193,27 @@ read_landnuminfo_flood <- function(code_pref, year = 2012, data_dir = NULL){
 
   sfLNI = read_landnuminfo("A31", code_pref, code_muni = NULL, year, filetype = "shp", geometry = "POLYGON", data_dir = data_dir)
   if (min(sfLNI$A31_001) >= 20) {
-    sfLNI$A31_001 <- factor(sfLNI$A31_001, levels=c(21,22,23,24,25,26,27), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～3.0ｍ未満","3.0～4.0ｍ未満","4.0～5.0ｍ未満","5.0ｍ以上"))
+    sfLNI$A31_001_label <- factor(sfLNI$A31_001, levels=c(21,22,23,24,25,26,27), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～3.0ｍ未満","3.0～4.0ｍ未満","4.0～5.0ｍ未満","5.0ｍ以上"))
     attr(sfLNI, "palette") = c("#EFF3FF","#C6DBEF","#9ECAE1","#6BAED6","#4292C6", "#2171B5","#084594") # RColorBrewer::brewer.pal(5, "Blues")
   } else if (max(sfLNI$A31_001) >= 15) {
-    sfLNI$A31_001 <- factor(sfLNI$A31_001, levels=c(11,12,13,14,15), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～5.0ｍ未満","5.0ｍ以上"))
+    sfLNI$A31_001_label <- factor(sfLNI$A31_001, levels=c(11,12,13,14,15), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～5.0ｍ未満","5.0ｍ以上"))
     attr(sfLNI, "palette") = c("#EFF3FF","#BDD7E7","#6BAED6","#3182BD","#08519C") # RColorBrewer::brewer.pal(5, "Blues")
   } else {
-    sfLNI[sfLNI$A31_001 == 21, "A31_001"] = 11
-    sfLNI[sfLNI$A31_001 == 22, "A31_001"] = 12
-    sfLNI[sfLNI$A31_001 == 23, "A31_001"] = 13
-    sfLNI[sfLNI$A31_001 == 24, "A31_001"] = 14
-    sfLNI[sfLNI$A31_001 == 25, "A31_001"] = 14
-    sfLNI[sfLNI$A31_001 == 26, "A31_001"] = 14
-    sfLNI[sfLNI$A31_001 == 27, "A31_001"] = 15
-    sfLNI$A31_001 <- factor(sfLNI$A31_001, levels=c(11,12,13,14,15), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～5.0ｍ未満","5.0ｍ以上"))
+    sfLNI$A31_001_label = 0
+    sfLNI[sfLNI$A31_001 == 21, "A31_001_label"] = 11
+    sfLNI[sfLNI$A31_001 == 22, "A31_001_label"] = 12
+    sfLNI[sfLNI$A31_001 == 23, "A31_001_label"] = 13
+    sfLNI[sfLNI$A31_001 == 24, "A31_001_label"] = 14
+    sfLNI[sfLNI$A31_001 == 25, "A31_001_label"] = 14
+    sfLNI[sfLNI$A31_001 == 26, "A31_001_label"] = 14
+    sfLNI[sfLNI$A31_001 == 27, "A31_001_label"] = 15
+    sfLNI$A31_001_label <- factor(sfLNI$A31_001_label, levels=c(11,12,13,14,15), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～5.0ｍ未満","5.0ｍ以上"))
     attr(sfLNI, "palette") = c("#EFF3FF","#BDD7E7","#6BAED6","#3182BD","#08519C") # RColorBrewer::brewer.pal(5, "Blues")
   }
 
 
   attr(sfLNI, "mapname") = "洪水浸水想定区域"
-  attr(sfLNI, "col") = "A31_001"
+  attr(sfLNI, "col") = "A31_001_label"
   attr(sfLNI, "sourceName") = "「国土数値情報（洪水浸水想定区域データ）」（国土交通省）"
   attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A31.html"
 
