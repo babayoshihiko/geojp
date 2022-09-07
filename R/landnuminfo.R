@@ -72,12 +72,11 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
     GEOJSONFILE = file.path(paste(maptype,"-",year,"_",code_pref,"_GML",sep=""),
                                   GEOJSONFILE)
     utils::unzip(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
-
     strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir)
     if (!file.exists(strLNIFile)){
       utils::unzip(strLNIZip, exdir = strTempDir)
+      strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir)
     }
-    strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir)
     sfLNI = sf::read_sf(strLNIFile)
   } else if (filetype == "shp") {
     # Avoid the unzip error due to Japanese filenames
@@ -93,7 +92,6 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
       utils::unzip(strLNIZip, exdir = strTempDir)
       strLNIFile = find_shp_file(maptype, code_pref, code_muni, year, strTempDir)
     }
-
     sfLNI = sf::read_sf(strLNIFile, options = "ENCODING=CP932", stringsAsFactors=FALSE)
     # Older data may not have *.prj. Set CRS manually.
     if (is.na(sf::st_crs(sfLNI))) {
@@ -102,8 +100,6 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
       } else {
         sf::st_crs(sfLNI) = 4612
       }
-    } else {
-      sfLNI = sf::st_transform(sfLNI, "EPSG:6668")
     }
   } else {
     stop(paste("Unknown filetype:", filetype))
@@ -141,20 +137,26 @@ read_landnuminfo_landuse <- function(code_pref, code_muni, year = 2019, data_dir
   year = check_year(year)
   if (year != 2019 & year != 2011) stop(paste("The data is not available for year", year))
 
-  if (year == 2019) sf = read_landnuminfo("A29", code_pref, code_muni, year, filetype = "geojson", geometry = "POLYGON", data_dir = data_dir)
-  if (year == 2011) {
-    sfLNI = read_landnuminfo("A29", code_pref, code_muni, year, filetype = "shp", geometry = "POLYGON", data_dir = data_dir)
-    sfLNI = sf::st_set_crs(sfLNI, 4612)
+  if (year == 2019) {
+    sf = read_landnuminfo("A29", code_pref, code_muni, year, filetype = "geojson", geometry = "POLYGON", data_dir = data_dir)
+  } else if (year == 2011) {
+    sfLNI = read_landnuminfo("A29", code_pref, NULL, year, filetype = "shp", geometry = "POLYGON", data_dir = data_dir)
   }
-  sfLNI$A29_004 <- factor(sfLNI$A29_004, levels=c(1,2,3,4,5,6,7,8,9,10,11,12,21,99))
-  sfLNI$A29_005 <- factor(sfLNI$A29_005, levels=c("第一種低層住居専用地域","第二種低層住居専用地域","第一種中高層住居専用地域","第二種中高層住居専用地域","第一種住居地域","第二種住居地域","準住居地域","近隣商業地域","商業地域","準工業地域","工業地域","工業専用地域","田園住居地域","不明"))
 
-  attr(sfLNI, "mapname") = "用途地域"
-  attr(sfLNI, "sourceName") = "「国土数値情報（用途地域データ）」（国土交通省）"
-  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html"
-  attr(sfLNI, "col") = "A29_005"
-  attr(sfLNI, "palette") = c("#00BEA9","#6AD5BD","#A8D666","#FAE294","#F4E268","#F8D79C","#FFB580","#F3A5B9","#EE534F","#B3A8CB","#8AD0E4","#2CB3DE","#F4B187","#FFFFFF")
+  if(exists("sfLNI")) {
+    sfLNI$A29_004 <- factor(sfLNI$A29_004, levels=c(1,2,3,4,5,6,7,8,9,10,11,12,21,99))
+    sfLNI$A29_005 <- factor(sfLNI$A29_005, levels=c("第一種低層住居専用地域","第二種低層住居専用地域","第一種中高層住居専用地域","第二種中高層住居専用地域","第一種住居地域","第二種住居地域","準住居地域","近隣商業地域","商業地域","準工業地域","工業地域","工業専用地域","田園住居地域","不明"))
+
+    attr(sfLNI, "mapname") = "用途地域"
+    attr(sfLNI, "sourceName") = "「国土数値情報（用途地域データ）」（国土交通省）"
+    attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html"
+    attr(sfLNI, "col") = "A29_005"
+    attr(sfLNI, "palette") = c("#00BEA9","#6AD5BD","#A8D666","#FAE294","#F4E268","#F8D79C","#FFB580","#F3A5B9","#EE534F","#B3A8CB","#8AD0E4","#2CB3DE","#F4B187","#FFFFFF")
+  } else {
+    sfLNI = NULL
+  }
   return(sfLNI)
+
 }
 
 #' Download spatial data of Location Normalization of Japan

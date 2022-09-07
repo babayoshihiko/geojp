@@ -111,6 +111,7 @@ find_geojson_file <- function(maptype, code_pref, code_muni, year, data_dir){
                            paste(maptype, "-", year, "_", code_pref, code_muni, ".geojson", sep = ""))
   }
   if (length(strLNIFile) != 1) stop(paste("Cannot find geosjon file in", data_dir))
+  print(paste("Found a geojson file:", strLNIFile))
 
   return(strLNIFile)
 }
@@ -174,6 +175,7 @@ find_shp_file <- function(maptype, code_pref, code_muni, year, data_dir){
                                     paste(maptype, "-", year, "_", code_pref, ".shp", sep = "")))
   }
   if (length(strLNIFile) != 1) stop(paste("Cannot find shp file in", data_dir))
+  print(paste("Found a shp file:", strLNIFile))
 
   return(strLNIFile)
 }
