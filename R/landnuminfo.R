@@ -138,7 +138,7 @@ read_landnuminfo_landuse <- function(code_pref, code_muni, year = 2019, data_dir
   if (year != 2019 & year != 2011) stop(paste("The data is not available for year", year))
 
   if (year == 2019) {
-    sf = read_landnuminfo("A29", code_pref, code_muni, year, filetype = "geojson", geometry = "POLYGON", data_dir = data_dir)
+    sfLNI = read_landnuminfo("A29", code_pref, code_muni, year, filetype = "geojson", geometry = "POLYGON", data_dir = data_dir)
   } else if (year == 2011) {
     sfLNI = read_landnuminfo("A29", code_pref, NULL, year, filetype = "shp", geometry = "POLYGON", data_dir = data_dir)
   }
