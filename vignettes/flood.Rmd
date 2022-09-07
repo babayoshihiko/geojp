@@ -80,7 +80,7 @@ sfHazard <- geojp::read_landnuminfo_hazard(code_pref = 4)
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-sfHazard <- read_landnuminfo_hazard(code_pref = 4, data_dir = "/var/data.noindex")
+sfHazard <- read_landnuminfo_hazard(code_pref = "04", code_muni = "100", year = 2020, data_dir = "/var/data.noindex")
 ```
 
 ## tmap

@@ -5,8 +5,8 @@
 #' (or kokudo suuchi joho in Japanese) of Japan.
 #'
 #' @param maptype The map type code (e.g. "A01").
-#' @param code_pref The 2-digit code of a prefecture.
-#' @param code_muni The 3-digit code of a municipality (city, town, or village).
+#' @param code_pref The 2-digit code of prefecture.
+#' @param code_muni The 3-digit code of municipality (city, town, or village).
 #' @param year Year of the data. Defaults to 2020.
 #' @param filetype either "geojson" or "shp".
 #' @param geometry "POINT", "LINESTRING", or "POLYGON"
@@ -128,8 +128,8 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
 #' attr "col" and "palette". The "col" is the factored column that indicate the land use classes
 #' and "palette" provides the colour palette based on Japan Industrial Standard.
 #'
-#' @param code_pref The 2-digit code of a prefecture.
-#' @param code_muni The 3-digit code of a municipality (city, town, or village).
+#' @param code_pref The 2-digit code of prefecture.
+#' @param code_muni The 3-digit code of municipality (city, town, or village).
 #' @param year Year of the data. Defaults to 2019.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
@@ -162,8 +162,8 @@ read_landnuminfo_landuse <- function(code_pref, code_muni, year = 2019, data_dir
 #' @description
 #' Function to download spatial data of Location Normalization. The returned value is an sf object.
 #'
-#' @param code_pref The 2-digit code of a prefecture.
-#' @param code_muni The 3-digit code of a municipality (city, town, or village).
+#' @param code_pref The 2-digit code of prefecture.
+#' @param code_muni The 3-digit code of municipality (city, town, or village).
 #' @param year Year of the data. Defaults to 2020.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
@@ -191,8 +191,8 @@ read_landnuminfo_locnorm <- function(code_pref, code_muni, year = 2020, data_dir
 #' @description
 #' Function to download spatial data of Flood Inundation Risk of Japan. The returned value is an sf object.
 #'
-#' @param code_pref The 2-digit code of a prefecture.
-#' @param code_muni The 3-digit code of a municipality (city, town, or village).
+#' @param code_pref The 2-digit code of prefecture.
+#' @param code_muni The 3-digit code of municipality (city, town, or village).
 #' @param year Year of the data. Defaults to 2012.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
@@ -238,8 +238,8 @@ read_landnuminfo_flood <- function(code_pref, year = 2012, data_dir = NULL){
 #' @description
 #' Function to download spatial data of Welfare Facilities of Japan. The returned value is an sf object.
 #'
-#' @param code_pref The 2-digit code of a prefecture.
-#' @param code_muni The 3-digit code of a municipality (city, town, or village).
+#' @param code_pref The 2-digit code of prefecture.
+#' @param code_muni The 3-digit code of municipality (city, town, or village).
 #' @param year Year of the data. Defaults to 2012.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
@@ -268,7 +268,8 @@ read_landnuminfo_welfare <- function(code_pref, code_muni, year = 2021, data_dir
 #' @description
 #' Function to download spatial data of Hazard Areas of Japan. The returned value is an sf object.
 #'
-#' @param code_pref The 2-digit code of a prefecture.
+#' @param code_pref The 2-digit code of prefecture.
+#' @param code_muni Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.
 #' @param year Year of the data. Defaults to 2012.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
@@ -276,11 +277,35 @@ read_landnuminfo_welfare <- function(code_pref, code_muni, year = 2021, data_dir
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 #'
 #' @export
-read_landnuminfo_hazard <- function(code_pref, year = 2021, data_dir = NULL){
+read_landnuminfo_hazard <- function(code_pref, code_muni = NULL, year = 2021, data_dir = NULL){
   year = check_year(year)
   if (year != 2021 & year != 2020) stop(paste("The data is not available for year", year))
 
+  # Hazard Area data is given by prefecture
   sfLNI = read_landnuminfo("A48", code_pref, NULL, year, filetype = "geojson", geometry = "POLYGON", data_dir = data_dir)
+
+  # if code_muni is specified, subtract the data
+  if(!is.null(code_muni)) {
+    if (mode(code_pref) == "numeric"){
+      if (code_pref < 0 || code_pref > 47) {
+        stop("Invalid argument: code_pref must be between 1 and 47.")
+      } else if (code_pref < 10) {
+        code_pref = paste("0", as.character(code_pref), sep = "")
+      } else {
+        code_pref = as.character(code_pref)
+      }
+    }
+    if (mode(code_muni) == "numeric"){
+      if (code_muni < 100 || code_muni > 700) {
+        stop("Invalid argument: code_muni must be between 100 and 700.")
+      } else {
+        code_muni = as.character(code_muni)
+      }
+    }
+    sfLNI2 = subset(sfLNI, A48_003 == paste(code_pref, code_muni, sep=""))
+    if (nrow(sfLNI2) > 0) sfLNI = sfLNI2
+  }
+
   sfLNI$A48_007_label <- factor(sfLNI$A48_007, levels=c(1,2,3,4,5,6,7),
                           labels=c("水害（河川）","水害（海）","水害（河川・海）","急傾斜地崩壊等","地すべり等","火山被害","その他"))
 
@@ -309,7 +334,9 @@ A29,2019,geojson,muni,A29_003,POLYGON,用途地域,https://nlftp.mlit.go.jp/ksj/
 A29,2011,shp,muni,A29_003,POLYGON,用途地域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html
 A50,2020,geojson,muni,A50_004,POLYGON,立地適正化計画区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A50-v1_0.html
 A31,2012,shp,pref,,POLYGON,洪水浸水想定区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A31.html
-P14,2021,geojson,pref,P14_003,POINT,福祉施設,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P14-v2_1.html",
+P14,2021,geojson,pref,P14_003,POINT,福祉施設,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P14-v2_1.html
+A48,2021,geojson,pref,A48_003,POLYGON,災害危険区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A48-v1_2.html
+A48,2020,geojson,pref,A48_003,POLYGON,災害危険区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A48-v1_1.html",
                                    header = TRUE, sep=",", colClasses = "character")
   print(dfTestedMap)
 }
