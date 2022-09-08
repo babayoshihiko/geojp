@@ -17,9 +17,9 @@ read_landnuminfo(
 \arguments{
 \item{maptype}{The map type code (e.g. "A01").}
 
-\item{code_pref}{The 2-digit code of a prefecture.}
+\item{code_pref}{The 2-digit code of prefecture.}
 
-\item{code_muni}{The 3-digit code of a municipality (city, town, or village).}
+\item{code_muni}{The 3-digit code of municipality (city, town, or village).}
 
 \item{year}{Year of the data. Defaults to 2020.}
 

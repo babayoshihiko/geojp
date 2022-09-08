@@ -7,9 +7,9 @@
 read_landnuminfo_landuse(code_pref, code_muni, year = 2019, data_dir = NULL)
 }
 \arguments{
-\item{code_pref}{The 2-digit code of a prefecture.}
+\item{code_pref}{The 2-digit code of prefecture.}
 
-\item{code_muni}{The 3-digit code of a municipality (city, town, or village).}
+\item{code_muni}{The 3-digit code of municipality (city, town, or village).}
 
 \item{year}{Year of the data. Defaults to 2019.}
 

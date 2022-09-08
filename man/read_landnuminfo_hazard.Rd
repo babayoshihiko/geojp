@@ -4,10 +4,17 @@
 \alias{read_landnuminfo_hazard}
 \title{Download spatial data of Hazard Areas of Japan}
 \usage{
-read_landnuminfo_hazard(code_pref, year = 2021, data_dir = NULL)
+read_landnuminfo_hazard(
+  code_pref,
+  code_muni = NULL,
+  year = 2021,
+  data_dir = NULL
+)
 }
 \arguments{
-\item{code_pref}{The 2-digit code of a prefecture.}
+\item{code_pref}{The 2-digit code of prefecture.}
+
+\item{code_muni}{Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.}
 
 \item{year}{Year of the data. Defaults to 2012.}
 

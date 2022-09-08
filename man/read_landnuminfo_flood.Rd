@@ -7,13 +7,13 @@
 read_landnuminfo_flood(code_pref, year = 2012, data_dir = NULL)
 }
 \arguments{
-\item{code_pref}{The 2-digit code of a prefecture.}
+\item{code_pref}{The 2-digit code of prefecture.}
 
 \item{year}{Year of the data. Defaults to 2012.}
 
 \item{data_dir}{The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.}
 
-\item{code_muni}{The 3-digit code of a municipality (city, town, or village).}
+\item{code_muni}{The 3-digit code of municipality (city, town, or village).}
 }
 \value{
 An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
