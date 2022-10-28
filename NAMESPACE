@@ -3,6 +3,7 @@
 export(check_year)
 export(epsg_Japan_Plane_Rectangular)
 export(find_geojson_file)
+export(get_tile_server)
 export(list_landnuminfo)
 export(read_census_odcity)
 export(read_census_tract)

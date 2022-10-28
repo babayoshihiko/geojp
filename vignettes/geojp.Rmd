@@ -132,11 +132,12 @@ tmap_save(tm = myTm, filename = "map.png")
 
 さらに、ベースマップとして国土地理院の標準地図をタイル形式で使うこともできます。
 
-https://maps.gsi.go.jp/development/ichiran.html
-
 ```{r}
 library(tmap)
 tmap_mode("view")
+
+base_map = geojp::get_tile_server()
+
 # Create a map.
 myTm <- tm_shape(sfCensus2) +
           tm_polygons("JINKO", alpha = 0.8) 
@@ -145,7 +146,7 @@ myTm <- myTm +
           tm_polygons(col = attr(sfYouto, "col"), palette = attr(sfYouto, "palette"), alpha = 0.8) + 
            tm_borders()
 myTm <- myTm +
-      tm_basemap(server = "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png")
+      tm_basemap(server = base_map$server)
 myTm <- myTm +
       tm_scale_bar() +
       tm_layout(title = "京都市",
@@ -153,6 +154,7 @@ myTm <- myTm +
                 fontfamily = "HiraginoSans-W3")
 myTm
 ```
+Source: `r base_map$reference`
 
 ## mapview
 
