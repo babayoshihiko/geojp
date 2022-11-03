@@ -145,7 +145,20 @@ read_landnuminfo_landuse <- function(code_pref, code_muni, year = 2019, data_dir
 
   if(exists("sfLNI")) {
     sfLNI$A29_004 <- factor(sfLNI$A29_004, levels=c(1,2,3,4,5,6,7,8,9,10,11,12,21,99))
-    sfLNI$A29_005 <- factor(sfLNI$A29_005, levels=c("第一種低層住居専用地域","第二種低層住居専用地域","第一種中高層住居専用地域","第二種中高層住居専用地域","第一種住居地域","第二種住居地域","準住居地域","近隣商業地域","商業地域","準工業地域","工業地域","工業専用地域","田園住居地域","不明"))
+    sfLNI$A29_005 <- factor(sfLNI$A29_005, levels=c("第一種低層住居専用地域",
+                                                    "第二種低層住居専用地域",
+                                                    "第一種中高層住居専用地域",
+                                                    "第二種中高層住居専用地域",
+                                                    "第一種住居地域",
+                                                    "第二種住居地域",
+                                                    "準住居地域",
+                                                    "近隣商業地域",
+                                                    "商業地域",
+                                                    "準工業地域",
+                                                    "工業地域",
+                                                    "工業専用地域",
+                                                    "田園住居地域",
+                                                    "不明"))
 
     attr(sfLNI, "mapname") = "用途地域"
     attr(sfLNI, "sourceName") = "「国土数値情報（用途地域データ）」（国土交通省）"
@@ -255,7 +268,13 @@ read_landnuminfo_welfare <- function(code_pref, code_muni, year = 2021, data_dir
 
   sfLNI = read_landnuminfo("P14", code_pref, code_muni, year, filetype = "geojson", geometry = "POINT", data_dir = data_dir)
   sfLNI$P14_005_label <- factor(sfLNI$P14_005, levels=c("01","02","03","04","05","06","99"),
-                          labels=c("保護施設","老人福祉施設","障害者支援施設等","身体障害者社会参加支援施設","児童福祉施設等","母子・父子福祉施設","その他の社会福祉施設等"))
+                          labels=c("保護施設",
+                                   "老人福祉施設",
+                                   "障害者支援施設等",
+                                   "身体障害者社会参加支援施設",
+                                   "児童福祉施設等",
+                                   "母子・父子福祉施設",
+                                   "その他の社会福祉施設等"))
 
   attr(sfLNI, "mapname") = "福祉施設"
   attr(sfLNI, "sourceName") = "「国土数値情報（福祉施設データ）」（国土交通省）"
@@ -309,7 +328,13 @@ read_landnuminfo_hazard <- function(code_pref, code_muni = NULL, year = 2021, da
   }
 
   sfLNI$A48_007_label <- factor(sfLNI$A48_007, levels=c(1,2,3,4,5,6,7),
-                          labels=c("水害（河川）","水害（海）","水害（河川・海）","急傾斜地崩壊等","地すべり等","火山被害","その他"))
+                          labels=c("水害（河川）",
+                                   "水害（海）",
+                                   "水害（河川・海）",
+                                   "急傾斜地崩壊等",
+                                   "地すべり等",
+                                   "火山被害",
+                                   "その他"))
 
   attr(sfLNI, "mapname") = "災害危険区域"
   attr(sfLNI, "sourceName") = "「国土数値情報（災害危険区域データ）」（国土交通省）"
@@ -320,6 +345,40 @@ read_landnuminfo_hazard <- function(code_pref, code_muni = NULL, year = 2021, da
   }
   attr(sfLNI, "col") = "A48_007_label"
   attr(sfLNI, "palette") = c("#16A085","#D1F2EB","#1F618D","#229954","#BA4A00","#E74C3C","#808B96")
+
+  return(sfLNI)
+}
+
+#' Download spatial data of Administrative Boundaries of Japan
+#'
+#' @description
+#' Function to download spatial data of Administrative Boundaries of Japan. The returned value is an sf object.
+#'
+#' @param code_pref The 2-digit code of prefecture.
+#' @param code_muni Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.
+#' @param year Year of the data. Defaults to 2012.
+#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
+#'
+#'
+#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
+#'
+#' @export
+read_landnuminfo_admin <- function(code_pref, code_muni = NULL, year = 2022, data_dir = NULL){
+  year = check_year(year)
+  if (year != 2022 & year != 2021) stop(paste("The data is not available for year", year))
+
+  # Administrative Boundaries data
+  sfLNI = read_landnuminfo("N05", code_pref, NULL, year, filetype = "geojson", geometry = "POLYGON", data_dir = data_dir)
+
+  attr(sfLNI, "mapname") = "\u884c\u653f\u533a\u57df"
+  attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
+  if (year == 2022) {
+    attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-v3_1.html"
+  } else if (year == 2021){
+    attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-v3_0.html"
+  }
+  attr(sfLNI, "col") = ""
+  attr(sfLNI, "palette") = ""
 
   return(sfLNI)
 }
