@@ -8,7 +8,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Imports:
     sf
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Suggests: 
     knitr,
     rmarkdown,

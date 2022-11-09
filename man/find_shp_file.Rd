@@ -4,7 +4,7 @@
 \alias{find_shp_file}
 \title{Find the target shp file}
 \usage{
-find_shp_file(maptype, code_pref, code_muni, year, data_dir)
+find_shp_file(maptype, code_pref, code_muni, year, data_dir, maptypeextra = "")
 }
 \arguments{
 \item{maptype}{landnuminfo maptype (eg "A01" and "P01").}
