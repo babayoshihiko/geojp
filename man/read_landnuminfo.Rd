@@ -11,7 +11,8 @@ read_landnuminfo(
   year = 2020,
   filetype = "geojson",
   geometry = NULL,
-  data_dir = NULL
+  data_dir = NULL,
+  maptypeextra = ""
 )
 }
 \arguments{

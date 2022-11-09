@@ -4,7 +4,14 @@
 \alias{find_geojson_file}
 \title{Find the target geojson file}
 \usage{
-find_geojson_file(maptype, code_pref, code_muni, year, data_dir)
+find_geojson_file(
+  maptype,
+  code_pref,
+  code_muni,
+  year,
+  data_dir,
+  maptypeextra = ""
+)
 }
 \arguments{
 \item{maptype}{landnuminfo maptype (eg "A01" and "P01").}

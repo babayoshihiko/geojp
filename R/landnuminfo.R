@@ -15,7 +15,11 @@
 #' @return An `"sf" "data.frame"` object
 #'
 #' @export
-read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, filetype = "geojson", geometry = NULL, data_dir = NULL){
+read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
+                             filetype = "geojson",
+                             geometry = NULL,
+                             data_dir = NULL,
+                             maptypeextra = ""){
   strTempDir = tempdir()
   if (!is.null(data_dir)) {
     if (dir.exists(data_dir)) {
@@ -41,13 +45,13 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
   }
   if (is.null(code_muni)) code_muni = ""
   if (mode(year) == "numeric"){
-    if (year > 2021 || year < 2000) {
-      stop("Invalid argument: year must between 2021 and 2000.")
+    if (year > 2022 || year < 2000) {
+      stop("Invalid argument: year must between 2022 and 2000.")
     }
     if (year < 2010) {
-      year = paste("0", as.character(year - 2000), sep = "")
+      year = paste("0", as.character(as.integer(year) - 2000), sep = "")
     } else {
-      year = as.character(year - 2000)
+      year = as.character(as.integer(year) - 2000)
     }
   }
   if (nchar(code_pref) != 2) stop(paste("Invalid argument: code_pref:", code_pref))
@@ -63,19 +67,19 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020, 
   }
 
   if (filetype == "geojson") {
-    GEOJSONFILE = paste(maptype,"-",year,"_",code_pref,code_muni,".geojson",sep="")
+    GEOJSONFILE = paste(maptype,"-",year,"_",code_pref,code_muni,maptypeextra,".geojson",sep="")
     utils::unzip(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
     if (code_muni != "") {
-      GEOJSONFILE = paste(maptype,"-",year,"_",code_pref,".geojson",sep="")
+      GEOJSONFILE = paste(maptype,"-",year,"_",code_pref,maptypeextra,".geojson",sep="")
       utils::unzip(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
     }
     GEOJSONFILE = file.path(paste(maptype,"-",year,"_",code_pref,"_GML",sep=""),
                                   GEOJSONFILE)
     utils::unzip(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
-    strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir)
+    strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir, maptypeextra)
     if (!file.exists(strLNIFile)){
       utils::unzip(strLNIZip, exdir = strTempDir)
-      strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir)
+      strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir, maptypeextra)
     }
     sfLNI = sf::read_sf(strLNIFile)
   } else if (filetype == "shp") {
@@ -222,14 +226,16 @@ read_landnuminfo_flood <- function(code_pref, year = 2012, data_dir = NULL){
     sfLNI[sfLNI$A31_001 == 25, "A31_001_label"] = 14
     sfLNI[sfLNI$A31_001 == 26, "A31_001_label"] = 14
     sfLNI[sfLNI$A31_001 == 27, "A31_001_label"] = 15
-    sfLNI$A31_001_label <- factor(sfLNI$A31_001_label, levels=c(11,12,13,14,15), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～5.0ｍ未満","5.0ｍ以上"))
+    sfLNI$A31_001_label <- factor(sfLNI$A31_001_label, levels=c(11,12,13,14,15),
+                                  labels=c("0\uff5e0.5\uff4d\u672a\u6e80","Show in New Window
+0\uff5e0.5\uff4d\u672a\u6e80","1.0\uff5e2.0\uff4d\u672a\u6e80","2.0\uff5e5.0\uff4d\u672a\u6e80","5.0\uff4d\u4ee5\u4e0a"))
     attr(sfLNI, "palette") = c("#EFF3FF","#BDD7E7","#6BAED6","#3182BD","#08519C") # RColorBrewer::brewer.pal(5, "Blues")
   }
 
 
-  attr(sfLNI, "mapname") = "洪水浸水想定区域"
+  attr(sfLNI, "mapname") = "\u6d2a\u6c34\u6d78\u6c34\u60f3\u5b9a\u533a\u57df"
   attr(sfLNI, "col") = "A31_001_label"
-  attr(sfLNI, "sourceName") = "「国土数値情報（洪水浸水想定区域データ）」（国土交通省）"
+  attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u6d2a\u6c34\u6d78\u6c34\u60f3\u5b9a\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
   attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A31.html"
 
   return(sfLNI)
@@ -249,7 +255,7 @@ read_landnuminfo_flood <- function(code_pref, year = 2012, data_dir = NULL){
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 #'
 #' @export
-read_landnuminfo_welfare <- function(code_pref, code_muni, year = 2021, data_dir = NULL){
+read_landnuminfo_welfare <- function(code_pref, code_muni = NULL, year = 2021, data_dir = NULL){
   year = check_year(year)
   if (year != 2021 & year != 2015 & year != 2011) stop(paste("The data is not available for year", year))
 
@@ -323,6 +329,172 @@ read_landnuminfo_hazard <- function(code_pref, code_muni = NULL, year = 2021, da
 
   return(sfLNI)
 }
+
+#' Download spatial data of rivers of Japan
+#'
+#' @description
+#' Function to download spatial data of rivers of Japan. The returned value is an sf object.
+#'
+#' @param code_pref The 2-digit code of prefecture.
+#' @param code_muni Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.
+#' @param year Year of the data. Defaults to 2007.
+#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
+#'
+#'
+#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
+#'
+#' @export
+read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, data_dir = NULL){
+  if (is.null(year)) {
+    num_code_pref = as.integer(code_pref)
+    if (num_code_pref == 1
+              || num_code_pref == 25
+              || num_code_pref == 26
+              || num_code_pref == 27
+              || num_code_pref == 28
+              || num_code_pref == 29
+              || num_code_pref == 30) {
+      year = 2009
+    } else if (num_code_pref == 8
+               || num_code_pref == 9
+               || num_code_pref == 10
+               || num_code_pref == 11
+               || num_code_pref == 12
+               || num_code_pref == 13
+               || num_code_pref == 14
+               || num_code_pref == 19
+               || num_code_pref == 20
+               || num_code_pref == 21
+               || num_code_pref == 22
+               || num_code_pref == 23
+               || num_code_pref == 24
+               || num_code_pref == 31
+               || num_code_pref == 32
+               || num_code_pref == 33
+               || num_code_pref == 34
+               || num_code_pref == 35
+               || num_code_pref == 40
+               || num_code_pref == 41
+               || num_code_pref == 42
+               || num_code_pref == 43
+               || num_code_pref == 44
+               || num_code_pref == 45
+               || num_code_pref == 46
+               || num_code_pref == 47
+               || num_code_pref == 48
+    ) {
+      year = 2008
+    } else if (num_code_pref == 2
+               || num_code_pref == 3
+               || num_code_pref == 4
+               || num_code_pref == 5
+               || num_code_pref == 6
+               || num_code_pref == 7
+               || num_code_pref == 15
+               || num_code_pref == 16
+               || num_code_pref == 17
+               || num_code_pref == 18) {
+      year = 2007
+    } else if (num_code_pref == 36
+               || num_code_pref == 37
+               || num_code_pref == 38
+               || num_code_pref == 39) {
+      year = 2006
+    } else {
+      print("Invalid pref_code.")
+    }
+  }
+  year = check_year(year)
+  if (year < 2006 || year > 2009) stop(paste("The data is not available for year", year))
+
+  # Hazard Area data is given by prefecture
+  sfLNI = read_landnuminfo("W05", code_pref, NULL, year, filetype = "shp", geometry = "LINESTRING",
+                           data_dir = data_dir,
+                           maptypeextra = "-g_Stream")
+
+  # if code_muni is specified, subtract the data
+  if(!is.null(code_muni)) {
+    if (mode(code_pref) == "numeric"){
+      if (code_pref < 0 || code_pref > 47) {
+        stop("Invalid argument: code_pref must be between 1 and 47.")
+      } else if (code_pref < 10) {
+        code_pref = paste("0", as.character(code_pref), sep = "")
+      } else {
+        code_pref = as.character(code_pref)
+      }
+    }
+    if (mode(code_muni) == "numeric"){
+      if (code_muni < 100 || code_muni > 700) {
+        stop("Invalid argument: code_muni must be between 100 and 700.")
+      } else {
+        code_muni = as.character(code_muni)
+      }
+    }
+    sfLNI2 = subset(sfLNI, A48_003 == paste(code_pref, code_muni, sep=""))
+    if (nrow(sfLNI2) > 0) sfLNI = sfLNI2
+  }
+
+  attr(sfLNI, "mapname") = "\u6cb3\u5ddd"
+  attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u6cb3\u5ddd\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
+  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-W05.html"
+  attr(sfLNI, "col") = "W05_002"
+  #attr(sfLNI, "palette") = c("#16A085","#D1F2EB","#1F618D","#229954","#BA4A00","#E74C3C","#808B96")
+
+  return(sfLNI)
+}
+
+#' Download spatial data of Official Land Price of Japan
+#'
+#' @description
+#' Function to download spatial data of Official Land Price of Japan. The returned value is an sf object.
+#'
+#' @param code_pref The 2-digit code of prefecture.
+#' @param code_muni Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.
+#' @param year Year of the data. Defaults to 2012.
+#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
+#'
+#'
+#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
+#'
+#' @export
+read_landnuminfo_officiallandprice <- function(code_pref, code_muni = NULL, year = 2021, data_dir = NULL){
+  year = check_year(year)
+  #if (year != 2021 & year != 2020) stop(paste("The data is not available for year", year))
+
+  # Hazard Area data is given by prefecture
+  sfLNI = read_landnuminfo("L01", code_pref, NULL, year, filetype = "geojson", geometry = "POINT", data_dir = data_dir)
+
+  # if code_muni is specified, subtract the data
+  if(!is.null(code_muni)) {
+    if (mode(code_pref) == "numeric"){
+      if (code_pref < 0 || code_pref > 47) {
+        stop("Invalid argument: code_pref must be between 1 and 47.")
+      } else if (code_pref < 10) {
+        code_pref = paste("0", as.character(code_pref), sep = "")
+      } else {
+        code_pref = as.character(code_pref)
+      }
+    }
+    if (mode(code_muni) == "numeric"){
+      if (code_muni < 100 || code_muni > 700) {
+        stop("Invalid argument: code_muni must be between 100 and 700.")
+      } else {
+        code_muni = as.character(code_muni)
+      }
+    }
+    sfLNI2 = subset(sfLNI, L01_021 == paste(code_pref, code_muni, sep=""))
+    if (nrow(sfLNI2) > 0) sfLNI = sfLNI2
+  }
+
+  attr(sfLNI, "mapname") = "地価公示"
+  attr(sfLNI, "sourceName") = "「国土数値情報（地価公示データ）」（国土交通省）"
+  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L01-v3_1.html"
+  attr(sfLNI, "col") = "A48_007_label"
+  attr(sfLNI, "palette") = c("#16A085","#D1F2EB","#1F618D","#229954","#BA4A00","#E74C3C","#808B96")
+
+  return(sfLNI)
+}
+
 
 #' Print the list of available Land Numerical Information data.
 #'
