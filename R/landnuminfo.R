@@ -85,16 +85,16 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
   } else if (filetype == "shp") {
     # Avoid the unzip error due to Japanese filenames
     # This error happens with maptype = "A31", code_pref = 4, code_muni = 215
-    SHPFiles = c( paste(maptype,"-",year,"_",code_pref,".shp",sep=""),
-                  paste(maptype,"-",year,"_",code_pref,".shx",sep=""),
-                  paste(maptype,"-",year,"_",code_pref,".dbf",sep=""),
-                  paste(maptype,"-",year,"_",code_pref,".prj",sep=""))
+    SHPFiles = c( paste(maptype,"-",year,"_",code_pref,maptypeextra,".shp",sep=""),
+                  paste(maptype,"-",year,"_",code_pref,maptypeextra,".shx",sep=""),
+                  paste(maptype,"-",year,"_",code_pref,maptypeextra,".dbf",sep=""),
+                  paste(maptype,"-",year,"_",code_pref,maptypeextra,".prj",sep=""))
     utils::unzip(strLNIZip, files = SHPFiles, exdir = strTempDir)
     strLNIFile = file.path(strTempDir,
-                           paste(maptype, "-", year,"_", code_pref,".shp",sep=""))
+                           paste(maptype, "-", year,"_", code_pref,maptypeextra,".shp",sep=""))
     if (!file.exists(strLNIFile)){
       utils::unzip(strLNIZip, exdir = strTempDir)
-      strLNIFile = find_shp_file(maptype, code_pref, code_muni, year, strTempDir)
+      strLNIFile = find_shp_file(maptype, code_pref, code_muni, year, strTempDir, maptypeextra)
     }
     sfLNI = sf::read_sf(strLNIFile, options = "ENCODING=CP932", stringsAsFactors=FALSE)
     # Older data may not have *.prj. Set CRS manually.

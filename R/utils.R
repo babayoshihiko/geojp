@@ -75,40 +75,45 @@ check_year <- function(x) {
 #'
 #' @export
 find_geojson_file <- function(maptype, code_pref, code_muni, year, data_dir, maptypeextra = ""){
+  strTypicalFolderName = paste(maptype, "-", year, "_", code_pref, sep = "")
   strLNIFile = file.path(data_dir,
-                         paste(maptype, "-", year, "_", code_pref, "_GML", sep = ""),
-                         paste(code_pref, "_GeoJSON", sep = ""),
-                         paste(maptype, "-", year, "_", code_pref, code_muni, maptypeextra, ".geojson", sep = ""))
+    paste(strTypicalFolderName, "_GML", sep = ""),
+    paste(code_pref, "_GeoJSON", sep = ""),
+    paste(strTypicalFolderName, code_muni, maptypeextra, ".geojson", sep = ""))
   if (!file.exists(strLNIFile)) {
     strLNIFile = file.path(data_dir,
-                           paste(maptype, "-", year, "_", code_pref, sep = ""),
-                           paste(code_pref, "_GeoJSON", sep = ""),
-                           paste(maptype, "-", year, "_", code_pref, code_muni, maptypeextra, ".geojson", sep = ""))
+      paste(strTypicalFolderName, sep = ""),
+      paste(code_pref, "_GeoJSON", sep = ""),
+      paste(strTypicalFolderName, code_muni, maptypeextra, ".geojson", sep = ""))
   }
   if (!file.exists(strLNIFile)) {
     strLNIFile = file.path(data_dir,
-                           paste(maptype, "-", year, "_", code_pref, "_GML", sep = ""),
-                           paste(maptype, "-", year, "_", code_pref, code_muni, maptypeextra, ".geojson", sep = ""))
+      paste(strTypicalFolderName, "_GML", sep = ""),
+      paste(strTypicalFolderName, code_muni, maptypeextra, ".geojson", sep = ""))
   }
   if (!file.exists(strLNIFile)) {
     strLNIFile = file.path(data_dir,
-                           paste(maptype, "-", year, "_", code_pref, maptypeextra, ".geojson", sep = ""))
+      paste(strTypicalFolderName, maptypeextra, ".geojson", sep = ""))
   }
   if (!file.exists(strLNIFile)) {
     strLNIFile = Sys.glob(file.path(data_dir,
-                                    paste(maptype, "-", year, "_", code_pref, "*", sep = ""),
-                                    "*",
-                                    paste(maptype, "-", year, "_", code_pref, code_muni, maptypeextra, ".geojson", sep = "")))
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".geojson", sep = "")))
   }
   if (length(strLNIFile) != 1) {
     strLNIFile = Sys.glob(file.path(data_dir,
-                                    paste(maptype, "-", year, "_", code_pref, "*", sep = ""),
-                                    "*", "*",
-                                    paste(maptype, "-", year, "_", code_pref, code_muni, maptypeextra, ".geojson", sep = "")))
+      paste(strTypicalFolderName, "*", sep = ""),
+      "*",
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".geojson", sep = "")))
+  }
+  if (length(strLNIFile) != 1) {
+    strLNIFile = Sys.glob(file.path(data_dir,
+      paste(strTypicalFolderName, "*", sep = ""),
+      "*", "*",
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".geojson", sep = "")))
   }
   if (length(strLNIFile) != 1) {
     strLNIFile = file.path(data_dir,
-                           paste(maptype, "-", year, "_", code_pref, code_muni, maptypeextra, ".geojson", sep = ""))
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".geojson", sep = ""))
   }
   if (length(strLNIFile) != 1) stop(paste("Cannot find geosjon file in", data_dir))
   print(paste("Found a geojson file:", strLNIFile))
@@ -130,49 +135,54 @@ find_geojson_file <- function(maptype, code_pref, code_muni, year, data_dir, map
 #'
 #' @return the target filepath
 find_shp_file <- function(maptype, code_pref, code_muni, year, data_dir, maptypeextra = ""){
+  strTypicalFolderName = paste(maptype, "-", year, "_", code_pref, sep = "")
   strLNIFile = file.path(data_dir,
-                         paste(maptype, "-", year, "_", code_pref, code_muni, maptypeextra, ".shp", sep = ""))
+    paste(strTypicalFolderName, code_muni, maptypeextra, ".shp", sep = ""))
   if (!file.exists(strLNIFile)) {
     strLNIFile = file.path(data_dir,
-                           paste(maptype, "-", year, "_", code_pref, maptypeextra, ".shp", sep = ""))
-  }
-  if (!file.exists(strLNIFile)) {
-    strLNIFile = file.path(data_dir,
-                           paste(maptype, "-", year, "_", code_pref, "_GML", sep = ""),
-                           paste(maptype, "-", year, "_", code_pref, maptypeextra, code_muni, ".shp", sep = ""))
+      paste(strTypicalFolderName, maptypeextra, ".shp", sep = ""))
   }
   if (!file.exists(strLNIFile)) {
     strLNIFile = file.path(data_dir,
-                           paste(maptype, "-", year, "_", code_pref, sep = ""),
-                           paste(maptype, "-", year, "_", code_pref, code_muni, maptypeextra, ".shp", sep = ""))
+      paste(strTypicalFolderName, "_GML", sep = ""),
+      paste(strTypicalFolderName, maptypeextra, code_muni, ".shp", sep = ""))
+  }
+  if (!file.exists(strLNIFile)) {
+    strLNIFile = file.path(data_dir,
+      paste(strTypicalFolderName, sep = ""),
+      paste(strTypicalFolderName, code_muni, maptypeextra, ".shp", sep = ""))
   }
   if (!file.exists(strLNIFile)) {
     strLNIFile = Sys.glob(file.path(data_dir,
-                                    paste(maptype, "-", year, "_", code_pref, "*", sep = ""),
-                                    "*",
-                                    paste(maptype, "-", year, "_", code_pref, code_muni, maptypeextra, ".shp", sep = "")))
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".shp", sep = "")))
   }
   if (length(strLNIFile) != 1) {
     strLNIFile = Sys.glob(file.path(data_dir,
-                                    paste(maptype, "-", year, "_", code_pref, "*", sep = ""),
-                                    "*", "*",
-                                    paste(maptype, "-", year, "_", code_pref, code_muni, maptypeextra, ".shp", sep = "")))
+      paste(strTypicalFolderName, "*", sep = ""),
+      "*",
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".shp", sep = "")))
   }
   if (length(strLNIFile) != 1) {
     strLNIFile = Sys.glob(file.path(data_dir,
-                                    "*",
-                                    paste(maptype, "-", year, "_", code_pref, code_muni, maptypeextra, ".shp", sep = "")))
+      paste(strTypicalFolderName, "*", sep = ""),
+      "*", "*",
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".shp", sep = "")))
   }
   if (length(strLNIFile) != 1) {
     strLNIFile = Sys.glob(file.path(data_dir,
-                                    paste(maptype, "-", year, "_", code_pref, "*", sep = ""),
-                                    "*", "*",
-                                    paste(maptype, "-", year, "_", code_pref, maptypeextra, ".shp", sep = "")))
+      "*",
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".shp", sep = "")))
   }
   if (length(strLNIFile) != 1) {
     strLNIFile = Sys.glob(file.path(data_dir,
-                                    "*",
-                                    paste(maptype, "-", year, "_", code_pref, maptypeextra, ".shp", sep = "")))
+      paste(strTypicalFolderName, "*", sep = ""),
+      "*", "*",
+      paste(strTypicalFolderName, maptypeextra, ".shp", sep = "")))
+  }
+  if (length(strLNIFile) != 1) {
+    strLNIFile = Sys.glob(file.path(data_dir,
+      "*",
+      paste(strTypicalFolderName, maptypeextra, ".shp", sep = "")))
   }
   if (length(strLNIFile) != 1) stop(paste("Cannot find shp file in", data_dir))
   print(paste("Found a shp file:", strLNIFile))
