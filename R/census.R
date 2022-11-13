@@ -78,8 +78,9 @@ read_census_tract <- function(code_pref, code_muni, year = 2020, data_dir = NULL
   # sfCensus = sf::st_transform(sfCensus, "EPSG:6668")
   sfCensus = sf::st_make_valid(sfCensus)
 
-  attr(sfCensus, "mapname") = "国勢調査"
-  attr(sfCensus, "sourceName") = "「政府統計の総合窓口(e-Stat)」"
+  attr(sfLNI, "year") = year
+  attr(sfCensus, "mapname") = "\u56fd\u52e2\u8abf\u67fb"
+  attr(sfCensus, "sourceName") = "\u300c\u653f\u5e9c\u7d71\u8a08\u306e\u7dcf\u5408\u7a93\u53e3(e-Stat)\u300d"
   attr(sfCensus, "sourceURL") = "https://www.e-stat.go.jp/gis/"
 
   return(sfCensus)

@@ -8,7 +8,7 @@
 #' @description
 #' Function to check and validate year
 #'
-#' @param x year in Gregorian or Japanese calendar (eg "R2" and "平成元年度")
+#' @param x year in Gregorian or Japanese calendar (eg "R2" and "\u5e73\u6210\u5143\u5e74\u5ea6")
 #'
 #' @return year in Gregorian calendar
 #'
@@ -18,11 +18,13 @@ check_year <- function(x) {
   if (mode(x) == "numeric") {
     intYear = x
   } else if (mode(x) == "character") {
-    x = sub("年", "", x)
-    x = sub("度", "", x)
-    x = sub("元", "1", x)
-    x = sub("令和", "R", x)
-    x = sub("平成", "H", x)
+    x = sub("\u5e74", "", x)
+    x = sub("\u5ea6", "", x)
+    x = sub("\u5143", "1", x)
+    x = sub("\u4ee4\u548c", "R", x)
+    x = sub("\u5e73\u6210", "H", x)
+    x = sub("\u662d\u548c", "S", x)
+    x = sub("\u5927\u6b63", "T", x)
     if (x == "R4") intYear = 2022
     if (x == "R3") intYear = 2021
     if (x == "R2") intYear = 2020
@@ -51,8 +53,28 @@ check_year <- function(x) {
     if (x == "H09" || x == "H9") intYear = 1997
     if (x == "H08" || x == "H8") intYear = 1996
     if (x == "H07" || x == "H7") intYear = 1995
-    }
-  if (intYear < 1995 || 2022 < intYear) {
+    if (x == "H06" || x == "H6") intYear = 1994
+    if (x == "H05" || x == "H5") intYear = 1993
+    if (x == "H04" || x == "H4") intYear = 1992
+    if (x == "H03" || x == "H3") intYear = 1991
+    if (x == "H02" || x == "H2") intYear = 1990
+    if (x == "H01" || x == "H1" || x == "S64") intYear = 1989
+    if (x == "S63") intYear = 1988
+    if (x == "S62") intYear = 1987
+    if (x == "S6`") intYear = 1986
+    if (x == "S60") intYear = 1985
+    if (x == "S59") intYear = 1984
+    if (x == "S58") intYear = 1983
+    if (x == "S55") intYear = 1980
+    if (x == "S50") intYear = 1975
+    if (x == "S45") intYear = 1970
+    if (x == "S40") intYear = 1965
+    if (x == "S35") intYear = 1960
+    if (x == "S30") intYear = 1955
+    if (x == "S25") intYear = 1950
+    if (x == "T9" || x == "T09") intYear = 1920
+  }
+  if (intYear < 1983 || 2022 < intYear) {
     stop("Invalid year.")
   }
 
@@ -69,7 +91,7 @@ check_year <- function(x) {
 #' @param code_muni The 3-digit code of a municipality (city, town, or village).
 #' @param year Year of the data. Defaults to 2012.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
-#'
+#' @param maptypeextra File name suffix.
 #'
 #' @return the target filepath
 #'
@@ -97,23 +119,23 @@ find_geojson_file <- function(maptype, code_pref, code_muni, year, data_dir, map
   }
   if (!file.exists(strLNIFile)) {
     strLNIFile = Sys.glob(file.path(data_dir,
-      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".geojson", sep = "")))
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, "*.geojson", sep = "")))
   }
   if (length(strLNIFile) != 1) {
     strLNIFile = Sys.glob(file.path(data_dir,
       paste(strTypicalFolderName, "*", sep = ""),
       "*",
-      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".geojson", sep = "")))
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, "*.geojson", sep = "")))
   }
   if (length(strLNIFile) != 1) {
     strLNIFile = Sys.glob(file.path(data_dir,
       paste(strTypicalFolderName, "*", sep = ""),
       "*", "*",
-      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".geojson", sep = "")))
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, "*.geojson", sep = "")))
   }
   if (length(strLNIFile) != 1) {
     strLNIFile = file.path(data_dir,
-      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".geojson", sep = ""))
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, "*.geojson", sep = ""))
   }
   if (length(strLNIFile) != 1) stop(paste("Cannot find geosjon file in", data_dir))
   print(paste("Found a geojson file:", strLNIFile))
@@ -131,7 +153,7 @@ find_geojson_file <- function(maptype, code_pref, code_muni, year, data_dir, map
 #' @param code_muni The 3-digit code of a municipality (city, town, or village).
 #' @param year Year of the data. Defaults to 2012.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
-#'
+#' @param maptypeextra File name suffix.
 #'
 #' @return the target filepath
 find_shp_file <- function(maptype, code_pref, code_muni, year, data_dir, maptypeextra = ""){
@@ -154,35 +176,35 @@ find_shp_file <- function(maptype, code_pref, code_muni, year, data_dir, maptype
   }
   if (!file.exists(strLNIFile)) {
     strLNIFile = Sys.glob(file.path(data_dir,
-      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".shp", sep = "")))
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, "*.shp", sep = "")))
   }
   if (length(strLNIFile) != 1) {
     strLNIFile = Sys.glob(file.path(data_dir,
       paste(strTypicalFolderName, "*", sep = ""),
       "*",
-      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".shp", sep = "")))
-  }
-  if (length(strLNIFile) != 1) {
-    strLNIFile = Sys.glob(file.path(data_dir,
-      paste(strTypicalFolderName, "*", sep = ""),
-      "*", "*",
-      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".shp", sep = "")))
-  }
-  if (length(strLNIFile) != 1) {
-    strLNIFile = Sys.glob(file.path(data_dir,
-      "*",
-      paste("*", strTypicalFolderName, code_muni, maptypeextra, ".shp", sep = "")))
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, "*.shp", sep = "")))
   }
   if (length(strLNIFile) != 1) {
     strLNIFile = Sys.glob(file.path(data_dir,
       paste(strTypicalFolderName, "*", sep = ""),
       "*", "*",
-      paste(strTypicalFolderName, maptypeextra, ".shp", sep = "")))
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, "*.shp", sep = "")))
   }
   if (length(strLNIFile) != 1) {
     strLNIFile = Sys.glob(file.path(data_dir,
       "*",
-      paste(strTypicalFolderName, maptypeextra, ".shp", sep = "")))
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, "*.shp", sep = "")))
+  }
+  if (length(strLNIFile) != 1) {
+    strLNIFile = Sys.glob(file.path(data_dir,
+      paste(strTypicalFolderName, "*", sep = ""),
+      "*", "*",
+      paste(strTypicalFolderName, maptypeextra, "*.shp", sep = "")))
+  }
+  if (length(strLNIFile) != 1) {
+    strLNIFile = Sys.glob(file.path(data_dir,
+      "*",
+      paste(strTypicalFolderName, maptypeextra, "*.shp", sep = "")))
   }
   if (length(strLNIFile) != 1) stop(paste("Cannot find shp file in", data_dir))
   print(paste("Found a shp file:", strLNIFile))
@@ -202,7 +224,7 @@ find_shp_file <- function(maptype, code_pref, code_muni, year, data_dir, maptype
 #' @return an EPSG code
 #'
 #' @export
-epsg_Japan_Plane_Rectangular <- function(code_pref, code_muni = NULL, crs_type = "JGD2000") {
+epsg_Japan_Plane_Rectangular <- function(code_pref, code_muni = NULL, crs_type = "JGD2011") {
 
   epsg = 0
   crs_type = toupper(crs_type)
@@ -211,34 +233,34 @@ epsg_Japan_Plane_Rectangular <- function(code_pref, code_muni = NULL, crs_type =
   if (!is.numeric(code_pref)) stop("Can accept only one integer between 1 and 47.")
   if(length(code_pref) != 1) stop("Cannot accept list/vector.")
   if (code_pref == 1){
-    #
+    # Hokkaido Island
     if (crs_type != "CENSUS" & is.null(code_muni)) stop("Error: Hokkaido requires code_muni.")
 
     if (crs_type == "CENSUS") {
       epsg = 2454
     } else if (code_muni == 202 || code_muni == 202 || code_muni == 233 || code_muni == 236) {
-      # 小樽市　函館市　伊達市　北斗市
+      # Otaru, Hakodate, Date, Hokuto
       epsg = 2453
     } else if (390	<= code_muni && code_muni <= 409) {
-      # 北海道後志総合振興局の所管区域　
+      # Shiribeshi region
       epsg = 2453
     } else if (code_muni == 571 || code_muni == 575 || code_muni == 584) {
-      # 北海道胆振総合振興局の所管区域のうち豊浦町、壮瞥町及び洞爺湖町
+      # Toyoura, Sobetsu and Toyako
       epsg = 2453
     } else if (330	<= code_muni && code_muni <= 346) {
-      # 北海道渡島総合振興局の所管区域
+      # Oshima region
       epsg = 2453
     } else if (360	<= code_muni && code_muni <= 370) {
-      # 北海道檜山振興局の所管区域
+      # Hiyama region
       epsg = 2453
     } else if (code_muni == 208 || code_muni == 207 || code_muni == 206 || code_muni == 211 || code_muni == 223) {
-      # 北見市　帯広市　釧路市　網走市　根室市
+      # Kitami, Obihiro, Kushiro, Abashiri and Numero
       epsg = 2455
     } else if (code_muni == 543 || code_muni == 544 || code_muni == 545 || code_muni == 546 || code_muni == 547 || code_muni == 549 || code_muni == 550 || code_muni == 552 || code_muni == 564) {
-      # 北海道オホーツク総合振興局の所管区域のうち美幌町、津別町、斜里町、清里町、小清水町、訓子府町、置戸町、佐呂間町及び大空町　北海道十勝総合振興局の所管区域
+      # Mihoro, Tsubetsu, Shari, Kiyosato, Koshimizu, Kunneppu, Oketo, Saroma, Ozora. Tokachi region.
       epsg = 2455
     } else if (660	<= code_muni) {
-      # 北海道釧路総合振興局の所管区域　北海道根室振興局の所管区域
+      # Kushiro region and Nemuro region
       epsg = 2455
     } else {
       epsg = 2454

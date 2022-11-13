@@ -29,6 +29,8 @@ read_landnuminfo(
 \item{geometry}{"POINT", "LINESTRING", or "POLYGON"}
 
 \item{data_dir}{The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.}
+
+\item{maptypeextra}{File name suffix.}
 }
 \value{
 An `"sf" "data.frame"` object

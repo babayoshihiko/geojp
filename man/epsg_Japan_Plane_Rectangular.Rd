@@ -4,7 +4,7 @@
 \alias{epsg_Japan_Plane_Rectangular}
 \title{EPSG code of Japan Plane Rectangular}
 \usage{
-epsg_Japan_Plane_Rectangular(code_pref, code_muni = NULL, crs_type = "JGD2000")
+epsg_Japan_Plane_Rectangular(code_pref, code_muni = NULL, crs_type = "JGD2011")
 }
 \arguments{
 \item{code_pref}{The 2-digit code of a prefecture.}

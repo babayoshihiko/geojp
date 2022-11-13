@@ -23,6 +23,8 @@ find_geojson_file(
 \item{year}{Year of the data. Defaults to 2012.}
 
 \item{data_dir}{The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.}
+
+\item{maptypeextra}{File name suffix.}
 }
 \value{
 the target filepath
