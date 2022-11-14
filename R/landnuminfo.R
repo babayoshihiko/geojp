@@ -62,8 +62,12 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
   if (nchar(code_pref) != 2) stop(paste("Invalid argument: code_pref:", code_pref))
   if (nchar(year) != 2) stop(paste("Invalid argument: year:", year))
 
+  year_prefix = ""
+  if (maptype == "N05" && year >= 2020) {
+    year_prefix = "20"
+  }
   strLNIZip = file.path(strTempDir,
-                        paste(maptype, "-", year, "_", code_pref, "_GML.zip", sep = ""))
+                        paste(maptype, "-", year_prefix, year, "_", code_pref, "_GML.zip", sep = ""))
   strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/", maptype, "/", maptype, "-", year, "/", maptype, "-", year, "_", code_pref, "_GML.zip", sep = "")
 
   if (!file.exists(strLNIZip)) {
@@ -384,15 +388,6 @@ read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, dat
              || num_code_pref == 33
              || num_code_pref == 34
              || num_code_pref == 35
-             || num_code_pref == 40
-             || num_code_pref == 41
-             || num_code_pref == 42
-             || num_code_pref == 43
-             || num_code_pref == 44
-             || num_code_pref == 45
-             || num_code_pref == 46
-             || num_code_pref == 47
-             || num_code_pref == 48
   ) {
     year = 2008
   } else if (num_code_pref == 2
@@ -404,7 +399,16 @@ read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, dat
              || num_code_pref == 15
              || num_code_pref == 16
              || num_code_pref == 17
-             || num_code_pref == 18) {
+             || num_code_pref == 18
+             || num_code_pref == 40
+             || num_code_pref == 41
+             || num_code_pref == 42
+             || num_code_pref == 43
+             || num_code_pref == 44
+             || num_code_pref == 45
+             || num_code_pref == 46
+             || num_code_pref == 47
+             || num_code_pref == 48) {
     year = 2007
   } else if (num_code_pref == 36
              || num_code_pref == 37
