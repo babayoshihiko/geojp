@@ -237,11 +237,35 @@ read_landnuminfo_flood <- function(code_pref, year = 2012, data_dir = NULL){
 
   sfLNI = read_landnuminfo("A31", code_pref, code_muni = NULL, year, filetype = "shp", geometry = "POLYGON", data_dir = data_dir)
   if (min(sfLNI$A31_001) >= 20) {
-    sfLNI$A31_001_label <- factor(sfLNI$A31_001, levels=c(21,22,23,24,25,26,27), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～3.0ｍ未満","3.0～4.0ｍ未満","4.0～5.0ｍ未満","5.0ｍ以上"))
-    attr(sfLNI, "palette") = c("#EFF3FF","#C6DBEF","#9ECAE1","#6BAED6","#4292C6", "#2171B5","#084594") # RColorBrewer::brewer.pal(5, "Blues")
+    sfLNI$A31_001_label <- factor(sfLNI$A31_001, levels=c(21,22,23,24,25,26,27),
+                                  labels=c("0\uff5e0.5\uff4d\u672a\u6e80",
+                                           "0.5\uff5e1.0\uff4d\u672a\u6e80",
+                                           "1.0\uff5e2.0\uff4d\u672a\u6e80",
+                                           "2.0\uff5e3.0\uff4d\u672a\u6e80",
+                                           "3.0\uff5e4.0\uff4d\u672a\u6e80",
+                                           "4.0\uff5e5.0\uff4d\u672a\u6e80",
+                                           "5.0\uff4d\u4ee5\u4e0a"))
+    # https://www.mlit.go.jp/river/shishin_guideline/pdf/manual_kouzuishinsui_1710.pdf
+    attr(sfLNI, "palette") = c("#f7f5a9",
+                               "#f8e1a6",
+                               "#ffd8c0",
+                               "#ffd8c0",
+                               "#ffb7b7",
+                               "#ffb7b7",
+                               "#dc7adc")
   } else if (max(sfLNI$A31_001) >= 15) {
-    sfLNI$A31_001_label <- factor(sfLNI$A31_001, levels=c(11,12,13,14,15), labels=c("0～0.5ｍ未満","0.5～1.0ｍ未満","1.0～2.0ｍ未満","2.0～5.0ｍ未満","5.0ｍ以上"))
-    attr(sfLNI, "palette") = c("#EFF3FF","#BDD7E7","#6BAED6","#3182BD","#08519C") # RColorBrewer::brewer.pal(5, "Blues")
+    sfLNI$A31_001_label <- factor(sfLNI$A31_001, levels=c(11,12,13,14,15),
+                                  labels=c("0\uff5e0.5\uff4d\u672a\u6e80",
+                                           "0.5\uff5e1.0\uff4d\u672a\u6e80",
+                                           "1.0\uff5e2.0\uff4d\u672a\u6e80",
+                                           "2.0\uff5e5.0\uff4d\u672a\u6e80",
+                                           "5.0\uff4d\u4ee5\u4e0a"))
+    # https://www.mlit.go.jp/river/shishin_guideline/pdf/manual_kouzuishinsui_1710.pdf
+    attr(sfLNI, "palette") = c("#f7f5a9",
+                               "#f8e1a6",
+                               "#ffd8c0",
+                               "#ffb7b7",
+                               "#dc7adc")
   } else {
     sfLNI$A31_001_label = 0
     sfLNI[sfLNI$A31_001 == 21, "A31_001_label"] = 11
@@ -252,9 +276,17 @@ read_landnuminfo_flood <- function(code_pref, year = 2012, data_dir = NULL){
     sfLNI[sfLNI$A31_001 == 26, "A31_001_label"] = 14
     sfLNI[sfLNI$A31_001 == 27, "A31_001_label"] = 15
     sfLNI$A31_001_label <- factor(sfLNI$A31_001_label, levels=c(11,12,13,14,15),
-                                  labels=c("0\uff5e0.5\uff4d\u672a\u6e80","Show in New Window
-0\uff5e0.5\uff4d\u672a\u6e80","1.0\uff5e2.0\uff4d\u672a\u6e80","2.0\uff5e5.0\uff4d\u672a\u6e80","5.0\uff4d\u4ee5\u4e0a"))
-    attr(sfLNI, "palette") = c("#EFF3FF","#BDD7E7","#6BAED6","#3182BD","#08519C") # RColorBrewer::brewer.pal(5, "Blues")
+                                  labels=c("0\uff5e0.5\uff4d\u672a\u6e80",
+                                           "0.5\uff5e1.0\uff4d\u672a\u6e80",
+                                           "1.0\uff5e2.0\uff4d\u672a\u6e80",
+                                           "2.0\uff5e5.0\uff4d\u672a\u6e80",
+                                           "5.0\uff4d\u4ee5\u4e0a"))
+    # https://www.mlit.go.jp/river/shishin_guideline/pdf/manual_kouzuishinsui_1710.pdf
+    attr(sfLNI, "palette") = c("#f7f5a9",
+                               "#f8e1a6",
+                               "#ffd8c0",
+                               "#ffb7b7",
+                               "#dc7adc")
   }
 
 
