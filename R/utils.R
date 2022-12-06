@@ -138,7 +138,7 @@ find_geojson_file <- function(maptype, code_pref, code_muni, year, data_dir, map
       paste("*", strTypicalFolderName, code_muni, maptypeextra, "*.geojson", sep = ""))
   }
   if (length(strLNIFile) != 1) stop(paste("Cannot find geosjon file in", data_dir))
-  print(paste("Found a geojson file:", strLNIFile))
+  message(paste("Found a geojson file:", strLNIFile))
 
   return(strLNIFile)
 }
@@ -207,7 +207,7 @@ find_shp_file <- function(maptype, code_pref, code_muni, year, data_dir, maptype
       paste(strTypicalFolderName, maptypeextra, "*.shp", sep = "")))
   }
   if (length(strLNIFile) != 1) stop(paste("Cannot find shp file in", data_dir))
-  print(paste("Found a shp file:", strLNIFile))
+  message(paste("Found a shp file:", strLNIFile))
 
   return(strLNIFile)
 }

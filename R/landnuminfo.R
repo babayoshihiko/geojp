@@ -72,7 +72,7 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
 
   if (!file.exists(strLNIZip)) {
     utils::download.file(strLNIUrl, strLNIZip, mode="wb")
-    print(paste("Downloaded the file and saved in", strLNIUrl))
+    message(paste("Downloaded the file and saved in", strLNIUrl))
   }
 
   if (filetype == "geojson") {
@@ -448,7 +448,7 @@ read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, dat
              || num_code_pref == 39) {
     year = 2006
   } else {
-    print("Invalid pref_code.")
+    message("Invalid pref_code.")
   }
 
   year = check_year(year)
@@ -560,10 +560,10 @@ read_landnuminfo_officiallandprice <- function(code_pref, code_muni = NULL, year
   return(sfLNI)
 }
 
-#' Print the list of available Land Numerical Information data.
+#' message the list of available Land Numerical Information data.
 #'
 #' @description
-#' Print the list of available Land Numerical Information data.
+#' message the list of available Land Numerical Information data.
 #'
 #' @export
 list_landnuminfo <- function(){
@@ -576,5 +576,5 @@ P14,2021,geojson,pref,P14_003,POINT,福祉施設,https://nlftp.mlit.go.jp/ksj/gm
 A48,2021,geojson,pref,A48_003,POLYGON,災害危険区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A48-v1_2.html
 A48,2020,geojson,pref,A48_003,POLYGON,災害危険区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A48-v1_1.html",
                                    header = TRUE, sep=",", colClasses = "character")
-  print(dfTestedMap)
+  message(dfTestedMap)
 }
