@@ -134,8 +134,19 @@ find_geojson_file <- function(maptype, code_pref, code_muni, year, data_dir, map
       paste("*", strTypicalFolderName, code_muni, maptypeextra, "*.geojson", sep = "")))
   }
   if (length(strLNIFile) != 1) {
-    strLNIFile = file.path(data_dir,
-      paste("*", strTypicalFolderName, code_muni, maptypeextra, "*.geojson", sep = ""))
+    strLNIFile = Sys.glob(file.path(data_dir,
+      paste("*", strTypicalFolderName, code_muni, maptypeextra, "*.geojson", sep = "")))
+  }
+  if (length(strLNIFile) != 1) {
+    # For Urbanized Areas (year = H30) with "A09-18_04_GML/GeoJSON/code_prefcode_muni_cityname.geojson"
+    strLNIFile = Sys.glob(file.path(data_dir,
+      paste(strTypicalFolderName, "_GML", sep = ""),
+      "GeoJSON",
+      paste(code_pref, code_muni, "*.geojson", sep = "")))
+    print(file.path(data_dir,
+                    paste(strTypicalFolderName, "_GML", sep = ""),
+                    "GeoJSON",
+                    paste(code_pref, code_muni, "*.geojson", sep = "")))
   }
   if (length(strLNIFile) != 1) stop(paste("Cannot find geosjon file in", data_dir))
   message(paste("Found a geojson file:", strLNIFile))
@@ -285,9 +296,51 @@ epsg_Japan_Plane_Rectangular <- function(code_pref, code_muni = NULL, crs_type =
   return(epsg)
 }
 
+#' Unzip a zip file of files with non-ASCII filenames
+#'
+#' @description
+#' Unzip a zip file of files with non-ASCII filenames
+#'
+#' @param zipfile 	Path to the zip file to uncompress.
+#' @param files     Not used. Just for consistency with utils::zip()
+#' @param exdir     Directory to uncompress the archive to. If it does not exist, it will be created.
+#'
+#' @return NULL
+#'
+#' @export
+unzip_ja <- function(zipfile, files = NULL, exdir) {
+  if (!dir.exists(sub(".zip", "", zipfile))){
+    if(Sys.info()['sysname'] == "Darwin"){
+      system(paste("ditto -V -x -k --sequesterRsrc --rsrc", zipfile, exdir, sep = " "), ignore.stdout = TRUE, ignore.stderr = TRUE)
+    } else if(Sys.info()['sysname'] == "Linux") {
+      system(paste("unzip -O CP932", zipfile, exdir, sep = " "), ignore.stdout = TRUE, ignore.stderr = TRUE)
+    } else {
+      system(paste("unzip", zipfile, exdir, sep = " "), ignore.stdout = TRUE, ignore.stderr = TRUE)
+    }
+  }
+}
 
-
-
+#' Converts 4-digit year to 2-digit
+#'
+#' @description
+#' Converts 4-digit year to 2-digit
+#'
+#' @param year 	year in 4-digit
+#'
+#' @return year in 2-digit as character
+#'
+#' @export
+year_2digit <- function(year) {
+  if (year > 2009) {
+    year_2d = as.character(as.integer(year) - 2000)
+  } else if (year > 1999) {
+    year_2d = paste("0", as.character(as.integer(year) - 2000), sep = "")
+  } else {
+    # year 19xx, for L01 (official land price) and N05 (administrative boundary)
+    year_2d = as.character(as.integer(year) - 1900)
+  }
+  return(year_2d)
+}
 
 
 

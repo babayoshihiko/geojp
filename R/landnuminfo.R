@@ -50,20 +50,13 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
     if (year > 2022 || year < 1983) {
       stop("Invalid argument: year must between 2022 and 1983")
     }
-    if (year > 2009) {
-      year = as.character(as.integer(year) - 2000)
-    } else if (year > 1999) {
-      year = paste("0", as.character(as.integer(year) - 2000), sep = "")
-    } else {
-      # year 19xx, for L01 (official land price) and N05 (administrative boundary)
-      year = as.character(as.integer(year) - 1900)
-    }
+    year = year_2digit(year)
   }
   if (nchar(code_pref) != 2) stop(paste("Invalid argument: code_pref:", code_pref))
   if (nchar(year) != 2) stop(paste("Invalid argument: year:", year))
 
   year_prefix = ""
-  if (maptype == "N05" && year >= 2020) {
+  if (maptype == "N05" && year4digit >= 2020) {
     year_prefix = "20"
   }
   strLNIZip = file.path(strTempDir,
@@ -77,17 +70,17 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
 
   if (filetype == "geojson") {
     GEOJSONFILE = paste(maptype,"-",year,"_",code_pref,code_muni,maptypeextra,".geojson",sep="")
-    utils::unzip(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
+    unzip_ja(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
     if (code_muni != "") {
       GEOJSONFILE = paste(maptype,"-",year,"_",code_pref,maptypeextra,".geojson",sep="")
-      utils::unzip(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
+      unzip_ja(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
     }
     GEOJSONFILE = file.path(paste(maptype,"-",year,"_",code_pref,"_GML",sep=""),
                                   GEOJSONFILE)
-    utils::unzip(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
+    unzip_ja(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
     strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir, maptypeextra)
     if (!file.exists(strLNIFile)){
-      utils::unzip(strLNIZip, exdir = strTempDir)
+      unzip_ja(strLNIZip, exdir = strTempDir)
       strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir, maptypeextra)
     }
     sfLNI = sf::read_sf(strLNIFile)
@@ -98,11 +91,11 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
                   paste(maptype,"-",year,"_",code_pref,maptypeextra,".shx",sep=""),
                   paste(maptype,"-",year,"_",code_pref,maptypeextra,".dbf",sep=""),
                   paste(maptype,"-",year,"_",code_pref,maptypeextra,".prj",sep=""))
-    utils::unzip(strLNIZip, files = SHPFiles, exdir = strTempDir)
+    unzip_ja(strLNIZip, files = SHPFiles, exdir = strTempDir)
     strLNIFile = file.path(strTempDir,
                            paste(maptype, "-", year,"_", code_pref,maptypeextra,".shp",sep=""))
     if (!file.exists(strLNIFile)){
-      utils::unzip(strLNIZip, exdir = strTempDir)
+      unzip_ja(strLNIZip, exdir = strTempDir)
       strLNIFile = find_shp_file(maptype, code_pref, code_muni, year, strTempDir, maptypeextra)
     }
     sfLNI = sf::read_sf(strLNIFile, options = "ENCODING=CP932", stringsAsFactors=FALSE)
@@ -555,6 +548,44 @@ read_landnuminfo_officiallandprice <- function(code_pref, code_muni = NULL, year
   attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u5730\u4fa1\u516c\u793a\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
   attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L01-v3_1.html"
   attr(sfLNI, "col") = "L01_006"
+  # attr(sfLNI, "palette") = c("#16A085","#D1F2EB","#1F618D","#229954","#BA4A00","#E74C3C","#808B96")
+
+  return(sfLNI)
+}
+
+#' Download spatial data of Urbanized Areas of Japan
+#'
+#' @description
+#' Function to download spatial data of Urbanized Areas of Japan. The returned value is an sf object.
+#'
+#' @param code_pref The 2-digit code of prefecture.
+#' @param code_muni Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.
+#' @param year Year of the data. Defaults to 2012.
+#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
+#'
+#'
+#' @return An `"sf" "data.frame"` object with extra attr "col" for tmap.
+#'
+#' @export
+read_landnuminfo_urbanarea <- function(code_pref, code_muni, year = 2018, data_dir = NULL){
+  year = check_year(year)
+  if (year != 2018) stop(paste("The data is not available for year", year))
+  if (year < 2018) {
+    filetype = "shp"
+  } else {
+    filetype = "geojson"
+  }
+
+  # Hazard Area data is given by prefecture
+  sfLNI = read_landnuminfo("A09", code_pref, code_muni, year, filetype = filetype, geometry = "POLYGON", data_dir = data_dir)
+  st_crs(sfLNI) <- "EPSG:6668"
+
+  sfLNI$layer_no = factor(sfLNI$layer_no,
+    levels = c(1,2,3,4))
+  attr(sfLNI, "mapname") = "\u90fd\u5e02\u5730\u57df\u30c7\u30fc\u30bf"
+  attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u5730\u4fa1\u516c\u793a\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
+  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A09.html"
+  attr(sfLNI, "col") = "layer_no"
   # attr(sfLNI, "palette") = c("#16A085","#D1F2EB","#1F618D","#229954","#BA4A00","#E74C3C","#808B96")
 
   return(sfLNI)
