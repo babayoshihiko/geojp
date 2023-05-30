@@ -7,7 +7,7 @@
 read_landnuminfo_admin(
   code_pref,
   code_muni = NULL,
-  year = 2022,
+  year = 2023,
   data_dir = NULL
 )
 }

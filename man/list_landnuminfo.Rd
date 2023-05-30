@@ -2,10 +2,10 @@
 % Please edit documentation in R/landnuminfo.R
 \name{list_landnuminfo}
 \alias{list_landnuminfo}
-\title{Print the list of available Land Numerical Information data.}
+\title{message the list of available Land Numerical Information data.}
 \usage{
 list_landnuminfo()
 }
 \description{
-Print the list of available Land Numerical Information data.
+message the list of available Land Numerical Information data.
 }

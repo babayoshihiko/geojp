@@ -25,6 +25,7 @@ check_year <- function(x) {
     x = sub("\u5e73\u6210", "H", x)
     x = sub("\u662d\u548c", "S", x)
     x = sub("\u5927\u6b63", "T", x)
+    if (x == "R5") intYear = 2023
     if (x == "R4") intYear = 2022
     if (x == "R3") intYear = 2021
     if (x == "R2") intYear = 2020
@@ -74,7 +75,7 @@ check_year <- function(x) {
     if (x == "S25") intYear = 1950
     if (x == "T9" || x == "T09") intYear = 1920
   }
-  if (intYear < 1983 || 2022 < intYear) {
+  if (intYear < 1983 || 2023 < intYear) {
     stop("Invalid year.")
   }
 
