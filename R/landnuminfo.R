@@ -50,7 +50,6 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
     if (year > 2023 || year < 1983) {
       stop("Invalid argument: year must between 2022 and 1983")
     }
-<<<<<<< HEAD
     if (year > 2009) {
       year = as.character(as.integer(year) - 2000)
     } else if (year > 1999) {
@@ -59,20 +58,11 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
       # year 19xx, for L01 (official land price)
       year = as.character(as.integer(year) - 1900)
     }
-=======
     year = year_2digit(year)
->>>>>>> b76a73c14934c2f302864a9ea15a13c59c4da4c9
   }
   if (nchar(code_pref) != 2) stop(paste("Invalid argument: code_pref:", code_pref))
   if (nchar(year) != 2) stop(paste("Invalid argument: year:", year))
 
-<<<<<<< HEAD
-=======
-  year_prefix = ""
-  if (maptype == "N05" && year4digit >= 2020) {
-    year_prefix = "20"
-  }
->>>>>>> b76a73c14934c2f302864a9ea15a13c59c4da4c9
   strLNIZip = file.path(strTempDir,
                         paste(maptype, "-", year, "_", code_pref, "_GML.zip", sep = ""))
   strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/", maptype, "/", maptype, "-", year, "/", maptype, "-", year, "_", code_pref, "_GML.zip", sep = "")
