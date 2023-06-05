@@ -75,7 +75,7 @@ check_year <- function(x) {
     if (x == "S25") intYear = 1950
     if (x == "T9" || x == "T09") intYear = 1920
   }
-  if (intYear < 1983 || 2023 < intYear) {
+  if (intYear < 1920 || 2023 < intYear) {
     stop("Invalid year.")
   }
 

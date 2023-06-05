@@ -47,17 +47,6 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
   }
   if (is.null(code_muni)) code_muni = ""
   if (mode(year) == "numeric"){
-    if (year > 2023 || year < 1983) {
-      stop("Invalid argument: year must between 2022 and 1983")
-    }
-    if (year > 2009) {
-      year = as.character(as.integer(year) - 2000)
-    } else if (year > 1999) {
-      year = paste("0", as.character(as.integer(year) - 2000), sep = "")
-    } else {
-      # year 19xx, for L01 (official land price)
-      year = as.character(as.integer(year) - 1900)
-    }
     year = year_2digit(year)
   }
   if (nchar(code_pref) != 2) stop(paste("Invalid argument: code_pref:", code_pref))
@@ -66,41 +55,10 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
   strLNIZip = file.path(strTempDir,
                         paste(maptype, "-", year, "_", code_pref, "_GML.zip", sep = ""))
   strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/", maptype, "/", maptype, "-", year, "/", maptype, "-", year, "_", code_pref, "_GML.zip", sep = "")
+
   if (maptype == "N03" ) {
-    if (year4digit >= 2020) {
-      strLNIZip = file.path(strTempDir, paste("N03-", year4digit, "0101_", code_pref, "_GML.zip", sep = ""))
-      strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-", year4digit, "/N03-", year4digit, "0101_", code_pref, "_GML.zip", sep = "")
-    } else if (year4digit >= 2015) {
-      strLNIZip = file.path(strTempDir, paste("N03-", year, "0101_", code_pref, "_GML.zip", sep = ""))
-      strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-", year4digit, "/N03-", year, "0101_", code_pref, "_GML.zip", sep = "")
-    } else if (year4digit >= 2012) {
-      strLNIZip = file.path(strTempDir, paste("N03-", year, "0401_", code_pref, "_GML.zip", sep = ""))
-      strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-", year4digit, "/N03-", year, "0401_", code_pref, "_GML.zip", sep = "")
-    } else if (year4digit == 2011) {
-      strLNIZip = file.path(strTempDir, paste("N03-120331_", code_pref, "_GML.zip", sep = ""))
-      strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2011/N03-20120331_", code_pref, "_GML.zip", sep = "")
-    } else if (year4digit == 2010) {
-      strLNIZip = file.path(strTempDir, paste("N03-110331_", code_pref, "_GML.zip", sep = ""))
-      strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2010/N03-110331_", code_pref, "_GML.zip", sep = "")
-    } else if (year4digit == 2009) {
-      strLNIZip = file.path(strTempDir, paste("N03-100329_", code_pref, "_GML.zip", sep = ""))
-      strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2009/N03-100329_", code_pref, "_GML.zip", sep = "")
-    } else if (year4digit == 2008) {
-      strLNIZip = file.path(strTempDir, paste("N03-090320_", code_pref, "_GML.zip", sep = ""))
-      strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2008/N03-090320_", code_pref, "_GML.zip", sep = "")
-    } else if (year4digit == 2007) {
-      strLNIZip = file.path(strTempDir, paste("N03-100329_", code_pref, "_GML.zip", sep = ""))
-      strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2009/N03-100329_", code_pref, "_GML.zip", sep = "")
-    } else if (year4digit >= 2005) {
-      strLNIZip = file.path(strTempDir, paste("N03-", year, "_", code_pref, "_GML.zip", sep = ""))
-      strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-", year4digit, "/N03-", year, "_", code_pref, "_GML.zip", sep = "")
-    } else if (year4digit >= 1950) {
-      strLNIZip = file.path(strTempDir, paste("N03-", year, "1001_", code_pref, "_GML.zip", sep = ""))
-      strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-", year4digit, "/N03-", year, "1001_", code_pref, "_GML.zip", sep = "")
-    } else if (year4digit == 1920) {
-      strLNIZip = file.path(strTempDir, paste("N03-", year, "0101_", code_pref, "_GML.zip", sep = ""))
-      strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-", year4digit, "/N03-", year, "0101_", code_pref, "_GML.zip", sep = "")
-    }
+    strLNIZip = file.path(strTempDir, paste("N03-", year4digit, "0101_", code_pref, "_GML.zip", sep = ""))
+    strLNIUrl = paste("https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-", year4digit, "/N03-", year4digit, "0101_", code_pref, "_GML.zip", sep = "")
   }
 
   if (!file.exists(strLNIZip)) {
@@ -158,6 +116,65 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
     if (geometry == "POLYGON") sfLNI = sf::st_collection_extract(sfLNI, type = "POLYGON")
   }
   sfLNI = sf::st_make_valid(sfLNI)
+  attr(sfLNI, "year") = year4digit
+
+  return(sfLNI)
+}
+
+read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
+  year4digit = check_year(year)
+
+  strTempDir = tempdir()
+  if (!is.null(data_dir)) {
+    if (dir.exists(data_dir)) {
+      strTempDir = data_dir
+    }
+  }
+
+  if (mode(code_pref) == "numeric"){
+    if (code_pref < 0 || code_pref > 47) {
+      stop("Invalid argument: code_pref must be between 1 and 47.")
+    } else if (code_pref < 10) {
+      code_pref = paste("0", as.character(code_pref), sep = "")
+    } else {
+      code_pref = as.character(code_pref)
+    }
+  }
+  if (nchar(code_pref) != 2) stop(paste("Invalid argument: code_pref:", code_pref))
+
+  df <- read.csv(paste("data/", maptype, ".csv", sep = ""))
+  df <- df[df$year == year4digit,]
+  if (nrow(df) != 1) stop(paste("The target year", year, "not found in", paste("data/", maptype, ".csv", sep = "")))
+
+
+  strLNIUrl = gsub("code_pref",code_pref,df$url)
+  strLNIZip = gsub("code_pref",code_pref,df$zip)
+  strLNIFile = gsub("code_pref",code_pref,df$shp)
+  if (!file.exists(strLNIZip)) {
+    utils::download.file(strLNIUrl, strLNIZip, mode="wb")
+    message(paste("Downloaded the file and saved in", strLNIUrl))
+  }
+
+  SHPFiles = c( strLNIFile,
+                sub(".shp",".shx",strLNIFile),
+                sub(".shp",".dbf",strLNIFile),
+                sub(".shp",".prj",strLNIFile))
+  unzip_ja(strLNIZip, files = SHPFiles, exdir = strTempDir)
+  strLNIFile = file.path(strTempDir,strLNIFile)
+  if (!file.exists(strLNIFile)){
+    warning("Searching the shape file in an alternative directory.")
+    strLNIFile = file.path(strTempDir, gsub("code_pref",code_pref,df$altdir),gsub("code_pref",code_pref,df$shp))
+  }
+  if (!file.exists(strLNIFile)){
+    stop(paste("Cannot find the file:", strLNIFile))
+  }
+
+  sfLNI = sf::read_sf(strLNIFile, options = "ENCODING=CP932", stringsAsFactors=FALSE)
+  # Older data may not have *.prj. Set CRS manually.
+  if (is.na(sf::st_crs(sfLNI))) {
+    sf::st_crs(sfLNI) = 4612
+  }
+  attr(sfLNI, "sourceURL") = df$source
   attr(sfLNI, "year") = year4digit
 
   return(sfLNI)
@@ -520,17 +537,15 @@ read_landnuminfo_admin <- function(code_pref, code_muni = NULL, year = 2023, dat
   if (year > 2023 || year < 1920) stop(paste("The data is not available for year", year))
 
   # Administrative Boundaries data
-  sfLNI = read_landnuminfo("N03",
-            code_pref,
-            NULL,
-            year,
-            filetype = "shp", # geojson causes errors
-            geometry = "POLYGON",
-            data_dir = data_dir)
+  if (year >= 2020) {
+    sfLNI = read_landnuminfo("N03", code_pref, NULL, year, "shp", "POLYGON", data_dir)
+  } else {
+    sfLNI = read_landnuminfo_by_csv("N03", code_pref, year, data_dir)
+  }
 
   attr(sfLNI, "mapname") = "\u884c\u653f\u533a\u57df"
   attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
-  if (year == 2022) {
+  if (year >= 2022) {
     attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-v3_1.html"
   } else if (year == 2021){
     attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-v3_0.html"
