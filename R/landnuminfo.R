@@ -141,6 +141,7 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
     }
   }
   if (nchar(code_pref) != 2) stop(paste("Invalid argument: code_pref:", code_pref))
+  if (code_pref == "47" && year4digit < 1973) stop("No data available for Okinaya before year 1973.")
 
   df <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
   df <- df[df$year == year4digit,]
