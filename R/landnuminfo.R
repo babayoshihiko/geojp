@@ -149,26 +149,20 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
 
   strLNIUrl = gsub("code_pref",code_pref,df$url)
   strLNIZip = file.path(strTempDir,gsub("code_pref",code_pref,df$zip))
-  strLNIFile = file.path(strTempDir,gsub("code_pref",code_pref,df$shp))
+  strLNIFile1 = file.path(strTempDir,gsub("code_pref",code_pref,df$shp))
+  strLNIFile2 = file.path(strTempDir, gsub("code_pref",code_pref,df$altdir),gsub("code_pref",code_pref,df$shp))
+  strLNIFile3 = file.path(strTempDir, paste(gsub("code_pref",code_pref,df$altdir),"\\",gsub("code_pref",code_pref,df$shp),sep=""))
   if (!file.exists(strLNIZip)) {
     utils::download.file(strLNIUrl, strLNIZip, mode="wb")
     message(paste("Downloaded the file and saved in", strLNIUrl))
   }
 
-  if (!file.exists(strLNIFile)){
-    unzip_ja(strLNIZip, exdir = strTempDir)
-  }
-  if (!file.exists(strLNIFile)){
-    # In some cases, the files are in a subdirectory.
-    warning("Searching the shape file in an alternative directory.")
-    strLNIFile = file.path(strTempDir, gsub("code_pref",code_pref,df$altdir),gsub("code_pref",code_pref,df$shp))
-  }
-  if (!file.exists(strLNIFile)){
-    # In some cases (e.g. N03 for year 2020), the files are named wrongly:
-    # e.g. "N03-20200101\N03-20200101.shp" (a backslash in a filename)
-    warning("Searching a wrongly named shape file")
-    unzip_ja(strLNIZip, exdir = strTempDir)
-    strLNIFile = file.path(strTempDir, paste(gsub("code_pref",code_pref,df$altdir),"\\",gsub("code_pref",code_pref,df$shp),sep=""))
+  if (length(Sys.glob(strLNIFile1)) == 1){
+    strLNIFile = Sys.glob(strLNIFile1)
+  } else if (length(Sys.glob(strLNIFile2)) == 1){
+    strLNIFile = Sys.glob(strLNIFile2)
+  } else if (length(Sys.glob(strLNIFile3)) == 1){
+    strLNIFile = Sys.glob(strLNIFile3)
   }
   if (!file.exists(strLNIFile)){
     stop(paste("Cannot find the file:", strLNIFile))
@@ -539,14 +533,9 @@ read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, dat
 #' @export
 read_landnuminfo_admin <- function(code_pref, code_muni = NULL, year = 2023, data_dir = NULL){
   year = check_year(year)
-  if (year > 2023 || year < 1920) stop(paste("The data is not available for year", year))
 
   # Administrative Boundaries data
-  if (year > 2023) {
-    sfLNI = read_landnuminfo("N03", code_pref, NULL, year, "shp", "POLYGON", data_dir)
-  } else {
-    sfLNI = read_landnuminfo_by_csv("N03", code_pref, year, data_dir)
-  }
+  sfLNI = read_landnuminfo_by_csv("N03", code_pref, year, data_dir)
 
   attr(sfLNI, "mapname") = "\u884c\u653f\u533a\u57df"
   attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
