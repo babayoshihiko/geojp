@@ -142,28 +142,32 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
   }
   if (nchar(code_pref) != 2) stop(paste("Invalid argument: code_pref:", code_pref))
 
-  df <- read.csv(paste("data/", maptype, ".csv", sep = ""))
+  df <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
   df <- df[df$year == year4digit,]
   if (nrow(df) != 1) stop(paste("The target year", year, "not found in", paste("data/", maptype, ".csv", sep = "")))
 
-
   strLNIUrl = gsub("code_pref",code_pref,df$url)
-  strLNIZip = gsub("code_pref",code_pref,df$zip)
-  strLNIFile = gsub("code_pref",code_pref,df$shp)
+  strLNIZip = file.path(strTempDir,gsub("code_pref",code_pref,df$zip))
+  strLNIFile = file.path(strTempDir,gsub("code_pref",code_pref,df$shp))
   if (!file.exists(strLNIZip)) {
     utils::download.file(strLNIUrl, strLNIZip, mode="wb")
     message(paste("Downloaded the file and saved in", strLNIUrl))
   }
 
-  SHPFiles = c( strLNIFile,
-                sub(".shp",".shx",strLNIFile),
-                sub(".shp",".dbf",strLNIFile),
-                sub(".shp",".prj",strLNIFile))
-  unzip_ja(strLNIZip, files = SHPFiles, exdir = strTempDir)
-  strLNIFile = file.path(strTempDir,strLNIFile)
   if (!file.exists(strLNIFile)){
+    unzip_ja(strLNIZip, exdir = strTempDir)
+  }
+  if (!file.exists(strLNIFile)){
+    # In some cases, the files are in a subdirectory.
     warning("Searching the shape file in an alternative directory.")
     strLNIFile = file.path(strTempDir, gsub("code_pref",code_pref,df$altdir),gsub("code_pref",code_pref,df$shp))
+  }
+  if (!file.exists(strLNIFile)){
+    # In some cases (e.g. N03 for year 2020), the files are named wrongly:
+    # e.g. "N03-20200101\N03-20200101.shp" (a backslash in a filename)
+    warning("Searching a wrongly named shape file")
+    unzip_ja(strLNIZip, exdir = strTempDir)
+    strLNIFile = file.path(strTempDir, paste(gsub("code_pref",code_pref,df$altdir),"\\",gsub("code_pref",code_pref,df$shp),sep=""))
   }
   if (!file.exists(strLNIFile)){
     stop(paste("Cannot find the file:", strLNIFile))
@@ -537,7 +541,7 @@ read_landnuminfo_admin <- function(code_pref, code_muni = NULL, year = 2023, dat
   if (year > 2023 || year < 1920) stop(paste("The data is not available for year", year))
 
   # Administrative Boundaries data
-  if (year >= 2020) {
+  if (year > 2023) {
     sfLNI = read_landnuminfo("N03", code_pref, NULL, year, "shp", "POLYGON", data_dir)
   } else {
     sfLNI = read_landnuminfo_by_csv("N03", code_pref, year, data_dir)

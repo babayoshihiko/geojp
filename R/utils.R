@@ -310,13 +310,13 @@ epsg_Japan_Plane_Rectangular <- function(code_pref, code_muni = NULL, crs_type =
 #'
 #' @export
 unzip_ja <- function(zipfile, files = NULL, exdir) {
-  if (!dir.exists(sub(".zip", "", zipfile))){
+  if (!dir.exists(file.path(exdir,sub(".zip", "", zipfile)))){
     if(Sys.info()['sysname'] == "Darwin"){
       system(paste("ditto -V -x -k --sequesterRsrc --rsrc", zipfile, exdir, sep = " "), ignore.stdout = TRUE, ignore.stderr = TRUE)
     } else if(Sys.info()['sysname'] == "Linux") {
       system(paste("unzip -O CP932", zipfile, exdir, sep = " "), ignore.stdout = TRUE, ignore.stderr = TRUE)
     } else {
-      system(paste("unzip", zipfile, exdir, sep = " "), ignore.stdout = TRUE, ignore.stderr = TRUE)
+      unzip(zipfile, exdir = exdir)
     }
   }
 }
