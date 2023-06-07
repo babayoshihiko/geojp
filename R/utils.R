@@ -67,6 +67,7 @@ check_year <- function(x) {
     if (x == "S59") intYear = 1984
     if (x == "S58") intYear = 1983
     if (x == "S55") intYear = 1980
+    if (x == "S51") intYear = 1976
     if (x == "S50") intYear = 1975
     if (x == "S45") intYear = 1970
     if (x == "S40") intYear = 1965
