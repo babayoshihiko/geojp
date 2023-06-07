@@ -149,6 +149,7 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
 
   strLNIUrl = gsub("code_pref",code_pref,df$url)
   strLNIZip = file.path(strTempDir,gsub("code_pref",code_pref,df$zip))
+  strLNIFile = ""
   strLNIFile1 = file.path(strTempDir,gsub("code_pref",code_pref,df$shp))
   strLNIFile2 = file.path(strTempDir, gsub("code_pref",code_pref,df$altdir),gsub("code_pref",code_pref,df$shp))
   strLNIFile3 = file.path(strTempDir, paste(gsub("code_pref",code_pref,df$altdir),"\\",gsub("code_pref",code_pref,df$shp),sep=""))
@@ -156,7 +157,7 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
     utils::download.file(strLNIUrl, strLNIZip, mode="wb")
     message(paste("Downloaded the file and saved in", strLNIUrl))
   }
-
+  unzip_ja(strLNIZip, exdir = strTempDir)
   if (length(Sys.glob(strLNIFile1)) == 1){
     strLNIFile = Sys.glob(strLNIFile1)
   } else if (length(Sys.glob(strLNIFile2)) == 1){
@@ -272,7 +273,7 @@ read_landnuminfo_locnorm <- function(code_pref, code_muni, year = 2020, data_dir
 #' Function to download spatial data of Flood Inundation Risk of Japan. The returned value is an sf object.
 #'
 #' @param code_pref The 2-digit code of prefecture.
-#' @param code_muni The 3-digit code of municipality (city, town, or village).
+#' @param code_muni Optional. The 3-digit code of municipality.
 #' @param year Year of the data. Defaults to 2012.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
@@ -280,7 +281,7 @@ read_landnuminfo_locnorm <- function(code_pref, code_muni, year = 2020, data_dir
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 #'
 #' @export
-read_landnuminfo_flood <- function(code_pref, year = 2012, data_dir = NULL){
+read_landnuminfo_flood <- function(code_pref, code_muni = NULL, year = 2012, data_dir = NULL){
   year = check_year(year)
   if (year != 2012) stop(paste("The data is not available for year", year))
 
@@ -353,8 +354,8 @@ read_landnuminfo_flood <- function(code_pref, year = 2012, data_dir = NULL){
 #' Function to download spatial data of Welfare Facilities of Japan. The returned value is an sf object.
 #'
 #' @param code_pref The 2-digit code of prefecture.
-#' @param code_muni The 3-digit code of municipality (city, town, or village).
-#' @param year Year of the data. Defaults to 2012.
+#' @param code_muni Optional. The 3-digit code of municipality.
+#' @param year Year of the data. Defaults to 2021.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
 #'
@@ -390,7 +391,7 @@ read_landnuminfo_welfare <- function(code_pref, code_muni = NULL, year = 2021, d
 #'
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.
-#' @param year Year of the data. Defaults to 2012.
+#' @param year Year of the data. Defaults to 2021.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
 #'
@@ -432,8 +433,8 @@ read_landnuminfo_hazard <- function(code_pref, code_muni = NULL, year = 2021, da
 #' Function to download spatial data of rivers of Japan. The returned value is an sf object.
 #'
 #' @param code_pref The 2-digit code of prefecture.
-#' @param code_muni Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.
-#' @param year Year of the data. Defaults to 2007.
+#' @param code_muni Optional. The 3-digit code of municipality.
+#' @param year Year of the data. Defaults based on pref_code.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
 #'
@@ -523,8 +524,8 @@ read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, dat
 #' Function to download spatial data of Administrative Boundary of Japan. The returned value is an sf object.
 #'
 #' @param code_pref The 2-digit code of prefecture.
-#' @param code_muni Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.
-#' @param year Year of the data. Defaults to 2012.
+#' @param code_muni Optional. The 3-digit code of municipality.
+#' @param year Year of the data. Defaults to 2023.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
 #'
@@ -539,11 +540,6 @@ read_landnuminfo_admin <- function(code_pref, code_muni = NULL, year = 2023, dat
 
   attr(sfLNI, "mapname") = "\u884c\u653f\u533a\u57df"
   attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
-  if (year >= 2022) {
-    attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-v3_1.html"
-  } else if (year == 2021){
-    attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-v3_0.html"
-  }
   attr(sfLNI, "col") = ""
   attr(sfLNI, "palette") = ""
 
@@ -557,7 +553,7 @@ read_landnuminfo_admin <- function(code_pref, code_muni = NULL, year = 2023, dat
 #'
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.
-#' @param year Year of the data. Defaults to 2012.
+#' @param year Year of the data. Defaults to 2021.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
 #'
@@ -615,7 +611,7 @@ read_landnuminfo_officiallandprice <- function(code_pref, code_muni = NULL, year
 #'
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.
-#' @param year Year of the data. Defaults to 2012.
+#' @param year Year of the data. Defaults to 2018.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
 #'

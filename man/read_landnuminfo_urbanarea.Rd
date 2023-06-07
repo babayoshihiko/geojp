@@ -11,7 +11,7 @@ read_landnuminfo_urbanarea(code_pref, code_muni, year = 2018, data_dir = NULL)
 
 \item{code_muni}{Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.}
 
-\item{year}{Year of the data. Defaults to 2012.}
+\item{year}{Year of the data. Defaults to 2018.}
 
 \item{data_dir}{The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.}
 }

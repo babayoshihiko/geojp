@@ -14,9 +14,9 @@ read_landnuminfo_river(
 \arguments{
 \item{code_pref}{The 2-digit code of prefecture.}
 
-\item{code_muni}{Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.}
+\item{code_muni}{Optional. The 3-digit code of municipality.}
 
-\item{year}{Year of the data. Defaults to 2007.}
+\item{year}{Year of the data. Defaults based on pref_code.}
 
 \item{data_dir}{The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.}
 }
