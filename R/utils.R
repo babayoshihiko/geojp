@@ -317,7 +317,20 @@ unzip_ja <- function(zipfile, files = NULL, exdir) {
     } else if(Sys.info()['sysname'] == "Linux") {
       system(paste("unzip -O CP932", zipfile, exdir, sep = " "), ignore.stdout = TRUE, ignore.stderr = TRUE)
     } else {
-      unzip(zipfile, exdir = exdir)
+      # This still causes "mojibake" on directories with Japanese characters
+      # beucase zip expects UTF-8 while the files/folders are in SJIS.
+      #zip::unzip(zipfile, exdir = exdir)
+      zipfile = gsub("~", Sys.getenv("HOME"), zipfile)
+      zipfile = gsub("/", "\\\\", zipfile)
+      #zipfile = gsub("\\\\", "\\", zipfile)
+      exdir = gsub("~", Sys.getenv("HOME"), exdir)
+      exdir = gsub("/", "\\\\", exdir)
+      #exdir = gsub("\\\\", "\\", exdir)
+      ret = system(paste("powershell \"Expand-Archive -Path", zipfile, "-DestinationPath", exdir, "\"", sep = " "), ignore.stdout = TRUE, ignore.stderr = TRUE)
+      if (ret != 0) {
+        ret = system(paste("7zip e  -o", exdir, " -ir!", zipfile, sep = ""), ignore.stdout = TRUE, ignore.stderr = TRUE)
+      }
+      if (ret != 0) stop("Please install 7zip at https://www.7-zip.org/download.html and try again.")
     }
   }
 }

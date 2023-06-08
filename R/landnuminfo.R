@@ -65,38 +65,29 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
     utils::download.file(strLNIUrl, strLNIZip, mode="wb")
     message(paste("Downloaded the file and saved in", strLNIUrl))
   }
+  unzip_ja(strLNIZip, exdir = strTempDir)
 
   if (filetype == "geojson") {
     GEOJSONFILE = paste(maptype,"-",year,"_",code_pref,code_muni,maptypeextra,".geojson",sep="")
-    unzip_ja(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
+
     if (code_muni != "") {
       GEOJSONFILE = paste(maptype,"-",year,"_",code_pref,maptypeextra,".geojson",sep="")
-      unzip_ja(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
     }
     GEOJSONFILE = file.path(paste(maptype,"-",year,"_",code_pref,"_GML",sep=""),
                                   GEOJSONFILE)
-    unzip_ja(strLNIZip, files = GEOJSONFILE, exdir = strTempDir)
     strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir, maptypeextra)
     if (!file.exists(strLNIFile)){
-      unzip_ja(strLNIZip, exdir = strTempDir)
       strLNIFile = find_geojson_file(maptype, code_pref, code_muni, year, strTempDir, maptypeextra)
     }
     sfLNI = sf::read_sf(strLNIFile)
   } else if (filetype == "shp") {
-    # Avoid the unzip error due to Japanese filenames
-    # This error happens with maptype = "A31", code_pref = 4, code_muni = 215
-    SHPFiles = c( paste(maptype,"-",year,"_",code_pref,maptypeextra,".shp",sep=""),
-                  paste(maptype,"-",year,"_",code_pref,maptypeextra,".shx",sep=""),
-                  paste(maptype,"-",year,"_",code_pref,maptypeextra,".dbf",sep=""),
-                  paste(maptype,"-",year,"_",code_pref,maptypeextra,".prj",sep=""))
-    unzip_ja(strLNIZip, files = SHPFiles, exdir = strTempDir)
     strLNIFile = file.path(strTempDir,
                            paste(maptype, "-", year,"_", code_pref,maptypeextra,".shp",sep=""))
     if (!file.exists(strLNIFile)){
-      unzip_ja(strLNIZip, exdir = strTempDir)
       strLNIFile = find_shp_file(maptype, code_pref, code_muni, year, strTempDir, maptypeextra)
     }
     sfLNI = sf::read_sf(strLNIFile, options = "ENCODING=CP932", stringsAsFactors=FALSE)
+
     # Older data may not have *.prj. Set CRS manually.
     if (is.na(sf::st_crs(sfLNI))) {
       if (year >= 2014) {
@@ -732,14 +723,6 @@ read_landnuminfo_urbanarea_2011 <- function(code_pref, data_dir = NULL){
 #'
 #' @export
 list_landnuminfo <- function(){
-  dfTestedMap <- utils::read.table(text = "MapCode,Year,FileType,MapUnit,MuniColumn,Geometry,Desc,URL
-A29,2019,geojson,muni,A29_003,POLYGON,用途地域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html
-A29,2011,shp,muni,A29_003,POLYGON,用途地域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html
-A50,2020,geojson,muni,A50_004,POLYGON,立地適正化計画区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A50-v1_0.html
-A31,2012,shp,pref,,POLYGON,洪水浸水想定区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A31.html
-P14,2021,geojson,pref,P14_003,POINT,福祉施設,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P14-v2_1.html
-A48,2021,geojson,pref,A48_003,POLYGON,災害危険区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A48-v1_2.html
-A48,2020,geojson,pref,A48_003,POLYGON,災害危険区域,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A48-v1_1.html",
-                                   header = TRUE, sep=",", colClasses = "character")
+  dfTestedMap <- read.csv(file.path("data","landnuminfo.csv"))
   message(dfTestedMap)
 }
