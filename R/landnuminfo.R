@@ -357,7 +357,34 @@ read_landnuminfo_welfare <- function(code_pref, code_muni = NULL, year = 2021, d
   year = check_year(year)
   if (year != 2021 & year != 2015 & year != 2011) stop(paste("The data is not available for year", year))
 
-  sfLNI = read_landnuminfo("P14", code_pref, code_muni, year, filetype = "geojson", geometry = "POINT", data_dir = data_dir)
+  sfLNI = read_landnuminfo("P14", code_pref, NULL, year, filetype = "geojson", geometry = "POINT", data_dir = data_dir)
+
+  if (length(code_muni) > 0) {
+    if (class(code_pref) == "numeric") {
+      code_pref_as_string = sprintf("%0*d", 2, code_pref)
+    } else {
+      code_pref_as_string = code_pref
+    }
+    i = 1
+    for (code_muni_single in code_muni){
+      if (i == 1) {
+        i = i + 1
+        if (class(i) == "numeric") {
+          sfLNI2 = subset(sfLNI, P14_003 == paste(code_pref_as_string, sprintf("%0*d", 3, code_muni_single), sep=""))
+        } else {
+          sfLNI2 = subset(sfLNI, P14_003 == paste(code_pref_as_string, code_muni_single, sep=""))
+        }
+      } else {
+        if (class(i) == "numeric") {
+          sfLNI2 = rbind(sfLNI2, subset(sfLNI, P14_003 == paste(code_pref_as_string, sprintf("%0*d", 3, code_muni_single), sep="")))
+        } else {
+          sfLNI2 = rbind(sfLNI2, subset(sfLNI, P14_003 == paste(code_pref_as_string, code_muni_single, sep="")))
+        }
+      }
+    }
+    sfLNI = sfLNI2
+  }
+
   sfLNI$P14_005_label <- factor(sfLNI$P14_005, levels=c("01","02","03","04","05","06","99"),
                           labels=c("\u4fdd\u8b77\u65bd\u8a2d",
                                    "\u8001\u4eba\u798f\u7949\u65bd\u8a2d",
