@@ -369,13 +369,13 @@ read_landnuminfo_welfare <- function(code_pref, code_muni = NULL, year = 2021, d
     for (code_muni_single in code_muni){
       if (i == 1) {
         i = i + 1
-        if (class(i) == "numeric") {
+        if (class(code_muni_single) == "numeric") {
           sfLNI2 = subset(sfLNI, P14_003 == paste(code_pref_as_string, sprintf("%0*d", 3, code_muni_single), sep=""))
         } else {
           sfLNI2 = subset(sfLNI, P14_003 == paste(code_pref_as_string, code_muni_single, sep=""))
         }
       } else {
-        if (class(i) == "numeric") {
+        if (class(code_muni_single) == "numeric") {
           sfLNI2 = rbind(sfLNI2, subset(sfLNI, P14_003 == paste(code_pref_as_string, sprintf("%0*d", 3, code_muni_single), sep="")))
         } else {
           sfLNI2 = rbind(sfLNI2, subset(sfLNI, P14_003 == paste(code_pref_as_string, code_muni_single, sep="")))
