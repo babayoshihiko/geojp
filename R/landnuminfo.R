@@ -489,7 +489,7 @@ read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, dat
              || num_code_pref == 39) {
     year = 2006
   } else {
-    message("Invalid pref_code.")
+    stop("Invalid pref_code.")
   }
 
   year = check_year(year)
