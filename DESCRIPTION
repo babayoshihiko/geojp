@@ -7,6 +7,7 @@ Description: Easy access to various spatial data sets of Japan as 'sf' objects i
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports:
+    lwgeom,
     sf,
     utils
 RoxygenNote: 7.2.3

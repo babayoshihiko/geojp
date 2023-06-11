@@ -106,7 +106,7 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
     if (geometry == "LINESTRING") sfLNI = sf::st_collection_extract(sfLNI, type = "LINESTRING")
     if (geometry == "POLYGON") sfLNI = sf::st_collection_extract(sfLNI, type = "POLYGON")
   }
-  sfLNI = sf::st_make_valid(sfLNI)
+  sfLNI$geometry <- lwgeom::lwgeom_make_valid(sfLNI$geometry)
   attr(sfLNI, "year") = year4digit
 
   return(sfLNI)
