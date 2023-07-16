@@ -136,16 +136,16 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
   if (code_pref == "47" && year4digit < 1973) stop("No data available for Okinaya before year 1973.")
 
   # Read the MapType definition
-  df <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
-  df <- df[df$year == year4digit,]
-  if (nrow(df) != 1) stop(paste("The target year", year, "not found in", paste("data/", maptype, ".csv", sep = "")))
+  dfTemp <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
+  dfTemp <- dfTemp[dfTemp$year == year4digit,]
+  if (nrow(dfTemp) != 1) stop(paste("The target year", year, "not found in", paste("data/", maptype, ".csv", sep = "")))
 
-  strLNIUrl = gsub("code_pref",code_pref,df$url)
-  strLNIZip = file.path(strTempDir,gsub("code_pref",code_pref,df$zip))
+  strLNIUrl = gsub("code_pref",code_pref,dfTemp$url)
+  strLNIZip = file.path(strTempDir,gsub("code_pref",code_pref,dfTemp$zip))
   strLNIFile = ""
-  strLNIFile1 = file.path(strTempDir,gsub("code_pref",code_pref,df$shp))
-  strLNIFile2 = file.path(strTempDir,gsub("code_pref",code_pref,df$altdir),gsub("code_pref",code_pref,df$shp))
-  strLNIFile3 = file.path(strTempDir,paste(gsub("code_pref",code_pref,df$altdir),"\\",gsub("code_pref",code_pref,df$shp),sep=""))
+  strLNIFile1 = file.path(strTempDir,gsub("code_pref",code_pref,dfTemp$shp))
+  strLNIFile2 = file.path(strTempDir,gsub("code_pref",code_pref,dfTemp$altdir),gsub("code_pref",code_pref,dfTemp$shp))
+  strLNIFile3 = file.path(strTempDir,paste(gsub("code_pref",code_pref,dfTemp$altdir),"\\",gsub("code_pref",code_pref,dfTemp$shp),sep=""))
 
   # Checks if the shp file exists
   if (length(Sys.glob(strLNIFile1)) == 1){
@@ -184,7 +184,7 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
     if (is.na(sf::st_crs(sfLNI))) {
       sf::st_crs(sfLNI) = 4612
     }
-    attr(sfLNI, "sourceURL") = df$source
+    attr(sfLNI, "sourceURL") = dfTemp$source
     attr(sfLNI, "year") = year4digit
     return(sfLNI)
   } else {

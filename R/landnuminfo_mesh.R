@@ -68,7 +68,7 @@ read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NU
   if (exists("sfLNI")) {
     # Older data may not have *.prj. Set CRS manually.
     if (is.na(sf::st_crs(sfLNI))) {
-      if (!is.null(data_dir)) {
+      if (!is.null(epsg)) {
         sf::st_crs(sfLNI) = epsg
       } else {
         sf::st_crs(sfLNI) = 4612
@@ -103,6 +103,7 @@ get_mesh1_by_muni <- function(code_pref, code_muni) {
 #' @export
 read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir = NULL){
   year4digit = check_year(year)
+  if (!year4digit %in% c(2021,2016,2014,2009,2006,1997,1991,1987,1976)) stop(paste("The year", year4digit, "is not available"))
 
   if (code_pref == 13 && code_muni == 421 && year4digit == 1997) stop("Shp not available for 12421 year 1997.")
   if (code_pref == 47 && code_muni >= 381 && year4digit == 1997) stop("Shp not available for 4738? year 1997.")
@@ -112,10 +113,10 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
     i = 1
     for (code_mesh1 in lstMesh1Codes) {
       if (i == 1) {
-        sfLNI = read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir, epsg)
+        sfLNI = read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir)
         i = i + 1
       } else {
-        sfLNI = rbind(sfLNI, read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir, epsg))
+        sfLNI = rbind(sfLNI, read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir))
       }
     }
   } else {
@@ -131,7 +132,23 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
     attr(sfLNI, "col") = "Max_Column"
     # https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-b_r.html
     # May not be compatible for older years
-    attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#B4B4B4","#C8460F","#0000FF","#FFFF99","#00CCFF","#00FF00","#FFFFFF","#FFFFFF","#FFFFFF","#FFFFFF")
+
+    if (year4digit > 2006) {
+      sfLNI$Max_Column <- factor(sfLNI$Max_Column, levels = c("田","他農用地","森林","荒地","建物用地","道路","鉄道","他用地","河川湖沼","海浜","海水域","ゴルフ場"))
+      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#B4B4B4","#C8460F","#0000FF","#FFFF99","#00CCFF","#00FF00")
+    } else if (year4digit == 1991 || year4digit == 1997 || year4digit == 2006) {
+      # https://nlftp.mlit.go.jp/ksj/gml/codelist/LandUseProperty-77.html
+      sfLNI$Max_Column <- factor(sfLNI$Max_Column, levels = c("L03a_002","L03a_003","L03a_004","L03a_005","L03a_006","L03a_007","L03a_008","L03a_009","L03a_010","L03a_011","L03a_012"))
+      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#C8460F","#0000FF","#FFFF99","#00CCFF","#00FF00")
+    } else if (year4digit == 1987) {
+      # https://nlftp.mlit.go.jp/ksj/gml/codelist/LandUseProperty-77.html
+      sfLNI$Max_Column <- factor(sfLNI$Max_Column, levels = c("L03a_002","L03a_003","L03a_004","L03a_005","L03a_006","L03a_007","L03a_008","L03a_009","L03a_010","L03a_011","L03a_012","L03a_013"))
+      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#FFCC99","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#C8460F","#0000FF","#FFFF99","#00CCFF")
+    } else if (year4digit == 1976) {
+      # https://nlftp.mlit.go.jp/ksj/gml/codelist/LandUseProperty-77.html
+      sfLNI$Max_Column <- factor(sfLNI$Max_Column, levels = c("L03a_002","L03a_003","L03a_004","L03a_005","L03a_006","L03a_007","L03a_008","L03a_009","L03a_010","L03a_011","L03a_012","L03a_013","L03a_014","L03a_015","L03a_016"))
+      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#FFCC99","#FFCC99","#00AA00","#FF9900","#FF0000","#FF0000","#8C8C8C","#C8460F","#0000FF","#0000FF","#0000FF","#FFFF99","#00CCFF")
+    }
 
     return(sfLNI)
   } else if (year4digit == 2021) {
