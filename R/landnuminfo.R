@@ -122,6 +122,7 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
     }
   }
 
+  # Checks the arguments
   if (mode(code_pref) == "numeric"){
     if (code_pref < 0 || code_pref > 47) {
       stop("Invalid argument: code_pref must be between 1 and 47.")
@@ -134,6 +135,7 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
   if (nchar(code_pref) != 2) stop(paste("Invalid argument: code_pref:", code_pref))
   if (code_pref == "47" && year4digit < 1973) stop("No data available for Okinaya before year 1973.")
 
+  # Read the MapType definition
   df <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
   df <- df[df$year == year4digit,]
   if (nrow(df) != 1) stop(paste("The target year", year, "not found in", paste("data/", maptype, ".csv", sep = "")))
@@ -142,13 +144,28 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
   strLNIZip = file.path(strTempDir,gsub("code_pref",code_pref,df$zip))
   strLNIFile = ""
   strLNIFile1 = file.path(strTempDir,gsub("code_pref",code_pref,df$shp))
-  strLNIFile2 = file.path(strTempDir, gsub("code_pref",code_pref,df$altdir),gsub("code_pref",code_pref,df$shp))
-  strLNIFile3 = file.path(strTempDir, paste(gsub("code_pref",code_pref,df$altdir),"\\",gsub("code_pref",code_pref,df$shp),sep=""))
-  if (!file.exists(strLNIZip)) {
-    utils::download.file(strLNIUrl, strLNIZip, mode="wb")
-    message(paste("Downloaded the file and saved in", strLNIUrl))
+  strLNIFile2 = file.path(strTempDir,gsub("code_pref",code_pref,df$altdir),gsub("code_pref",code_pref,df$shp))
+  strLNIFile3 = file.path(strTempDir,paste(gsub("code_pref",code_pref,df$altdir),"\\",gsub("code_pref",code_pref,df$shp),sep=""))
+
+  # Checks if the shp file exists
+  if (length(Sys.glob(strLNIFile1)) == 1){
+    strLNIFile = Sys.glob(strLNIFile1)
+  } else if (length(Sys.glob(strLNIFile2)) == 1){
+    strLNIFile = Sys.glob(strLNIFile2)
+  } else if (length(Sys.glob(strLNIFile3)) == 1){
+    strLNIFile = Sys.glob(strLNIFile3)
   }
-  unzip_ja(strLNIZip, exdir = strTempDir)
+
+  # If the file does not exist, download the zip file and uzip
+  if (!file.exists(strLNIFile)){
+    if (!file.exists(strLNIZip)) {
+      utils::download.file(strLNIUrl, strLNIZip, mode="wb")
+      message(paste("Downloaded the file and saved in", strLNIUrl))
+    }
+    unzip_ja(strLNIZip, exdir = strTempDir)
+  }
+
+  # Checks if the shp file exists
   if (length(Sys.glob(strLNIFile1)) == 1){
     strLNIFile = Sys.glob(strLNIFile1)
   } else if (length(Sys.glob(strLNIFile2)) == 1){
@@ -161,14 +178,18 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
   }
 
   sfLNI = sf::read_sf(strLNIFile, options = "ENCODING=CP932", stringsAsFactors=FALSE)
-  # Older data may not have *.prj. Set CRS manually.
-  if (is.na(sf::st_crs(sfLNI))) {
-    sf::st_crs(sfLNI) = 4612
-  }
-  attr(sfLNI, "sourceURL") = df$source
-  attr(sfLNI, "year") = year4digit
 
-  return(sfLNI)
+  if (exists("sfLNI")) {
+    # Older data may not have *.prj. Set CRS manually.
+    if (is.na(sf::st_crs(sfLNI))) {
+      sf::st_crs(sfLNI) = 4612
+    }
+    attr(sfLNI, "sourceURL") = df$source
+    attr(sfLNI, "year") = year4digit
+    return(sfLNI)
+  } else {
+    warning("Could not find the data.")
+  }
 }
 
 
