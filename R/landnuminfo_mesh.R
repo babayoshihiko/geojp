@@ -111,7 +111,8 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
 
   if (exists("sfLNI")) {
     #sfLNI$Max_Column <- factor(levels = c("L03a_002","L03a_003","L03a_004","L03a_005","L03a_006","L03a_007","L03a_008","L03a_009","L03a_010","L03a_011","L03a_012","L03a_013","L03a_014","L03a_015","L03a_016"))
-    sfLNI$Max_Column <- apply(sfLNI, 1, get_max_column)
+    sfTemp <- sfLNI[,unlist(lapply(sfLNI, is.numeric))]
+    sfLNI$Max_Column <- colnames(sfTemp)[apply(sfTemp,1,which.max)]
     attr(sfLNI, "mapname") = "\u571f\u5730\u5229\u75283\u6b21\u30e1\u30c3\u30b7\u30e5"
     attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u7acb\u5730\u9069\u6b63\u5316\u8a08\u753b\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
     attr(sfLNI, "col") = "Max_Column"
@@ -124,11 +125,3 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
     warning("The mesh may not be available for the year 2021.")
   }
 }
-
-get_max_column <- function(row) {
-  row <- sapply(row, is.numeric)
-  max_column <- names(row)[which.max(row)]
-  return(max_column)
-}
-
-
