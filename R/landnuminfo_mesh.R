@@ -1,4 +1,4 @@
-read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NULL){
+read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NULL, epsg = NULL){
   year4digit = check_year(year)
 
   strTempDir = tempdir()
@@ -18,16 +18,16 @@ read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NU
   }
   if (nchar(code_mesh) != 4) stop(paste("Invalid argument: code_mesh:", code_mesh))
 
-  df <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
-  df <- df[df$year == year4digit,]
-  if (nrow(df) != 1) stop(paste("The target year", year, "not found in", paste("data/", maptype, ".csv", sep = "")))
+  dfTemp <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
+  dfTemp <- dfTemp[dfTemp$year == year4digit,]
+  if (nrow(dfTemp) != 1) stop(paste("The target year", year, "not found in", paste("data/", maptype, ".csv", sep = "")))
 
-  strLNIUrl = gsub("code_mesh",code_mesh,df$url)
-  strLNIZip = file.path(strTempDir,gsub("code_mesh",code_mesh,df$zip))
+  strLNIUrl = gsub("code_mesh",code_mesh,dfTemp$url)
+  strLNIZip = file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$zip))
   strLNIFile = ""
-  strLNIFile1 = file.path(strTempDir,gsub("code_mesh",code_mesh,df$shp))
-  strLNIFile2 = file.path(strTempDir,gsub("code_mesh",code_mesh,df$altdir),gsub("code_mesh",code_mesh,df$shp))
-  strLNIFile3 = file.path(strTempDir,paste(gsub("code_mesh",code_mesh,df$altdir),"\\",gsub("code_mesh",code_mesh,df$shp),sep=""))
+  strLNIFile1 = file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$shp))
+  strLNIFile2 = file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$altdir),gsub("code_mesh",code_mesh,dfTemp$shp))
+  strLNIFile3 = file.path(strTempDir,paste(gsub("code_mesh",code_mesh,dfTemp$altdir),"\\",gsub("code_mesh",code_mesh,dfTemp$shp),sep=""))
 
   # Checks if the shp file exists
   if (length(Sys.glob(strLNIFile1)) == 1){
@@ -56,7 +56,11 @@ read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NU
     strLNIFile = Sys.glob(strLNIFile3)
   }
   if (!file.exists(strLNIFile)){
-    stop(paste("Cannot find the file:", strLNIFile))
+    if (strLNIFile == ""){
+      stop(paste("Cannot find the file:", strLNIFile1))
+    } else {
+      stop(paste("Cannot find the file:", strLNIFile))
+    }
   }
 
   sfLNI = sf::read_sf(strLNIFile, options = "ENCODING=CP932", stringsAsFactors=FALSE)
@@ -64,19 +68,23 @@ read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NU
   if (exists("sfLNI")) {
     # Older data may not have *.prj. Set CRS manually.
     if (is.na(sf::st_crs(sfLNI))) {
-      sf::st_crs(sfLNI) = 4612
+      if (!is.null(data_dir)) {
+        sf::st_crs(sfLNI) = epsg
+      } else {
+        sf::st_crs(sfLNI) = 4612
+      }
     }
-    attr(sfLNI, "sourceURL") = df$source
+    attr(sfLNI, "sourceURL") = dfTemp$source
     attr(sfLNI, "year") = year4digit
     return(sfLNI)
   }
 }
 
-get_mesh3_by_muni <- function(code_pref, code_muni) {
-  df <- read.csv(file.path("data","muni_mesh3.csv"))
-  df <- df[df$code_pref == code_pref & df$code_muni == code_muni,]
+get_mesh1_by_muni <- function(code_pref, code_muni) {
+  dfTemp <- read.csv(file.path("data","muni_mesh1.csv"))
+  dfTemp <- dfTemp[dfTemp$code_pref == code_pref & dfTemp$code_muni == code_muni,]
 
-  return(df$code_mesh3)
+  return(dfTemp$code_mesh3)
 }
 
 #' Download spatial data of Mesh 3 of Japan
@@ -96,22 +104,33 @@ get_mesh3_by_muni <- function(code_pref, code_muni) {
 read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir = NULL){
   year4digit = check_year(year)
 
-  lstMesh3Codes = get_mesh3_by_muni(code_pref, code_muni)
-  if (length(lstMesh3Codes) > 1) {
+  if (code_pref == 13 && code_muni == 421 && year4digit == 1997) stop("Shp not available for 12421 year 1997.")
+  if (code_pref == 47 && code_muni >= 381 && year4digit == 1997) stop("Shp not available for 4738? year 1997.")
+
+  if (year4digit <= 1997) {
+    epsg = 4301
+  } else {
+    epsg = 4612
+  }
+
+  lstMesh1Codes = get_mesh1_by_muni(code_pref, code_muni)
+  if (length(lstMesh1Codes) >= 1) {
     i = 1
-    for (code_mesh3 in lstMesh3Codes) {
+    for (code_mesh1 in lstMesh1Codes) {
       if (i == 1) {
-        sfLNI = read_landnuminfo_mesh_by_csv("L03", code_mesh3, year4digit, data_dir)
+        sfLNI = read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir, epsg)
         i = i + 1
       } else {
-        sfLNI = rbind(sfLNI, read_landnuminfo_mesh_by_csv("L03", code_mesh3, year4digit, data_dir))
+        sfLNI = rbind(sfLNI, read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir, epsg))
       }
     }
+  } else {
+    stop(paste("No city found for pref:", code_pref, ", city:", code_muni))
   }
 
   if (exists("sfLNI")) {
-    #sfLNI$Max_Column <- factor(levels = c("L03a_002","L03a_003","L03a_004","L03a_005","L03a_006","L03a_007","L03a_008","L03a_009","L03a_010","L03a_011","L03a_012","L03a_013","L03a_014","L03a_015","L03a_016"))
-    sfTemp <- sfLNI[,unlist(lapply(sfLNI, is.numeric))]
+    #sfTemp <- sfLNI[,unlist(lapply(sfLNI, is.numeric))]
+    sfTemp <- sfLNI[,-1]
     sfLNI$Max_Column <- colnames(sfTemp)[apply(sfTemp,1,which.max)]
     attr(sfLNI, "mapname") = "\u571f\u5730\u5229\u75283\u6b21\u30e1\u30c3\u30b7\u30e5"
     attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u7acb\u5730\u9069\u6b63\u5316\u8a08\u753b\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
