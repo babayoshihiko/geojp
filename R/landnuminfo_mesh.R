@@ -107,12 +107,6 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
   if (code_pref == 13 && code_muni == 421 && year4digit == 1997) stop("Shp not available for 12421 year 1997.")
   if (code_pref == 47 && code_muni >= 381 && year4digit == 1997) stop("Shp not available for 4738? year 1997.")
 
-  if (year4digit <= 1997) {
-    epsg = 4301
-  } else {
-    epsg = 4612
-  }
-
   lstMesh1Codes = get_mesh1_by_muni(code_pref, code_muni)
   if (length(lstMesh1Codes) >= 1) {
     i = 1
