@@ -91,6 +91,15 @@ get_mesh1_by_muni <- function(code_pref, code_muni) {
 #'
 #' @description
 #' Function to download spatial data of Mesh 3 of Japan. The returned value is an sf object.
+#' `read_landnuminfo_mesh3()` reads Land Use Third Level Mesh data. See https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-a.html.
+#'
+#' The available years are: 2021, 2016, 2014, 2009, 2006, 1997, 1991, 1987, 1976.
+#'
+#' If the file of a mesh is not available at the site, then the mesh is simply ignored.
+#'
+#' The default year is 2016 because 2021 lacks many areas. For year 2016, mesh_code 6740 (part of Rebun Town, pref_code 1, muni_code 517) is missing.
+#'
+#' The year 1997 lacks meshes like 6748, 6747, 6740, 6646, 6645, 6541, 6546, 6339, 6243, 5038 which include part of several cities and towns.
 #'
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Optional. The 3-digit code of municipality.
@@ -105,25 +114,34 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
   year4digit = check_year(year)
   if (!year4digit %in% c(2021,2016,2014,2009,2006,1997,1991,1987,1976)) stop(paste("The year", year4digit, "is not available"))
 
-  if (code_pref == 13 && code_muni == 421 && year4digit == 1997) stop("Shp not available for 12421 year 1997.")
-  if (code_pref == 47 && code_muni >= 381 && year4digit == 1997) stop("Shp not available for 4738? year 1997.")
-
   lstMesh1Codes = get_mesh1_by_muni(code_pref, code_muni)
+
+  sfLNI <- NULL
   if (length(lstMesh1Codes) >= 1) {
-    i = 1
     for (code_mesh1 in lstMesh1Codes) {
-      if (i == 1) {
-        sfLNI = read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir)
-        i = i + 1
+      if (is.null(sfLNI)) {
+        tryCatch(
+          error = function(cnd) sfLNI <- read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir),
+          {
+            sfLNI <- NULL
+          }
+        )
       } else {
-        sfLNI = rbind(sfLNI, read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir))
+        sfLNI2 <- NULL
+        tryCatch(
+          error = function(cnd) sfLNI2 <- read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir),
+          {
+            sfLNI2 <- NULL
+          }
+        )
+        if (!is.null(sfLNI2)) sfLNI <- rbind(sfLNI, sfLNI2)
       }
     }
   } else {
     stop(paste("No city found for pref:", code_pref, ", city:", code_muni))
   }
 
-  if (exists("sfLNI")) {
+  if (!is.null(sfLNI)) {
     #sfTemp <- sfLNI[,unlist(lapply(sfLNI, is.numeric))]
     sfTemp <- sfLNI[,-1]
     sfLNI$Max_Column <- colnames(sfTemp)[apply(sfTemp,1,which.max)]
@@ -134,7 +152,7 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
     # May not be compatible for older years
 
     if (year4digit > 2006) {
-      sfLNI$Max_Column <- factor(sfLNI$Max_Column, levels = c("田","他農用地","森林","荒地","建物用地","道路","鉄道","他用地","河川湖沼","海浜","海水域","ゴルフ場"))
+      sfLNI$Max_Column <- factor(sfLNI$Max_Column, levels = c("\u7530","\u4ed6\u8fb2\u7528\u5730","\u68ee\u6797","\u8352\u5730","\u5efa\u7269\u7528\u5730","\u9053\u8def","\u9244\u9053","\u4ed6\u7528\u5730","\u6cb3\u5ddd\u6e56\u6cbc","\u6d77\u6d5c","\u6d77\u6c34\u57df","\u6d77\u6c34\u57df"))
       attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#B4B4B4","#C8460F","#0000FF","#FFFF99","#00CCFF","#00FF00")
     } else if (year4digit == 1991 || year4digit == 1997 || year4digit == 2006) {
       # https://nlftp.mlit.go.jp/ksj/gml/codelist/LandUseProperty-77.html

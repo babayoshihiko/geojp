@@ -16,7 +16,7 @@ library(tmap)
 library(mapview)
 ```
 
-## パッケージのインストールと読み込み
+## Installation and load
 
 これは最初だけ必要です。ただし、まだ
 開発途中ですので、定期的に繰り返すと良いでしょう。
@@ -32,7 +32,7 @@ devtools::install_github("babayoshihiko/geojp")
 library(geojp)
 ```
 
-## 国勢調査
+## Census
 
 国勢調査の境界情報を読み込みましょう。都道府県コード (code_pref) と市町村コード (code_muni) を指定します。宮城県 (4) の大崎市 (215) の例です。
 
@@ -65,7 +65,7 @@ attr(sfCensus2, "sourceName")
 attr(sfCensus2, "sourceURL")
 ```
 
-## 国土数値情報
+## Land Numerical Information
 
 国土数値情報の用途地域を読み込みましょう。都道府県コード (code_pref) と市町村コード (code_muni) を指定します。平成23（2011）年度、令和元（2019）年度があるので、今回は平成23年度版を試します。
 

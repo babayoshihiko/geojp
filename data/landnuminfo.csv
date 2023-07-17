@@ -10,4 +10,4 @@ N03,2023,shp,pref,,POLYGON,行政区域
 A09,2011,shp,muni,,POLYGON,都市地域
 W05,,shp,pref,,LINESTRING,河川
 N05,,,,,,
-L03,,,,,,
+L03,2016,shp,muni,,POLYGON,
