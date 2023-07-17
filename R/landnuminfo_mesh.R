@@ -91,7 +91,7 @@ get_mesh1_by_muni <- function(code_pref, code_muni) {
 #'
 #' @description
 #' Function to download spatial data of Mesh 3 of Japan. The returned value is an sf object.
-#' `read_landnuminfo_mesh3()` reads Land Use Third Level Mesh data. See https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-a.html.
+#' The function reads Land Use Third Level Mesh data. See https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-a.html.
 #'
 #' The available years are: 2021, 2016, 2014, 2009, 2006, 1997, 1991, 1987, 1976.
 #'
@@ -106,7 +106,6 @@ get_mesh1_by_muni <- function(code_pref, code_muni) {
 #' @param year Year of the data. Defaults to 2016. The years 2016,2014,2009,2006 are clean. Some mesh codes not available for other years.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
-#'
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 #'
 #' @export
@@ -120,19 +119,13 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
   if (length(lstMesh1Codes) >= 1) {
     for (code_mesh1 in lstMesh1Codes) {
       if (is.null(sfLNI)) {
-        tryCatch(
-          error = function(cnd) sfLNI <- read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir),
-          {
-            sfLNI <- NULL
-          }
+        tryCatch(sfLNI <- read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir),
+          error = function(cnd){ sfLNI <- NULL }
         )
       } else {
         sfLNI2 <- NULL
-        tryCatch(
-          error = function(cnd) sfLNI2 <- read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir),
-          {
-            sfLNI2 <- NULL
-          }
+        tryCatch(sfLNI2 <- read_landnuminfo_mesh_by_csv("L03", code_mesh1, year4digit, data_dir),
+          error = function(cnd){ sfLNI2 <- NULL }
         )
         if (!is.null(sfLNI2)) sfLNI <- rbind(sfLNI, sfLNI2)
       }
@@ -152,7 +145,7 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
     # May not be compatible for older years
 
     if (year4digit > 2006) {
-      sfLNI$Max_Column <- factor(sfLNI$Max_Column, levels = c("\u7530","\u4ed6\u8fb2\u7528\u5730","\u68ee\u6797","\u8352\u5730","\u5efa\u7269\u7528\u5730","\u9053\u8def","\u9244\u9053","\u4ed6\u7528\u5730","\u6cb3\u5ddd\u6e56\u6cbc","\u6d77\u6d5c","\u6d77\u6c34\u57df","\u6d77\u6c34\u57df"))
+      sfLNI$Max_Column <- factor(sfLNI$Max_Column, levels = c("\u7530","\u4ed6\u8fb2\u7528\u5730","\u68ee\u6797","\u8352\u5730","\u5efa\u7269\u7528\u5730","\u9053\u8def","\u9244\u9053","\u4ed6\u7528\u5730","\u6cb3\u5ddd\u6e56\u6cbc","\u6d77\u6d5c","\u30b4\u30eb\u30d5\u5834"))
       attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#B4B4B4","#C8460F","#0000FF","#FFFF99","#00CCFF","#00FF00")
     } else if (year4digit == 1991 || year4digit == 1997 || year4digit == 2006) {
       # https://nlftp.mlit.go.jp/ksj/gml/codelist/LandUseProperty-77.html
@@ -173,3 +166,88 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
     warning("The mesh may not be available for the year 2021.")
   }
 }
+
+#' Download spatial data of Mesh Subdivision of Japan
+#'
+#' @description
+#' Function to download spatial data of Mesh Subdivision of Japan. The returned value is an sf object.
+#' The function reads Land Use Subdivision Level Mesh data. See https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-a.html.
+#'
+#' Beware! The object size will be large! More than 620,000 rows! Use read_landnuminfo_mesh3() instead.
+#'
+#' The available years are: 2021, 2016, 2014, 2009, 2006, 1997, 1991, 1987, 1976.
+#'
+#' If the file of a mesh is not available at the site, then the mesh is simply ignored.
+#'
+#' The default year is 2006 because the year covers isolated islands.
+#'
+#' @param code_pref The 2-digit code of prefecture.
+#' @param code_muni Optional. The 3-digit code of municipality.
+#' @param year Year of the data. Defaults to 2006. The years 2016,2014,2009,2006 are clean. Some mesh codes not available for other years.
+#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
+#'
+#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
+#'
+#' @export
+read_landnuminfo_meshsub <- function(code_pref, code_muni, year = 2006, data_dir = NULL){
+  year4digit = check_year(year)
+  if (!year4digit %in% c(2021,2016,2014,2009,2006,1997,1991,1987,1976)) stop(paste("The year", year4digit, "is not available"))
+
+  lstMesh1Codes = get_mesh1_by_muni(code_pref, code_muni)
+
+  sfLNI <- NULL
+  if (length(lstMesh1Codes) >= 1) {
+    for (code_mesh1 in lstMesh1Codes) {
+      if (is.null(sfLNI)) {
+        tryCatch(sfLNI <- read_landnuminfo_mesh_by_csv("L03-b", code_mesh1, year4digit, data_dir),
+          error = function(cnd){ sfLNI <- NULL }
+        )
+      } else {
+        sfLNI2 <- NULL
+        tryCatch(sfLNI2 <- read_landnuminfo_mesh_by_csv("L03-b", code_mesh1, year4digit, data_dir),
+          error = function(cnd){ sfLNI2 <- NULL }
+        )
+        if (!is.null(sfLNI2)) sfLNI <- rbind(sfLNI, sfLNI2)
+      }
+    }
+  } else {
+    stop(paste("No city found for pref:", code_pref, ", city:", code_muni))
+  }
+
+  if (!is.null(sfLNI)) {
+    attr(sfLNI, "mapname") = "\u571f\u5730\u5229\u75283\u6b21\u30e1\u30c3\u30b7\u30e5"
+    attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u7acb\u5730\u9069\u6b63\u5316\u8a08\u753b\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
+    if (year4digit == 2016 || year4digit == 2014 || year4digit == 2009) {
+      attr(sfLNI, "col") = "\u571f\u5730\u5229\u7528\u7a2e"
+    } else {
+      attr(sfLNI, "col") = "L03b_002"
+    }
+
+    # https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-b_r.html
+    # May not be compatible for older years
+    if (year4digit == 2021) {
+      sfLNI$L03b_002 <- factor(sfLNI$L03b_002, levels = c("0100","0200","0500","0600","0700","0901","0902","1000","1100","1400","1500","1600"))
+      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#B4B4B4","#C8460F","#0000FF","#FFFF99","#00CCFF","#00FF00")
+    } else  if (year4digit == 2016 || year4digit == 2014 || year4digit == 2009) {
+      # Cannot use sfLNI[,2] due to "In xtfrm.data.frame(x) : cannot xtfrm data frames"
+      # https://community.rstudio.com/t/warning-message-in-xtfrm-data-frame-x-cannot-xtfrm-data-frames/115717
+      # Rename the column name in multibyte to "L03b_002" temporarily
+      colnames(sfLNI)[2] <- "L03b_002"
+      sfLNI$L03b_002 <- factor(sfLNI$L03b_002, levels = c("0100","0200","0500","0600","0700","0901","0902","1000","1100","1400","1500","1600"))
+      colnames(sfLNI)[2] <- "\u571f\u5730\u5229\u7528\u7a2e"
+      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#B4B4B4","#C8460F","#0000FF","#FFFF99","#00CCFF","#00FF00")
+    } else if (year4digit == 1991 || year4digit == 1997 || year4digit == 2006) {
+      sfLNI$L03b_002 <- factor(sfLNI$L03b_002, levels=c("1","2","5","6","7","9","A","B","E","F","G"))
+      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#C8460F","#0000FF","#FFFF99","#00CCFF","#00FF00")
+    } else if (year4digit == 1987) {
+      sfLNI$L03b_002 <- factor(sfLNI$L03b_002, levels=c("1","2","3","4","5","6","7","9","A","B","E","F"))
+      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#FFCC99","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#C8460F","#0000FF","#FFFF99","#00CCFF")
+    } else if (year4digit == 1976) {
+      sfLNI$L03b_002 <- factor(sfLNI$L03b_002, levels=c("1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"))
+      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#FFCC99","#FFCC99","#00AA00","#FF9900","#FF0000","#FF0000","#8C8C8C","#C8460F","#0000FF","#0000FF","#0000FF","#FFFF99","#00CCFF")
+    }
+
+    return(sfLNI)
+  }
+}
+
