@@ -11,3 +11,4 @@ A09,2011,shp,muni,,POLYGON,都市地域
 W05,,shp,pref,,LINESTRING,河川
 L03-a,2016,shp,muni,,POLYGON,土地利用3次メッシュ
 L03-b,2006,shp,muni,,POLYGON,土地利用細分メッシュ
+L02,2022,shp,muni,Depends,POINT,都道府県地価調査

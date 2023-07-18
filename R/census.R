@@ -12,12 +12,7 @@
 #'
 #' @export
 read_census_tract <- function(code_pref, code_muni, year = 2020, data_dir = NULL){
-  strTempDir = tempdir()
-  if (!is.null(data_dir)) {
-    if (dir.exists(data_dir)) {
-      strTempDir = data_dir
-    }
-  }
+  strTempDir <- check_data_dir(data_dir)
 
   if (mode(code_pref) == "numeric"){
     if (code_pref < 0 || code_pref > 47) {

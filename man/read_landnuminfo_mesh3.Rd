@@ -20,7 +20,7 @@ An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 }
 \description{
 Function to download spatial data of Mesh 3 of Japan. The returned value is an sf object.
-`read_landnuminfo_mesh3()` reads Land Use Third Level Mesh data. See https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-a.html.
+The function reads Land Use Third Level Mesh data. See https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-a.html.
 
 The available years are: 2021, 2016, 2014, 2009, 2006, 1997, 1991, 1987, 1976.
 

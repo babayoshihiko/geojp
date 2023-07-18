@@ -357,12 +357,54 @@ year_2digit <- function(year) {
   return(year_2d)
 }
 
+check_data_dir <- function(data_dir){
+  strTempDir = tempdir()
+  if (!is.null(data_dir)) {
+    if (dir.exists(data_dir)) {
+      strTempDir = data_dir
+    } else {
+      warning(paste("The folder", data_dir, "does not seem to exist. Uses the folder", strTempDir, "instead."))
+    }
+  }
+  return(strTempDir)
+}
+
+check_code_muni_as_char <- function(code_pref = NULL, code_muni){
+  strCodeMuni <- ""
+  if (!is.null(code_pref)) {
+    dfTemp <- read.csv(file.path("data","code_pref_muni.csv"))
+    dfTemp <- dfTemp[dfTemp$code_pref == code_pref & dfTemp$code_muni == code_muni,]
+    if (length(dfTemp) == 0) {
+      warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist."))
+    } else if (length(dfTemp) == 1) {
+      strCodeMuni <- sprintf("%02d", as.integer(code_muni))
+    } else {
+      warning(paste("Pref:", code_pref, ", Muni:", code_muni, " somehow matched two or more municipalities."))
+      strCodeMuni <- sprintf("%02d", as.integer(code_muni))
+    }
+  } else {
+    if (mode(code_muni) == "numeric") {
+      if (code_muni < 100 || code_muni > 700) {
+        warning("Invalid argument: code_muni must be between 100 and 700.")
+      } else {
+        strCodeMuni <- sprintf("%02d", as.integer(code_muni))
+      }
+    }
+  }
+  return(strCodeMuni)
+}
 
 
-
-
-
-
-
-
+check_code_pref_as_char <- function(code_pref){
+  strCodePref <- ""
+  if (mode(code_pref) != "numeric") code_pref <- as.integer(code_pref)
+  if (code_pref < 0 || code_pref > 47) {
+    stop("Invalid argument: code_pref must be between 1 and 47.")
+  } else if (code_pref < 10) {
+    strCodePref <- paste("0", as.character(code_pref), sep = "")
+  } else {
+    strCodePref <- as.character(code_pref)
+  }
+  return(strCodePref)
+}
 

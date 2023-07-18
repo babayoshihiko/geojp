@@ -1,12 +1,6 @@
 read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NULL, epsg = NULL){
-  year4digit = check_year(year)
-
-  strTempDir = tempdir()
-  if (!is.null(data_dir)) {
-    if (dir.exists(data_dir)) {
-      strTempDir = data_dir
-    }
-  }
+  year4digit <- check_year(year)
+  strTempDir <- check_data_dir(data_dir)
 
   # Checks the arguments
   if (mode(code_mesh) == "numeric"){
@@ -42,7 +36,7 @@ read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NU
   if (!file.exists(strLNIFile)){
     if (!file.exists(strLNIZip)) {
       utils::download.file(strLNIUrl, strLNIZip, mode="wb")
-      message(paste("Downloaded the file and saved in", strLNIUrl))
+      message(paste("Downloaded the file and saved in", strTempDir))
     }
     unzip_ja(strLNIZip, exdir = strTempDir)
   }
@@ -74,6 +68,7 @@ read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NU
         sf::st_crs(sfLNI) = 4612
       }
     }
+    attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u7acb\u5730\u9069\u6b63\u5316\u8a08\u753b\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
     attr(sfLNI, "sourceURL") = dfTemp$source
     attr(sfLNI, "year") = year4digit
     return(sfLNI)
@@ -111,7 +106,6 @@ get_mesh1_by_muni <- function(code_pref, code_muni) {
 #' @export
 read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir = NULL){
   year4digit = check_year(year)
-  if (!year4digit %in% c(2021,2016,2014,2009,2006,1997,1991,1987,1976)) stop(paste("The year", year4digit, "is not available"))
 
   lstMesh1Codes = get_mesh1_by_muni(code_pref, code_muni)
 
@@ -139,7 +133,6 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
     sfTemp <- sfLNI[,-1]
     sfLNI$Max_Column <- colnames(sfTemp)[apply(sfTemp,1,which.max)]
     attr(sfLNI, "mapname") = "\u571f\u5730\u5229\u75283\u6b21\u30e1\u30c3\u30b7\u30e5"
-    attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u7acb\u5730\u9069\u6b63\u5316\u8a08\u753b\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
     attr(sfLNI, "col") = "Max_Column"
     # https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-b_r.html
     # May not be compatible for older years
@@ -191,7 +184,6 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
 #' @export
 read_landnuminfo_meshsub <- function(code_pref, code_muni, year = 2006, data_dir = NULL){
   year4digit = check_year(year)
-  if (!year4digit %in% c(2021,2016,2014,2009,2006,1997,1991,1987,1976)) stop(paste("The year", year4digit, "is not available"))
 
   lstMesh1Codes = get_mesh1_by_muni(code_pref, code_muni)
 
@@ -216,7 +208,6 @@ read_landnuminfo_meshsub <- function(code_pref, code_muni, year = 2006, data_dir
 
   if (!is.null(sfLNI)) {
     attr(sfLNI, "mapname") = "\u571f\u5730\u5229\u75283\u6b21\u30e1\u30c3\u30b7\u30e5"
-    attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u7acb\u5730\u9069\u6b63\u5316\u8a08\u753b\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
     if (year4digit == 2016 || year4digit == 2014 || year4digit == 2009) {
       attr(sfLNI, "col") = "\u571f\u5730\u5229\u7528\u7a2e"
     } else {

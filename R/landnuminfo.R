@@ -21,31 +21,12 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
                              geometry = NULL,
                              data_dir = NULL,
                              maptypeextra = ""){
-  strTempDir = tempdir()
-  year4digit = year
-  if (!is.null(data_dir)) {
-    if (dir.exists(data_dir)) {
-      strTempDir = data_dir
-    }
-  }
+  # Checks the arguments
+  year4digit <- check_year(year)
+  strTempDir <- check_data_dir(data_dir)
+  code_pref <- check_code_pref_as_char(code_pref)
+  code_muni <- check_code_muni_as_char(code_muni, code_pref)
 
-  if (mode(code_pref) == "numeric"){
-    if (code_pref < 0 || code_pref > 47) {
-      stop("Invalid argument: code_pref must be between 1 and 47.")
-    } else if (code_pref < 10) {
-      code_pref = paste("0", as.character(code_pref), sep = "")
-    } else {
-      code_pref = as.character(code_pref)
-    }
-  }
-  if (mode(code_muni) == "numeric"){
-    if (code_muni < 100 || code_muni > 700) {
-      stop("Invalid argument: code_muni must be between 100 and 700.")
-    } else {
-      code_muni = as.character(code_muni)
-    }
-  }
-  if (is.null(code_muni)) code_muni = ""
   if (mode(year) == "numeric"){
     year = year_2digit(year)
   }
@@ -112,26 +93,12 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
   return(sfLNI)
 }
 
-read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
-  year4digit = check_year(year)
-
-  strTempDir = tempdir()
-  if (!is.null(data_dir)) {
-    if (dir.exists(data_dir)) {
-      strTempDir = data_dir
-    }
-  }
-
+read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL, year, data_dir = NULL){
   # Checks the arguments
-  if (mode(code_pref) == "numeric"){
-    if (code_pref < 0 || code_pref > 47) {
-      stop("Invalid argument: code_pref must be between 1 and 47.")
-    } else if (code_pref < 10) {
-      code_pref = paste("0", as.character(code_pref), sep = "")
-    } else {
-      code_pref = as.character(code_pref)
-    }
-  }
+  year4digit <- check_year(year)
+  strTempDir <- check_data_dir(data_dir)
+  code_pref <- check_code_pref_as_char(code_pref)
+  code_muni <- check_code_muni_as_char(code_muni, code_pref)
   if (nchar(code_pref) != 2) stop(paste("Invalid argument: code_pref:", code_pref))
   if (code_pref == "47" && year4digit < 1973) stop("No data available for Okinaya before year 1973.")
 
@@ -160,7 +127,7 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
   if (!file.exists(strLNIFile)){
     if (!file.exists(strLNIZip)) {
       utils::download.file(strLNIUrl, strLNIZip, mode="wb")
-      message(paste("Downloaded the file and saved in", strLNIUrl))
+      message(paste("Downloaded the file and saved in", strTempDir))
     }
     unzip_ja(strLNIZip, exdir = strTempDir)
   }
@@ -174,7 +141,11 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
     strLNIFile = Sys.glob(strLNIFile3)
   }
   if (!file.exists(strLNIFile)){
-    stop(paste("Cannot find the file:", strLNIFile))
+    if (strLNIFile == ""){
+      stop(paste("Cannot find the file:", strLNIFile1))
+    } else {
+      stop(paste("Cannot find the file:", strLNIFile))
+    }
   }
 
   sfLNI = sf::read_sf(strLNIFile, options = "ENCODING=CP932", stringsAsFactors=FALSE)
@@ -184,11 +155,10 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, year, data_dir = NULL){
     if (is.na(sf::st_crs(sfLNI))) {
       sf::st_crs(sfLNI) = 4612
     }
+    attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09" # MLIT
     attr(sfLNI, "sourceURL") = dfTemp$source
     attr(sfLNI, "year") = year4digit
     return(sfLNI)
-  } else {
-    warning("Could not find the data.")
   }
 }
 
@@ -221,20 +191,21 @@ read_landnuminfo_landuse <- function(code_pref, code_muni, year = 2019, data_dir
 
   if(exists("sfLNI")) {
     sfLNI$A29_004 <- factor(sfLNI$A29_004, levels=c(1,2,3,4,5,6,7,8,9,10,11,12,21,99))
-    sfLNI$A29_005 <- factor(sfLNI$A29_005, levels=c("\u7b2c\u4e00\u7a2e\u4f4e\u5c64\u4f4f\u5c45\u5c02\u7528\u5730\u57df",
-                                                    "\u7b2c\u4e8c\u7a2e\u4f4e\u5c64\u4f4f\u5c45\u5c02\u7528\u5730\u57df",
-                                                    "\u7b2c\u4e00\u7a2e\u4e2d\u9ad8\u5c64\u4f4f\u5c45\u5c02\u7528\u5730\u57df",
-                                                    "\u7b2c\u4e8c\u7a2e\u4e2d\u9ad8\u5c64\u4f4f\u5c45\u5c02\u7528\u5730\u57df",
-                                                    "\u7b2c\u4e00\u7a2e\u4f4f\u5c45\u5730\u57df",
-                                                    "\u7b2c\u4e8c\u7a2e\u4f4f\u5c45\u5730\u57df",
-                                                    "\u6e96\u4f4f\u5c45\u5730\u57df",
-                                                    "\u8fd1\u96a3\u5546\u696d\u5730\u57df",
-                                                    "\u5546\u696d\u5730\u57df",
-                                                    "\u6e96\u5de5\u696d\u5730\u57df",
-                                                    "\u5de5\u696d\u5730\u57df",
-                                                    "\u5de5\u696d\u5c02\u7528\u5730\u57df",
-                                                    "\u7530\u5712\u4f4f\u5c45\u5730\u57df",
-                                                    "\u4e0d\u660e"))
+    sfLNI$A29_005 <- factor(sfLNI$A29_005,
+                            levels=c("\u7b2c\u4e00\u7a2e\u4f4e\u5c64\u4f4f\u5c45\u5c02\u7528\u5730\u57df",
+                                    "\u7b2c\u4e8c\u7a2e\u4f4e\u5c64\u4f4f\u5c45\u5c02\u7528\u5730\u57df",
+                                    "\u7b2c\u4e00\u7a2e\u4e2d\u9ad8\u5c64\u4f4f\u5c45\u5c02\u7528\u5730\u57df",
+                                    "\u7b2c\u4e8c\u7a2e\u4e2d\u9ad8\u5c64\u4f4f\u5c45\u5c02\u7528\u5730\u57df",
+                                    "\u7b2c\u4e00\u7a2e\u4f4f\u5c45\u5730\u57df",
+                                    "\u7b2c\u4e8c\u7a2e\u4f4f\u5c45\u5730\u57df",
+                                    "\u6e96\u4f4f\u5c45\u5730\u57df",
+                                    "\u8fd1\u96a3\u5546\u696d\u5730\u57df",
+                                    "\u5546\u696d\u5730\u57df",
+                                    "\u6e96\u5de5\u696d\u5730\u57df",
+                                    "\u5de5\u696d\u5730\u57df",
+                                    "\u5de5\u696d\u5c02\u7528\u5730\u57df",
+                                    "\u7530\u5712\u4f4f\u5c45\u5730\u57df",
+                                    "\u4e0d\u660e"))
 
     attr(sfLNI, "mapname") = "\u7528\u9014\u5730\u57df"
     attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u7528\u9014\u5730\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
@@ -572,13 +543,11 @@ read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, dat
 #'
 #' @export
 read_landnuminfo_admin <- function(code_pref, code_muni = NULL, year = 2023, data_dir = NULL){
-  year = check_year(year)
 
   # Administrative Boundaries data
-  sfLNI = read_landnuminfo_by_csv("N03", code_pref, year, data_dir)
+  sfLNI = read_landnuminfo_by_csv("N03", code_pref, , year, data_dir)
 
   attr(sfLNI, "mapname") = "\u884c\u653f\u533a\u57df"
-  attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
   attr(sfLNI, "col") = ""
   attr(sfLNI, "palette") = ""
 
@@ -707,13 +676,8 @@ read_landnuminfo_urbanarea <- function(code_pref, code_muni, year = 2018, data_d
 }
 
 read_landnuminfo_urbanarea_2011 <- function(code_pref, data_dir = NULL){
-  strTempDir = tempdir()
+  strTempDir = check_data_dir(data_dir)
   year4digit = 2011
-  if (!is.null(data_dir)) {
-    if (dir.exists(data_dir)) {
-      strTempDir = data_dir
-    }
-  }
 
   if (mode(code_pref) == "numeric"){
     if (code_pref < 0 || code_pref > 47) {
@@ -762,6 +726,52 @@ read_landnuminfo_urbanarea_2011 <- function(code_pref, data_dir = NULL){
   attr(sfLNI, "year") = year4digit
 
   return(sfLNI)
+}
+
+#' Download spatial data of Prefecture-surveyed Land Prices of Japan
+#'
+#' @description
+#' Function to download spatial data of Prefecture-surveyed Land Prices of Japan. The returned value is an sf object.
+#'
+#' The organisation defines this data as "PrefectureLandPriceResearch," but we call "Prefecture-surveyed Land Priced" instead.
+#'
+#' Please note that some columns of real number (L02_033, L02_034) are coerced to integer for several years (e.g. 2018).
+#'
+#' @param code_pref The 2-digit code of prefecture.
+#' @param code_muni Optional. The 3-digit code of municipality.
+#' @param year Year of the data. Defaults to 2022.
+#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
+#'
+#'
+#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
+#'
+#' @export
+read_landnuminfo_preflandprice <- function(code_pref, code_muni = NULL, year = 2023, data_dir = NULL){
+  year4digit = check_year(year)
+
+  # Prefecture-surveyed Land Prices data
+  sfLNI <- NULL
+  sfLNI = read_landnuminfo_by_csv("L02", code_pref, NULL, year, data_dir)
+
+  if (!is.null(sfLNI)) {
+    # Extract by code_muni
+    if (!is.null(code_muni)){
+      if (year4digit == 2022 || year4digit == 2021) {
+        sfLNI <- sfLNI[sfLNI$L02_020 == paste(code_pref, code_muni, sep=""),]
+      } else if (year4digit %in% c(2020, 2018, 2017)) {
+        sfLNI <- sfLNI[sfLNI$L02_021 == paste(code_pref, code_muni, sep=""),]
+      } else {
+        sfLNI <- sfLNI[sfLNI$L02_017 == paste(code_pref, code_muni, sep=""),]
+      }
+    }
+
+    attr(sfLNI, "mapname") = "\u90fd\u9053\u5e9c\u770c\u5730\u4fa1\u8abf\u67fb"
+    attr(sfLNI, "col") = ""
+    attr(sfLNI, "col") = "L006"
+    attr(sfLNI, "palette") = ""
+
+    return(sfLNI)
+  }
 }
 
 #' message the list of available Land Numerical Information data.
