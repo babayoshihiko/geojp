@@ -112,7 +112,7 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL, year, 
   strLNIFile = ""
   strLNIFile1 = file.path(strTempDir,gsub("code_pref",code_pref,dfTemp$shp))
   strLNIFile2 = file.path(strTempDir,gsub("code_pref",code_pref,dfTemp$altdir),gsub("code_pref",code_pref,dfTemp$shp))
-  strLNIFile3 = file.path(strTempDir,paste(gsub("code_pref",code_pref,dfTemp$altdir),"\\",gsub("code_pref",code_pref,dfTemp$shp),sep=""))
+  strLNIFile3 = file.path(strTempDir,paste(gsub("code_pref",code_pref,dfTemp$altdir),"\\\\",gsub("code_pref",code_pref,dfTemp$shp),sep=""))
 
   # Checks if the shp file exists
   if (length(Sys.glob(strLNIFile1)) == 1){
