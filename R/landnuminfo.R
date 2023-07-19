@@ -331,69 +331,6 @@ read_landnuminfo_flood <- function(code_pref, code_muni = NULL, year = 2012, dat
   return(sfLNI)
 }
 
-#' Download spatial data of Welfare Facilities of Japan
-#'
-#' @description
-#' Function to download spatial data of Welfare Facilities of Japan. The returned value is an sf object.
-#'
-#' @param code_pref The 2-digit code of prefecture.
-#' @param code_muni Optional. The 3-digit code of municipality.
-#' @param year Year of the data. Defaults to 2021.
-#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
-#'
-#'
-#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
-#'
-#' @export
-read_landnuminfo_welfare <- function(code_pref, code_muni = NULL, year = 2021, data_dir = NULL){
-  year = check_year(year)
-  if (year != 2021 & year != 2015 & year != 2011) stop(paste("The data is not available for year", year))
-
-  sfLNI = read_landnuminfo("P14", code_pref, NULL, year, filetype = "geojson", geometry = "POINT", data_dir = data_dir)
-
-  if (length(code_muni) > 0) {
-    if (class(code_pref) == "numeric") {
-      code_pref_as_string = sprintf("%0*d", 2, code_pref)
-    } else {
-      code_pref_as_string = code_pref
-    }
-    i = 1
-    for (code_muni_single in code_muni){
-      if (i == 1) {
-        i = i + 1
-        if (class(code_muni_single) == "numeric") {
-          sfLNI2 = subset(sfLNI, P14_003 == paste(code_pref_as_string, sprintf("%0*d", 3, code_muni_single), sep=""))
-        } else {
-          sfLNI2 = subset(sfLNI, P14_003 == paste(code_pref_as_string, code_muni_single, sep=""))
-        }
-      } else {
-        if (class(code_muni_single) == "numeric") {
-          sfLNI2 = rbind(sfLNI2, subset(sfLNI, P14_003 == paste(code_pref_as_string, sprintf("%0*d", 3, code_muni_single), sep="")))
-        } else {
-          sfLNI2 = rbind(sfLNI2, subset(sfLNI, P14_003 == paste(code_pref_as_string, code_muni_single, sep="")))
-        }
-      }
-    }
-    sfLNI = sfLNI2
-  }
-
-  sfLNI$P14_005_label <- factor(sfLNI$P14_005, levels=c("01","02","03","04","05","06","99"),
-                          labels=c("\u4fdd\u8b77\u65bd\u8a2d",
-                                   "\u8001\u4eba\u798f\u7949\u65bd\u8a2d",
-                                   "\u969c\u5bb3\u8005\u652f\u63f4\u65bd\u8a2d\u7b49",
-                                   "\u8eab\u4f53\u969c\u5bb3\u8005\u793e\u4f1a\u53c2\u52a0\u652f\u63f4\u65bd\u8a2d",
-                                   "\u5150\u7ae5\u798f\u7949\u65bd\u8a2d\u7b49",
-                                   "\u6bcd\u5b50\u30fb\u7236\u5b50\u798f\u7949\u65bd\u8a2d",
-                                   "\u305d\u306e\u4ed6\u306e\u793e\u4f1a\u798f\u7949\u65bd\u8a2d\u7b49"))
-
-  attr(sfLNI, "mapname") = "\u798f\u7949\u65bd\u8a2d"
-  attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u798f\u7949\u65bd\u8a2d\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
-  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P14-v2_1.html"
-  attr(sfLNI, "col") = "P14_005_label"
-  attr(sfLNI, "palette") = c("#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D") # RColorBrewer::brewer.pal(7, "Dark2")
-  return(sfLNI)
-}
-
 #' Download spatial data of Hazard Areas of Japan
 #'
 #' @description
