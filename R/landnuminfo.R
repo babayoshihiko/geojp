@@ -691,19 +691,35 @@ read_landnuminfo_preflandprice <- function(code_pref, code_muni = NULL, year = 2
   sfLNI = read_landnuminfo_by_csv("L02", code_pref, NULL, year, data_dir)
 
   if (!is.null(sfLNI)) {
-    # Extract by code_muni
     if (!is.null(code_muni)){
-      if (year4digit == 2022 || year4digit == 2021) {
-        sfLNI <- sfLNI[sfLNI$L02_020 == paste(code_pref, code_muni, sep=""),]
-      } else if (year4digit %in% c(2020, 2018, 2017)) {
-        sfLNI <- sfLNI[sfLNI$L02_021 == paste(code_pref, code_muni, sep=""),]
-      } else {
-        sfLNI <- sfLNI[sfLNI$L02_017 == paste(code_pref, code_muni, sep=""),]
+      lstCodeMuni <- get_wards(code_pref, code_muni, year4digit)
+      if (length(lstCodeMuni) > 0) {
+        sfLNI2 <- NULL
+        for (code_muni_single in lstCodeMuni){
+          strNameMuni <- get_muni_name(code_pref, code_muni_single)
+          if (is.null(sfLNI2)) {
+            if (year4digit == 2022 || year4digit == 2021) {
+              sfLNI2 <- subset(sfLNI, L02_020 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+            } else if (year4digit %in% c(2020, 2018, 2017)) {
+              sfLNI2 <- subset(sfLNI, L02_021 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+            } else {
+              sfLNI2 <- subset(sfLNI, L02_017 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+            }
+          } else {
+            if (year4digit == 2022 || year4digit == 2021) {
+              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, L02_020 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+            } else if (year4digit %in% c(2020, 2018, 2017)) {
+              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, L02_021 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+            } else {
+              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, L02_017 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+            }
+          }
+        }
       }
+      if (!is.null(sfLNI2)) sfLNI <- sfLNI2
     }
 
     attr(sfLNI, "mapname") = "\u90fd\u9053\u5e9c\u770c\u5730\u4fa1\u8abf\u67fb"
-    attr(sfLNI, "col") = ""
     attr(sfLNI, "col") = "L006"
     attr(sfLNI, "palette") = ""
 

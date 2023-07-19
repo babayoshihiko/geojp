@@ -1,6 +1,6 @@
 year,url,zip,shp,geojson,altdir,source
 2022,https://nlftp.mlit.go.jp/ksj/gml/data/L02/L02-22/L02-22_code_pref_GML.zip,L02-22_code_pref_GML.zip,L02-22_code_pref.shp,L02-22_code_pref.geojson,L02-22_code_pref_GML,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L02-v3_0.html
-2021,https://nlftp.mlit.go.jp/ksj/gml/data/L02/L02-21/L02-21_code_pref_GML.zip,L02-21_code_pref_GML.zip,L02_21_code_pref.shp,L02_21_code_pref.geojson,L02-21_code_pref_GML,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L02-v3_0.html
+2021,https://nlftp.mlit.go.jp/ksj/gml/data/L02/L02-21/L02-21_code_pref_GML.zip,L02-21_code_pref_GML.zip,L02_21[-_]code_pref.shp,L02_21_code_pref.geojson,L02-21_code_pref_GML,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L02-v3_0.html
 2020,https://nlftp.mlit.go.jp/ksj/gml/data/L02/L02-20/L02-20_code_pref_GML.zip,L02-20_code_pref_GML.zip,L02-20_code_pref.shp,L02-20_code_pref.geojson,L02-20_code_pref_GML,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L02-v2_7.html
 2019,https://nlftp.mlit.go.jp/ksj/gml/data/L02/L02-19/L02-19_code_pref_GML.zip,L02-19_code_pref_GML.zip,L02_19_code_pref.shp,L02_19_code_pref.geojson,L02-19_code_pref_GML,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L02-v2_6.html
 2018,https://nlftp.mlit.go.jp/ksj/gml/data/L02/L02-18/L02-18_code_pref_GML.zip,L02-18_code_pref_GML.zip,L02-18_code_pref.shp,L02-18_code_pref.geojson,L02-18_code_pref_GML,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L02-v2_5.html
