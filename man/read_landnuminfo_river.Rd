@@ -25,4 +25,6 @@ An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 }
 \description{
 Function to download spatial data of rivers of Japan. The returned value is an sf object.
+
+Please note that the river data has a lot of invalid geometries.
 }

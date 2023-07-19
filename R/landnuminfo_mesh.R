@@ -7,7 +7,7 @@ read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NU
     if (code_mesh < 3035 || code_mesh > 6848) {
       stop(paste("Invalid argument: code_mesh must be between 3035 and 6848. Your mesh code was", code_mesh))
     } else {
-      code_mesh = as.character(code_mesh)
+      code_mesh <- as.character(code_mesh)
     }
   }
   if (nchar(code_mesh) != 4) stop(paste("Invalid argument: code_mesh:", code_mesh))
@@ -105,9 +105,9 @@ get_mesh1_by_muni <- function(code_pref, code_muni) {
 #'
 #' @export
 read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir = NULL){
-  year4digit = check_year(year)
+  year4digit <- check_year(year)
 
-  lstMesh1Codes = get_mesh1_by_muni(code_pref, code_muni)
+  lstMesh1Codes <- get_mesh1_by_muni(code_pref, code_muni)
 
   sfLNI <- NULL
   if (length(lstMesh1Codes) >= 1) {
@@ -183,9 +183,9 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
 #'
 #' @export
 read_landnuminfo_meshsub <- function(code_pref, code_muni, year = 2006, data_dir = NULL){
-  year4digit = check_year(year)
+  year4digit <- check_year(year)
 
-  lstMesh1Codes = get_mesh1_by_muni(code_pref, code_muni)
+  lstMesh1Codes <- get_mesh1_by_muni(code_pref, code_muni)
 
   sfLNI <- NULL
   if (length(lstMesh1Codes) >= 1) {

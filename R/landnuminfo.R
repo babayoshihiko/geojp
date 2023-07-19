@@ -331,59 +331,17 @@ read_landnuminfo_flood <- function(code_pref, code_muni = NULL, year = 2012, dat
   return(sfLNI)
 }
 
-#' Download spatial data of Hazard Areas of Japan
-#'
-#' @description
-#' Function to download spatial data of Hazard Areas of Japan. The returned value is an sf object.
-#'
-#' @param code_pref The 2-digit code of prefecture.
-#' @param code_muni Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.
-#' @param year Year of the data. Defaults to 2021.
-#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
-#'
-#'
-#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
-#'
-#' @export
-read_landnuminfo_hazard <- function(code_pref, code_muni = NULL, year = 2021, data_dir = NULL){
-  year = check_year(year)
-  if (year != 2021 & year != 2020) stop(paste("The data is not available for year", year))
-
-  # Hazard Area data is given by prefecture
-  sfLNI = read_landnuminfo("A48", code_pref, NULL, year, filetype = "geojson", geometry = "POLYGON", data_dir = data_dir)
-
-  sfLNI$A48_007_label <- factor(sfLNI$A48_007, levels=c(1,2,3,4,5,6,7),
-                          labels=c("\u6c34\u5bb3\uff08\u6cb3\u5ddd\uff09",
-                                   "\u6c34\u5bb3\uff08\u6d77\uff09",
-                                   "\u6c34\u5bb3\uff08\u6cb3\u5ddd\u30fb\u6d77\uff09",
-                                   "\u6025\u50be\u659c\u5730\u5d29\u58ca\u7b49",
-                                   "\u5730\u3059\u3079\u308a\u7b49",
-                                   "\u706b\u5c71\u88ab\u5bb3",
-                                   "\u305d\u306e\u4ed6"))
-
-  attr(sfLNI, "mapname") = "\u707d\u5bb3\u5371\u967a\u533a\u57df"
-  attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u707d\u5bb3\u5371\u967a\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
-  if (year == 2020) {
-    attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A48-v1_1.html"
-  } else {
-    attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A48-v1_2.html"
-  }
-  attr(sfLNI, "col") = "A48_007_label"
-  attr(sfLNI, "palette") = c("#16A085","#D1F2EB","#1F618D","#229954","#BA4A00","#E74C3C","#808B96")
-
-  return(sfLNI)
-}
-
 #' Download spatial data of rivers of Japan
 #'
 #' @description
 #' Function to download spatial data of rivers of Japan. The returned value is an sf object.
 #'
+#' Please note that the river data has a lot of invalid geometries.
+#'
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Optional. The 3-digit code of municipality.
 #' @param year Year of the data. Defaults based on pref_code.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
-#'
 #'
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 #'
@@ -676,19 +634,18 @@ read_landnuminfo_urbanarea_2011 <- function(code_pref, data_dir = NULL){
 #'
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Optional. The 3-digit code of municipality.
-#' @param year Year of the data. Defaults to 2022.
+#' @param year Year of the data. Defaults to 2023.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
-#'
 #'
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 #'
 #' @export
 read_landnuminfo_preflandprice <- function(code_pref, code_muni = NULL, year = 2023, data_dir = NULL){
-  year4digit = check_year(year)
+  year4digit <- check_year(year)
 
   # Prefecture-surveyed Land Prices data
   sfLNI <- NULL
-  sfLNI = read_landnuminfo_by_csv("L02", code_pref, NULL, year, data_dir)
+  sfLNI <- read_landnuminfo_by_csv("L02", code_pref, NULL, year4digit, data_dir)
 
   if (!is.null(sfLNI)) {
     if (!is.null(code_muni)){
@@ -719,9 +676,11 @@ read_landnuminfo_preflandprice <- function(code_pref, code_muni = NULL, year = 2
       if (!is.null(sfLNI2)) sfLNI <- sfLNI2
     }
 
-    attr(sfLNI, "mapname") = "\u90fd\u9053\u5e9c\u770c\u5730\u4fa1\u8abf\u67fb"
-    attr(sfLNI, "col") = "L006"
-    attr(sfLNI, "palette") = ""
+    if (!is.null(sfLNI)) {
+      attr(sfLNI, "mapname") = "\u90fd\u9053\u5e9c\u770c\u5730\u4fa1\u8abf\u67fb"
+      attr(sfLNI, "col") = "L006"
+      attr(sfLNI, "palette") = ""
+    }
 
     return(sfLNI)
   }

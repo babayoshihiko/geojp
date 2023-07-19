@@ -374,9 +374,9 @@ check_code_muni_as_char <- function(code_pref = NULL, code_muni){
   if (!is.null(code_pref)) {
     dfTemp <- read.csv(file.path("data","code_pref_muni.csv"))
     dfTemp <- dfTemp[dfTemp$code_pref == code_pref & dfTemp$code_muni == code_muni,]
-    if (length(dfTemp) == 0) {
+    if (nrow(dfTemp) == 0) {
       warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist."))
-    } else if (length(dfTemp) == 1) {
+    } else if (nrow(dfTemp) == 1) {
       strCodeMuni <- sprintf("%02d", as.integer(code_muni))
     } else {
       warning(paste("Pref:", code_pref, ", Muni:", code_muni, " somehow matched two or more municipalities."))
