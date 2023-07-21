@@ -12,67 +12,20 @@ read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NU
   }
   if (nchar(code_mesh) != 4) stop(paste("Invalid argument: code_mesh:", code_mesh))
 
+  # Read the MapType definition
   dfTemp <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
   dfTemp <- dfTemp[dfTemp$year == year4digit,]
-  if (nrow(dfTemp) != 1) stop(paste("The target year", year, "not found in", paste("data/", maptype, ".csv", sep = "")))
 
+  # Set the files
   strLNIUrl = gsub("code_mesh",code_mesh,dfTemp$url)
   strLNIZip = file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$zip))
-  strLNIFile = ""
   strLNIFile1 = file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$shp))
   strLNIFile2 = file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$altdir),gsub("code_mesh",code_mesh,dfTemp$shp))
   strLNIFile3 = file.path(strTempDir,paste(gsub("code_mesh",code_mesh,dfTemp$altdir),"\\\\",gsub("code_mesh",code_mesh,dfTemp$shp),sep=""))
 
-  # Checks if the shp file exists
-  if (length(Sys.glob(strLNIFile1)) == 1){
-    strLNIFile = Sys.glob(strLNIFile1)
-  } else if (length(Sys.glob(strLNIFile2)) == 1){
-    strLNIFile = Sys.glob(strLNIFile2)
-  } else if (length(Sys.glob(strLNIFile3)) == 1){
-    strLNIFile = Sys.glob(strLNIFile3)
-  }
+  sfLNI <- get_sfLNI(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir)
 
-  # If the file does not exist, download the zip file and uzip
-  if (!file.exists(strLNIFile)){
-    if (!file.exists(strLNIZip)) {
-      utils::download.file(strLNIUrl, strLNIZip, mode="wb")
-      message(paste("Downloaded the file and saved in", strTempDir))
-    }
-    unzip_ja(strLNIZip, exdir = strTempDir)
-  }
-
-  # Checks if the shp file exists
-  if (length(Sys.glob(strLNIFile1)) == 1){
-    strLNIFile = Sys.glob(strLNIFile1)
-  } else if (length(Sys.glob(strLNIFile2)) == 1){
-    strLNIFile = Sys.glob(strLNIFile2)
-  } else if (length(Sys.glob(strLNIFile3)) == 1){
-    strLNIFile = Sys.glob(strLNIFile3)
-  }
-  if (!file.exists(strLNIFile)){
-    if (strLNIFile == ""){
-      stop(paste("Cannot find the file:", strLNIFile1))
-    } else {
-      stop(paste("Cannot find the file:", strLNIFile))
-    }
-  }
-
-  sfLNI = sf::read_sf(strLNIFile, options = "ENCODING=CP932", stringsAsFactors=FALSE)
-
-  if (exists("sfLNI")) {
-    # Older data may not have *.prj. Set CRS manually.
-    if (is.na(sf::st_crs(sfLNI))) {
-      if (!is.null(epsg)) {
-        sf::st_crs(sfLNI) = epsg
-      } else {
-        sf::st_crs(sfLNI) = 4612
-      }
-    }
-    attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u7acb\u5730\u9069\u6b63\u5316\u8a08\u753b\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
-    attr(sfLNI, "sourceURL") = dfTemp$source
-    attr(sfLNI, "year") = year4digit
-    return(sfLNI)
-  }
+  return(sfLNI)
 }
 
 get_mesh1_by_muni <- function(code_pref, code_muni) {

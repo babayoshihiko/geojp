@@ -49,20 +49,8 @@ read_landnuminfo_hazard <- function(code_pref, code_muni = NULL, year = 2021, da
     }
   }
 
-  sfLNI$A48_007_label <- factor(sfLNI$A48_007, levels=c(1,2,3,4,5,6,7),
-                                labels=c("\u6c34\u5bb3\uff08\u6cb3\u5ddd\uff09",
-                                         "\u6c34\u5bb3\uff08\u6d77\uff09",
-                                         "\u6c34\u5bb3\uff08\u6cb3\u5ddd\u30fb\u6d77\uff09",
-                                         "\u6025\u50be\u659c\u5730\u5d29\u58ca\u7b49",
-                                         "\u5730\u3059\u3079\u308a\u7b49",
-                                         "\u706b\u5c71\u88ab\u5bb3",
-                                         "\u305d\u306e\u4ed6"))
-
   if (!is.null(sfLNI)) {
     attr(sfLNI, "mapname") = "\u707d\u5bb3\u5371\u967a\u533a\u57df"
-    attr(sfLNI, "col") = "A48_007_label"
-    attr(sfLNI, "palette") = c("#16A085","#D1F2EB","#1F618D","#229954","#BA4A00","#E74C3C","#808B96")
-
     return(sfLNI)
   }
 }

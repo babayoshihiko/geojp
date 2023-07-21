@@ -98,29 +98,60 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL, year, 
   year4digit <- check_year(year)
   strTempDir <- check_data_dir(data_dir)
   code_pref <- check_code_pref_as_char(code_pref)
-  code_muni <- check_code_muni_as_char(code_muni, code_pref)
+  code_muni <- check_code_muni_as_char(code_pref, code_muni)
+
   if (nchar(code_pref) != 2) stop(paste("Invalid argument: code_pref:", code_pref))
   if (code_pref == "47" && year4digit < 1973) stop("No data available for Okinaya before year 1973.")
 
   # Read the MapType definition
   dfTemp <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
   dfTemp <- dfTemp[dfTemp$year == year4digit,]
-  if (nrow(dfTemp) != 1) stop(paste("The target year", year, "not found in", paste("data/", maptype, ".csv", sep = "")))
 
+  # Set the files
   strLNIUrl = gsub("code_pref",code_pref,dfTemp$url)
   strLNIZip = file.path(strTempDir,gsub("code_pref",code_pref,dfTemp$zip))
-  strLNIFile = ""
-  strLNIFile1 = file.path(strTempDir,gsub("code_pref",code_pref,dfTemp$shp))
-  strLNIFile2 = file.path(strTempDir,gsub("code_pref",code_pref,dfTemp$altdir),gsub("code_pref",code_pref,dfTemp$shp))
-  strLNIFile3 = file.path(strTempDir,paste(gsub("code_pref",code_pref,dfTemp$altdir),"\\\\",gsub("code_pref",code_pref,dfTemp$shp),sep=""))
+  strLNIFile1 = file.path(strTempDir,gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$shp)))
+  strLNIFile2 = file.path(strTempDir,gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$altdir)),gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$shp)))
+  strLNIFile3 = file.path(strTempDir,paste(gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$altdir)),"\\\\",gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$shp)),sep=""))
+
+  sfLNI <- get_sfLNI(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir)
+}
+
+get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir){
+  # Read the MapType definition
+  dfTemp <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
+  dfTemp <- dfTemp[dfTemp$year == year4digit,]
+  if (nrow(dfTemp) != 1) stop(paste("The target year", year, "not found in", paste("data/", maptype, ".csv", sep = "")))
+
+  strLNIFile <- ""
+
+  # Some file (e.g. A29-19_05) is nested in another folder as "A29-19_05_GML/A29-19_05/*.shp"
+  # This is a dirty workaround.
+  strLNIFile4 <- gsub(strTempDir, paste(strTempDir,"*",sep="/"), strLNIFile1)
+  strLNIFile5 <- gsub(strTempDir, paste(strTempDir,"*",sep="/"), strLNIFile2)
+  strLNIFile6 <- gsub(strTempDir, paste(strTempDir,"*",sep="/"), strLNIFile3)
+
+  if (length(Sys.glob(strLNIFile1)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile1)
+  } else if (length(Sys.glob(strLNIFile2)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile2)
+  } else if (length(Sys.glob(strLNIFile3)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile3)
+  } else if (length(Sys.glob(strLNIFile4)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile4)
+  } else if (length(Sys.glob(strLNIFile5)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile5)
+  } else if (length(Sys.glob(strLNIFile6)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile6)
+  }
 
   # Checks if the shp file exists
   if (length(Sys.glob(strLNIFile1)) == 1){
-    strLNIFile = Sys.glob(strLNIFile1)
+    strLNIFile <- Sys.glob(strLNIFile1)
   } else if (length(Sys.glob(strLNIFile2)) == 1){
-    strLNIFile = Sys.glob(strLNIFile2)
+    strLNIFile <- Sys.glob(strLNIFile2)
   } else if (length(Sys.glob(strLNIFile3)) == 1){
-    strLNIFile = Sys.glob(strLNIFile3)
+    strLNIFile <- Sys.glob(strLNIFile3)
   }
 
   # If the file does not exist, download the zip file and uzip
@@ -134,12 +165,19 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL, year, 
 
   # Checks if the shp file exists
   if (length(Sys.glob(strLNIFile1)) == 1){
-    strLNIFile = Sys.glob(strLNIFile1)
+    strLNIFile <- Sys.glob(strLNIFile1)
   } else if (length(Sys.glob(strLNIFile2)) == 1){
-    strLNIFile = Sys.glob(strLNIFile2)
+    strLNIFile <- Sys.glob(strLNIFile2)
   } else if (length(Sys.glob(strLNIFile3)) == 1){
-    strLNIFile = Sys.glob(strLNIFile3)
+    strLNIFile <- Sys.glob(strLNIFile3)
+  } else if (length(Sys.glob(strLNIFile4)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile4)
+  } else if (length(Sys.glob(strLNIFile5)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile5)
+  } else if (length(Sys.glob(strLNIFile6)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile6)
   }
+
   if (!file.exists(strLNIFile)){
     if (strLNIFile == ""){
       stop(paste("Cannot find the file:", strLNIFile1))
@@ -153,11 +191,38 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL, year, 
   if (exists("sfLNI")) {
     # Older data may not have *.prj. Set CRS manually.
     if (is.na(sf::st_crs(sfLNI))) {
-      sf::st_crs(sfLNI) = 4612
+      sf::st_crs(sfLNI) <- 4612
     }
-    attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09" # MLIT
-    attr(sfLNI, "sourceURL") = dfTemp$source
-    attr(sfLNI, "year") = year4digit
+    attr(sfLNI, "sourceName") <- "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09" # MLIT
+    attr(sfLNI, "sourceURL") <- dfTemp$source
+
+    if (!is.na(dfTemp[1,"levels"])){
+      attr(sfLNI, "col") = paste(maptype,"_Label",sep="")
+      temp_levels <- unlist(strsplit(dfTemp[1,"levels"], " "))
+      if (!is.na(dfTemp[1,"labels"])) {
+        temp_labels <- unlist(strsplit(dfTemp[1,"labels"], " "))
+      } else {
+        temp_labels <- ""
+      }
+      if (!is.na(dfTemp[1,"palette"])) {
+        temp_palette <- unlist(strsplit(dfTemp[1,"palette"], " "))
+      } else {
+        temp_palette <- ""
+      }
+      if (length(temp_levels) > 0){
+        if (length(temp_levels) == length(temp_labels)){
+          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp$col]), levels = temp_levels, labels = temp_labels)
+        } else {
+          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp$col]), levels = temp_levels)
+        }
+      }
+      if (length(temp_levels) == length(temp_palette)){
+        attr(sfLNI, "palette") <- temp_palette
+      }
+    } else {
+      attr(sfLNI, "col") <- dfTemp$col
+    }
+    attr(sfLNI, "year") <- year4digit
     return(sfLNI)
   }
 }
@@ -180,43 +245,30 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL, year, 
 #'
 #' @export
 read_landnuminfo_landuse <- function(code_pref, code_muni, year = 2019, data_dir = NULL){
-  year = check_year(year)
-  if (year != 2019 & year != 2011) stop(paste("The data is not available for year", year))
+  year4digit <- check_year(year)
 
-  if (year == 2019) {
-    sfLNI = read_landnuminfo("A29", code_pref, code_muni, year, filetype = "geojson", geometry = "POLYGON", data_dir = data_dir)
-  } else if (year == 2011) {
-    sfLNI = read_landnuminfo("A29", code_pref, NULL, year, filetype = "shp", geometry = "POLYGON", data_dir = data_dir)
-  }
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A29", code_pref, code_muni, year4digit, data_dir)
 
-  if(exists("sfLNI")) {
-    sfLNI$A29_004 <- factor(sfLNI$A29_004, levels=c(1,2,3,4,5,6,7,8,9,10,11,12,21,99))
-    sfLNI$A29_005 <- factor(sfLNI$A29_005,
-                            levels=c("\u7b2c\u4e00\u7a2e\u4f4e\u5c64\u4f4f\u5c45\u5c02\u7528\u5730\u57df",
-                                    "\u7b2c\u4e8c\u7a2e\u4f4e\u5c64\u4f4f\u5c45\u5c02\u7528\u5730\u57df",
-                                    "\u7b2c\u4e00\u7a2e\u4e2d\u9ad8\u5c64\u4f4f\u5c45\u5c02\u7528\u5730\u57df",
-                                    "\u7b2c\u4e8c\u7a2e\u4e2d\u9ad8\u5c64\u4f4f\u5c45\u5c02\u7528\u5730\u57df",
-                                    "\u7b2c\u4e00\u7a2e\u4f4f\u5c45\u5730\u57df",
-                                    "\u7b2c\u4e8c\u7a2e\u4f4f\u5c45\u5730\u57df",
-                                    "\u6e96\u4f4f\u5c45\u5730\u57df",
-                                    "\u8fd1\u96a3\u5546\u696d\u5730\u57df",
-                                    "\u5546\u696d\u5730\u57df",
-                                    "\u6e96\u5de5\u696d\u5730\u57df",
-                                    "\u5de5\u696d\u5730\u57df",
-                                    "\u5de5\u696d\u5c02\u7528\u5730\u57df",
-                                    "\u7530\u5712\u4f4f\u5c45\u5730\u57df",
-                                    "\u4e0d\u660e"))
-
+  if (!is.null(sfLNI)) {
+    if (!is.null(code_muni)){
+      lstCodeMuni <- get_wards(code_pref, code_muni, year4digit)
+      if (length(lstCodeMuni) > 0) {
+        sfLNI2 <- NULL
+        for (code_muni_single in lstCodeMuni){
+          strNameMuni <- get_muni_name(code_pref, code_muni_single)
+          if (is.null(sfLNI2)) {
+            sfLNI2 <- subset(sfLNI, A29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+          } else {
+            sfLNI2 <- rbind(sfLNI2, subset(sfLNI, A29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+          }
+        }
+      }
+      if (!is.null(sfLNI2)) sfLNI <- sfLNI2
+    }
     attr(sfLNI, "mapname") = "\u7528\u9014\u5730\u57df"
-    attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u7528\u9014\u5730\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
-    attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html"
-    attr(sfLNI, "col") = "A29_005"
-    attr(sfLNI, "palette") = c("#00BEA9","#6AD5BD","#A8D666","#FAE294","#F4E268","#F8D79C","#FFB580","#F3A5B9","#EE534F","#B3A8CB","#8AD0E4","#2CB3DE","#F4B187","#FFFFFF")
-  } else {
-    sfLNI = NULL
+    return(sfLNI)
   }
-  return(sfLNI)
-
 }
 
 #' Download spatial data of Location Normalization of Japan
@@ -643,7 +695,6 @@ read_landnuminfo_urbanarea_2011 <- function(code_pref, data_dir = NULL){
 read_landnuminfo_preflandprice <- function(code_pref, code_muni = NULL, year = 2023, data_dir = NULL){
   year4digit <- check_year(year)
 
-  # Prefecture-surveyed Land Prices data
   sfLNI <- NULL
   sfLNI <- read_landnuminfo_by_csv("L02", code_pref, NULL, year4digit, data_dir)
 
@@ -678,7 +729,6 @@ read_landnuminfo_preflandprice <- function(code_pref, code_muni = NULL, year = 2
 
     if (!is.null(sfLNI)) {
       attr(sfLNI, "mapname") = "\u90fd\u9053\u5e9c\u770c\u5730\u4fa1\u8abf\u67fb"
-      attr(sfLNI, "col") = "L006"
       attr(sfLNI, "palette") = ""
     }
 
