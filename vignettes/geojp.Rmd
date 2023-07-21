@@ -16,25 +16,24 @@ library(tmap)
 library(mapview)
 ```
 
-## パッケージのインストールと読み込み
+## Installation and load
 
-これは最初だけ必要です。ただし、まだ
-開発途中ですので、定期的に繰り返すと良いでしょう。
+This is only necessary at the beginning. However, as it is still under development, it is advisable to repeat it regularly.
 
 ```{r eval = FALSE}
 install.packages("devtools")
 devtools::install_github("babayoshihiko/geojp")
 ```
 
-パッケージ **geojp** を読み込み (attach) ます。
+Load (attach) the package **geojp**.
 
 ```{r setup}
 library(geojp)
 ```
 
-## 国勢調査
+## Census
 
-国勢調査の境界情報を読み込みましょう。都道府県コード (code_pref) と市町村コード (code_muni) を指定します。宮城県 (4) の大崎市 (215) の例です。
+Load the census boundary information. Specify the prefecture code (code_pref) and the municipality code (code_muni). Example for Osaki City (215) in Miyagi Prefecture (4).
 
 ```{r, echo = T, eval = F}
 sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215)
@@ -45,9 +44,9 @@ sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215, data_dir = 
 head(sfCensus)
 ```
 
-国勢調査は、列数が多いので、重要なものだけ切り取ってあります。
+The census has a large number of columns, so only the important ones have been cut out.
 
-政令指定都市は、行政区単位になってしまいます。`read_census_odcity` 関数は、政令指定都市名を指定して全ての区を返します。
+Ordinance-designated cities are in units of administrative wards. The `read_census_odcity` function returns all wards with the name of the ordinance city.
 
 ```{r, echo = T, eval = F}
 sfCensus2 <- geojp::read_census_odcity("京都市")
@@ -58,20 +57,20 @@ sfCensus2 <- geojp::read_census_odcity("京都市", data_dir = "/var/data.noinde
 head(sfCensus2)
 ```
 
-追加の属性情報を設定しています。属性は、`attr()` 関数を使って取得します。特に重要な属性として、出典があります。出典は、以下のように取得することができます。
+Additional attribute information is set. Attributes are obtained using the `attr()` function. One particularly important attribute is the source. Sources can be retrieved as follows.
 
 ```{r}
 attr(sfCensus2, "sourceName")
 attr(sfCensus2, "sourceURL")
 ```
 
-## 国土数値情報
+## Land Numerical Information
 
-国土数値情報の用途地域を読み込みましょう。都道府県コード (code_pref) と市町村コード (code_muni) を指定します。平成23（2011）年度、令和元（2019）年度があるので、今回は平成23年度版を試します。
+Load the zoning of the National Land Numeric Data. Specify the prefecture code (code_pref) and municipality code (code_muni). The 2011 (Heisei 23) and 2019 (2019) editions are available, so we will try the 2011 edition this time.
 
-国土数値情報については、[国土数値情報ダウンロードサービス](https://nlftp.mlit.go.jp/ksj/index.html) を参照。
+For more information on the National Geodetic Information, see [National Land Numerical Information Download Service](https://nlftp.mlit.go.jp/ksj/index.html).
 
-返り値は `sf` オブジェクトです。
+The return value is an `sf` object.
 
 ```{r, echo = T, eval = F}
 sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011)
@@ -80,20 +79,20 @@ sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year
 sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011, data_dir = "/var/data.noindex")
 ```
 
-用途地域クラスを示す `A29_004` と `A29_005` 列は、因子型(factor) になっています。
+Columns `A29_004` and `A29_005`, which indicate the zoning class, are of type factor.
 
 ```{r}
 levels(sfYouto$A29_005)
 ```
 
-追加の属性情報を設定しています。属性は、`attr()` 関数を使って取得します。特に重要な属性として、出典があります。出典は、以下のように取得することができます。
+Additional attribute information is set. Attributes are obtained using the `attr()` function. One particularly important attribute is the source. Sources can be retrieved as follows.
 
 ```{r}
 attr(sfYouto, "sourceName")
 attr(sfYouto, "sourceURL")
 ```
 
-属性 "col" は、色分けの際に使用する列名です。属性 "palette" は、色分け用のカラーパレットです。これは、日本工業規格（JIS）に基づいた用途地域の色にできる限り合わせてあります。
+Attribute "col" is the column name used for colour coding. Attribute "palette" is the colour palette for colour coding. This is matched as far as possible to the colours of the application area according to the Japanese Industrial Standards (JIS).
 
 ```{r}
 attr(sfYouto, "palette")
@@ -101,7 +100,7 @@ attr(sfYouto, "palette")
 
 ## tmap
 
-パッケージ **tmap** を使って、用途地域を表示してみましょう。最後のフォント指定は、macOS のみ必要です。
+You can use the package **tmap** to display the intended use area. The last font specification is only required for macOS.
 
 ```{r}
 library(tmap)
@@ -116,21 +115,21 @@ myTm <- myTm +
                 fontfamily = "HiraginoSans-W3")
 ```
 
-プロットを表示しましょう。
+Display the plot.
 
 ```{r}
 myTm
 ```
 
-保存する場合は、`tmap_save()` 関数を使います。
+You can save with the `tmap_save()` function.
 
 ```{r eval = FALSE}
 tmap_save(tm = myTm, filename = "map.png")
 ```
 
-国勢調査と用途地域を重ね合わせることもできます。
+It is also possible to overlay census and zoning maps.
 
-さらに、ベースマップとして国土地理院の標準地図をタイル形式で使うこともできます。
+In addition, you can use Geospatial Information Authority of Japan's standard maps in tiled format as a base map.
 
 ```{r}
 library(tmap)
@@ -154,6 +153,7 @@ myTm <- myTm +
                 fontfamily = "HiraginoSans-W3")
 myTm
 ```
+
 Source: `r base_map$reference`
 
 ## mapview

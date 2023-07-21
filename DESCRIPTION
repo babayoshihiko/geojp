@@ -7,13 +7,16 @@ Description: Easy access to various spatial data sets of Japan as 'sf' objects i
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports:
+    lwgeom,
     sf,
     utils
 RoxygenNote: 7.2.3
 Suggests: 
     knitr,
+    mapview,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    tmap
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://github.com/babayoshihiko/geojp

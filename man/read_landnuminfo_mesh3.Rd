@@ -11,7 +11,7 @@ read_landnuminfo_mesh3(code_pref, code_muni, year = 2016, data_dir = NULL)
 
 \item{code_muni}{Optional. The 3-digit code of municipality.}
 
-\item{year}{Year of the data. Defaults to 2016.}
+\item{year}{Year of the data. Defaults to 2016. The years 2016,2014,2009,2006 are clean. Some mesh codes not available for other years.}
 
 \item{data_dir}{The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.}
 }
@@ -20,4 +20,13 @@ An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 }
 \description{
 Function to download spatial data of Mesh 3 of Japan. The returned value is an sf object.
+The function reads Land Use Third Level Mesh data. See https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-a.html.
+
+The available years are: 2021, 2016, 2014, 2009, 2006, 1997, 1991, 1987, 1976.
+
+If the file of a mesh is not available at the site, then the mesh is simply ignored.
+
+The default year is 2016 because 2021 lacks many areas. For year 2016, mesh_code 6740 (part of Rebun Town, pref_code 1, muni_code 517) is missing.
+
+The year 1997 lacks meshes like 6748, 6747, 6740, 6646, 6645, 6541, 6546, 6339, 6243, 5038 which include part of several cities and towns.
 }

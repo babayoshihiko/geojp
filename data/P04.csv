@@ -1,0 +1,4 @@
+year,url,zip,shp,geojson,altdir,source,col,levels,palette
+2020,https://nlftp.mlit.go.jp/ksj/gml/data/P04/P04-20/P04-20_code_pref_GML.zip,P04-20_code_pref_GML.zip,P04-20_code_pref.shp,P04-20_code_pref.geojson,P04-20_code_pref_GML,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P04-v3_0.html,,,
+2014,https://nlftp.mlit.go.jp/ksj/gml/data/P04/P04-14/P04-14_code_pref_GML.zip,P04-14_code_pref_GML.zip,P04-14_code_pref-g_MedicalInstitution.shp,,P04-14_code_pref_GML,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P04-v2_1.html,,,
+2010,https://nlftp.mlit.go.jp/ksj/gml/data/P04/P04-10/P04-10_code_pref_GML.zip,P04-10_code_pref_GML.zip,P04-10_code_pref-g_MedicalInstitution.shp,,P04-10_code_pref_GML,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P04-v2_1.html,,,
