@@ -375,7 +375,9 @@ check_code_muni_as_char <- function(code_pref = NULL, code_muni){
     dfTemp <- read.csv(file.path("data","code_pref_muni.csv"))
     dfTemp <- dfTemp[as.integer(dfTemp$code_pref) == as.integer(code_pref) & as.integer(dfTemp$code_muni) == as.integer(code_muni),]
     if (nrow(dfTemp) == 0) {
-      warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist."))
+      if (!is.null(code_muni)){
+        warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist."))
+      }
     } else if (nrow(dfTemp) == 1) {
       strCodeMuni <- sprintf("%02d", as.integer(code_muni))
     } else {

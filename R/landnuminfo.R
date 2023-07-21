@@ -458,19 +458,15 @@ read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, dat
     stop("Invalid pref_code.")
   }
 
-  year = check_year(year)
-  if (year < 2006 || year > 2009) stop(paste("The data is not available for year", year))
+  year4digit <- check_year(year)
 
-  # River data file has a suffix "-g_Stream"
-  sfLNI = read_landnuminfo("W05", code_pref, NULL, year, filetype = "shp", geometry = "LINESTRING",
-                           data_dir = data_dir,
-                           maptypeextra = "-g_Stream")
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("W05", code_pref, NULL, year4digit, data_dir)
 
-  attr(sfLNI, "mapname") = "\u6cb3\u5ddd"
-  attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u6cb3\u5ddd\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
-  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-W05.html"
-  attr(sfLNI, "col") = "W05_002"
-  #attr(sfLNI, "palette") = c("#16A085","#D1F2EB","#1F618D","#229954","#BA4A00","#E74C3C","#808B96")
+  if (!is.null(sfLNI)) {
+    attr(sfLNI, "mapname") = "\u6cb3\u5ddd"
+    attr(sfLNI, "palette") = ""
+  }
 
   return(sfLNI)
 }

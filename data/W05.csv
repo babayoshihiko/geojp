@@ -1,0 +1,5 @@
+year,url,zip,shp,geojson,altdir,source,col,levels,labels,palette
+2009,https://nlftp.mlit.go.jp/ksj/gml/data/W05/W05-09/W05-09_code_pref_GML.zip,W05-09_code_pref_GML.zip,W05-09_code_pref-g_Stream.shp,,W05-09_code_pref-g_GML,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-W05.html,W05_002,,,
+2008,https://nlftp.mlit.go.jp/ksj/gml/data/W05/W05-08/W05-08_code_pref_GML.zip,W05-08_code_pref_GML.zip,W05-08_code_pref-g_Stream.shp,,W05-08_code_pref-g_GML,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-W05.html,W05_002,,,
+2007,https://nlftp.mlit.go.jp/ksj/gml/data/W05/W05-07/W05-07_code_pref_GML.zip,W05-07_code_pref_GML.zip,W05-07_code_pref-g_Stream.shp,,W05-07_code_pref-g_GML,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-W05.html,W05_002,,,
+2006,https://nlftp.mlit.go.jp/ksj/gml/data/W05/W05-06/W05-06_code_pref_GML.zip,W05-06_code_pref_GML.zip,W05-06_code_pref-g_Stream.shp,,W05-06_code_pref-g_GML,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-W05.html,W05_002,,,
