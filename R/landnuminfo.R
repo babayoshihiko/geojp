@@ -286,20 +286,15 @@ read_landnuminfo_landuse <- function(code_pref, code_muni, year = 2019, data_dir
 #'
 #' @export
 read_landnuminfo_locnorm <- function(code_pref, code_muni, year = 2020, data_dir = NULL){
-  year = check_year(year)
-  if (year != 2020) stop(paste("The data is not available for year", year))
+  year4digit <- check_year(year)
 
-  sfLNI = read_landnuminfo("A50", code_pref, code_muni, year, filetype = "geojson", geometry = "POLYGON", data_dir = data_dir)
-  sfLNI$A50_006_label <- factor(sfLNI$A50_006, levels=c("1","2","3"), labels=c("\u7acb\u5730\u9069\u6b63\u5316\u8a08\u753b\u533a\u57df",
-                                                                               "\u5c45\u4f4f\u8a98\u5c0e\u533a\u57df",
-                                                                               "\u90fd\u5e02\u6a5f\u80fd\u8a98\u5c0e\u533a\u57df"))
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A50", code_pref, code_muni, year4digit, data_dir)
 
-  attr(sfLNI, "mapname") = "\u7acb\u5730\u9069\u6b63\u5316\u8a08\u753b\u533a\u57df"
-  attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u7acb\u5730\u9069\u6b63\u5316\u8a08\u753b\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
-  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A50-v1_0.html"
-  attr(sfLNI, "col") = "A50_006_label"
-  attr(sfLNI, "palette") = c("#E2FFE3","#99CDFD","#F87E88")
-  return(sfLNI)
+  if (!is.null(sfLNI)){
+    attr(sfLNI, "mapname") = "\u7acb\u5730\u9069\u6b63\u5316\u8a08\u753b\u533a\u57df"
+    return(sfLNI)
+  }
 }
 
 #' Download spatial data of Flood Inundation Risk of Japan
