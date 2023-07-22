@@ -507,47 +507,47 @@ read_landnuminfo_admin <- function(code_pref, code_muni = NULL, year = 2023, dat
 #'
 #' @export
 read_landnuminfo_officiallandprice <- function(code_pref, code_muni = NULL, year = 2021, data_dir = NULL){
-  year = check_year(year)
-  if (year < 1983 || year > 2022) stop(paste("The data is not available for year", year))
-  if (year < 2018) {
-    filetype = "shp"
-  } else {
-    filetype = "geojson"
-  }
+  year4digit <- check_year(year)
 
-  # Hazard Area data is given by prefecture
-  sfLNI = read_landnuminfo("L01", code_pref, NULL, year, filetype = filetype, geometry = "POINT", data_dir = data_dir)
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("L01", code_pref, NULL, year4digit, data_dir)
 
-  # if code_muni is specified, subtract the data
-  if(!is.null(code_muni)) {
-    if (mode(code_pref) == "numeric"){
-      if (code_pref < 0 || code_pref > 47) {
-        stop("Invalid argument: code_pref must be between 1 and 47.")
-      } else if (code_pref < 10) {
-        code_pref = paste("0", as.character(code_pref), sep = "")
-      } else {
-        code_pref = as.character(code_pref)
+  if (!is.null(sfLNI)) {
+    if (!is.null(code_muni)){
+      lstCodeMuni <- get_wards(code_pref, code_muni, year4digit)
+      if (length(lstCodeMuni) > 0) {
+        sfLNI2 <- NULL
+        for (code_muni_single in lstCodeMuni){
+          strNameMuni <- get_muni_name(code_pref, code_muni_single)
+          if (is.null(sfLNI2)) {
+            if (year4digit == 2022) {
+              sfLNI2 <- subset(sfLNI, L01_022 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+            } else if (year4digit %in% c(2021, 2020, 2019, 2018)) {
+              sfLNI2 <- subset(sfLNI, L01_021 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+            } else {
+              sfLNI2 <- subset(sfLNI, L01_017 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+            }
+          } else {
+            if (year4digit == 2022) {
+              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, L01_020 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+            } else if (year4digit %in% c(2021, 2020, 2019, 2018)) {
+              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, L01_021 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+            } else {
+              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, L01_017 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+            }
+          }
+        }
       }
+      if (!is.null(sfLNI2)) sfLNI <- sfLNI2
     }
-    if (mode(code_muni) == "numeric"){
-      if (code_muni < 100 || code_muni > 700) {
-        stop("Invalid argument: code_muni must be between 100 and 700.")
-      } else {
-        code_muni = as.character(code_muni)
-      }
+
+    if (!is.null(sfLNI)) {
+      attr(sfLNI, "mapname") = "\u5730\u4fa1\u516c\u793a"
+      attr(sfLNI, "palette") = ""
     }
-    sfLNI2 = subset(sfLNI, L01_021 == paste(code_pref, code_muni, sep=""))
-    if (nrow(sfLNI2) > 0) sfLNI = sfLNI2
+
+    return(sfLNI)
   }
-
-  sfLNI$L01_006 = as.integer(sfLNI$L01_006)
-  attr(sfLNI, "mapname") = "\u5730\u4fa1\u516c\u793a"
-  attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u5730\u4fa1\u516c\u793a\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
-  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L01-v3_1.html"
-  attr(sfLNI, "col") = "L01_006"
-  # attr(sfLNI, "palette") = c("#16A085","#D1F2EB","#1F618D","#229954","#BA4A00","#E74C3C","#808B96")
-
-  return(sfLNI)
 }
 
 #' Download spatial data of Urbanized Areas of Japan
