@@ -93,7 +93,10 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
   return(sfLNI)
 }
 
-read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL, year, data_dir = NULL){
+read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL,
+                                    year,
+                                    data_dir = NULL,
+                                    multifiles = "error"){
   # Checks the arguments
   year4digit <- check_year(year)
   strTempDir <- check_data_dir(data_dir)
@@ -114,10 +117,10 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL, year, 
   strLNIFile2 = file.path(strTempDir,gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$altdir)),gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$shp)))
   strLNIFile3 = file.path(strTempDir,paste(gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$altdir)),"\\\\",gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$shp)),sep=""))
 
-  sfLNI <- get_sfLNI(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir)
+  sfLNI <- get_sfLNI(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir, multifiles)
 }
 
-get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir){
+get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir, multifiles){
   # Read the MapType definition
   dfTemp <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
   dfTemp <- dfTemp[dfTemp$year == year4digit,]
@@ -125,70 +128,41 @@ get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl,
 
   strLNIFile <- ""
 
-  # Some file (e.g. A29-19_05) is nested in another folder as "A29-19_05_GML/A29-19_05/*.shp"
-  # This is a dirty workaround.
-  strLNIFile4 <- gsub(strTempDir, paste(strTempDir,"*",sep="/"), strLNIFile1)
-  strLNIFile5 <- gsub(strTempDir, paste(strTempDir,"*",sep="/"), strLNIFile2)
-  strLNIFile6 <- gsub(strTempDir, paste(strTempDir,"*",sep="/"), strLNIFile3)
-
-  if (length(Sys.glob(strLNIFile1)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile1)
-  } else if (length(Sys.glob(strLNIFile2)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile2)
-  } else if (length(Sys.glob(strLNIFile3)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile3)
-  } else if (length(Sys.glob(strLNIFile4)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile4)
-  } else if (length(Sys.glob(strLNIFile5)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile5)
-  } else if (length(Sys.glob(strLNIFile6)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile6)
-  }
-
   # Checks if the shp file exists
-  if (length(Sys.glob(strLNIFile1)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile1)
-  } else if (length(Sys.glob(strLNIFile2)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile2)
-  } else if (length(Sys.glob(strLNIFile3)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile3)
-  }
+  strLNIFile <- get_sfLNI_file(strLNIFile1, strLNIFile2, strLNIFile3, strTempDir, multifiles)
 
   # If the file does not exist, download the zip file and uzip
-  if (!file.exists(strLNIFile)){
-    if (!file.exists(strLNIZip)) {
-      utils::download.file(strLNIUrl, strLNIZip, mode="wb")
-      message(paste("Downloaded the file and saved in", strTempDir))
+  if (length(strLNIFile) == 1){
+    if (!file.exists(strLNIFile)){
+      if (!file.exists(strLNIZip)) {
+        utils::download.file(strLNIUrl, strLNIZip, mode="wb")
+        message(paste("Downloaded the file and saved in", strTempDir))
+      }
+      unzip_ja(strLNIZip, exdir = strTempDir)
+      # Checks if the shp file exists
+      strLNIFile <- get_sfLNI_file(strLNIFile1, strLNIFile2, strLNIFile3, strTempDir, multifiles)
     }
-    unzip_ja(strLNIZip, exdir = strTempDir)
   }
 
-  # Checks if the shp file exists
-  if (length(Sys.glob(strLNIFile1)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile1)
-  } else if (length(Sys.glob(strLNIFile2)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile2)
-  } else if (length(Sys.glob(strLNIFile3)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile3)
-  } else if (length(Sys.glob(strLNIFile4)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile4)
-  } else if (length(Sys.glob(strLNIFile5)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile5)
-  } else if (length(Sys.glob(strLNIFile6)) == 1){
-    strLNIFile <- Sys.glob(strLNIFile6)
-  }
-
-  if (!file.exists(strLNIFile)){
+  if (length(strLNIFile) == 1){
     if (strLNIFile == ""){
       stop(paste("Cannot find the file:", strLNIFile1))
     } else {
-      stop(paste("Cannot find the file:", strLNIFile))
+      sfLNI <- sf::read_sf(strLNIFile, options = "ENCODING=CP932", stringsAsFactors=FALSE)
     }
+  } else {
+    sfLNI <- NULL
+    for (strLNIFile_single in strLNIFile){
+      if (is.null(sfLNI)) {
+        sfLNI <- sf::read_sf(strLNIFile_single, options = "ENCODING=CP932", stringsAsFactors=FALSE)
+      } else {
+        sfLNI <- rbind(sfLNI, sf::read_sf(strLNIFile_single, options = "ENCODING=CP932", stringsAsFactors=FALSE))
+      }
+    }
+
   }
 
-  sfLNI = sf::read_sf(strLNIFile, options = "ENCODING=CP932", stringsAsFactors=FALSE)
-
-  if (exists("sfLNI")) {
+  if (!is.null("sfLNI")) {
     # Older data may not have *.prj. Set CRS manually.
     if (is.na(sf::st_crs(sfLNI))) {
       sf::st_crs(sfLNI) <- 4612
@@ -227,6 +201,74 @@ get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl,
   }
 }
 
+get_sfLNI_file <- function(strLNIFile1, strLNIFile2, strLNIFile3, strTempDir, multifiles){
+  # Some file (e.g. A29-19_05) is nested in another folder as "A29-19_05_GML/A29-19_05/*.shp"
+  # This is a dirty workaround.
+  strLNIFile4 <- gsub(strTempDir, paste(strTempDir,"*",sep="/"), strLNIFile1)
+  strLNIFile5 <- gsub(strTempDir, paste(strTempDir,"*",sep="/"), strLNIFile2)
+  strLNIFile6 <- gsub(strTempDir, paste(strTempDir,"*",sep="/"), strLNIFile3)
+
+  strLNIFile <- ""
+  if (length(Sys.glob(strLNIFile1)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile1)
+  } else if (length(Sys.glob(strLNIFile2)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile2)
+  } else if (length(Sys.glob(strLNIFile3)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile3)
+  } else if (length(Sys.glob(strLNIFile4)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile4)
+  } else if (length(Sys.glob(strLNIFile5)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile5)
+  } else if (length(Sys.glob(strLNIFile6)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile6)
+  } else {
+    if (multifiles == "error"){
+      if (length(Sys.glob(strLNIFile1)) > 1){
+        stop(paste("Found more than 1 files:", strLNIFile1))
+      } else if (length(Sys.glob(strLNIFile2)) > 1){
+        stop(paste("Found more than 1 files:", strLNIFile2))
+      } else if (length(Sys.glob(strLNIFile3)) > 1){
+        stop(paste("Found more than 1 files:", strLNIFile3))
+      } else if (length(Sys.glob(strLNIFile4)) > 1){
+        stop(paste("Found more than 1 files:", strLNIFile4))
+      } else if (length(Sys.glob(strLNIFile5)) > 1){
+        stop(paste("Found more than 1 files:", strLNIFile5))
+      } else if (length(Sys.glob(strLNIFile6)) > 1){
+        stop(paste("Found more than 1 files:", strLNIFile6))
+      }
+    } else if (multifiles == "first"){
+      if (length(Sys.glob(strLNIFile1)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile1)[1]
+      } else if (length(Sys.glob(strLNIFile2)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile2)[1]
+      } else if (length(Sys.glob(strLNIFile3)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile3)[1]
+      } else if (length(Sys.glob(strLNIFile4)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile4)[1]
+      } else if (length(Sys.glob(strLNIFile5)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile5)[1]
+      } else if (length(Sys.glob(strLNIFile6)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile6)[1]
+      }
+    } else if (multifiles == "multiple"){
+      if (length(Sys.glob(strLNIFile1)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile1)
+      } else if (length(Sys.glob(strLNIFile2)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile2)
+      } else if (length(Sys.glob(strLNIFile3)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile3)
+      } else if (length(Sys.glob(strLNIFile4)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile4)
+      } else if (length(Sys.glob(strLNIFile5)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile5)
+      } else if (length(Sys.glob(strLNIFile6)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile6)
+      }
+    }
+
+  }
+  return (strLNIFile)
+}
 
 #' Download spatial data of Land Use of Japan
 #'
@@ -302,6 +344,8 @@ read_landnuminfo_locnorm <- function(code_pref, code_muni, year = 2020, data_dir
 #' @description
 #' Function to download spatial data of Flood Inundation Risk of Japan. The returned value is an sf object.
 #'
+#' Note that the data of year 2012 is available for all prefectures, but not of other years.
+#'
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Optional. The 3-digit code of municipality.
 #' @param year Year of the data. Defaults to 2012.
@@ -312,68 +356,75 @@ read_landnuminfo_locnorm <- function(code_pref, code_muni, year = 2020, data_dir
 #'
 #' @export
 read_landnuminfo_flood <- function(code_pref, code_muni = NULL, year = 2012, data_dir = NULL){
-  year = check_year(year)
-  if (year != 2012) stop(paste("The data is not available for year", year))
+  year4digit <- check_year(year)
 
-  sfLNI = read_landnuminfo("A31", code_pref, code_muni = NULL, year, filetype = "shp", geometry = "POLYGON", data_dir = data_dir)
-  if (min(sfLNI$A31_001) >= 20) {
-    sfLNI$A31_001_label <- factor(sfLNI$A31_001, levels=c(21,22,23,24,25,26,27),
-                                  labels=c("0\uff5e0.5\uff4d\u672a\u6e80",
-                                           "0.5\uff5e1.0\uff4d\u672a\u6e80",
-                                           "1.0\uff5e2.0\uff4d\u672a\u6e80",
-                                           "2.0\uff5e3.0\uff4d\u672a\u6e80",
-                                           "3.0\uff5e4.0\uff4d\u672a\u6e80",
-                                           "4.0\uff5e5.0\uff4d\u672a\u6e80",
-                                           "5.0\uff4d\u4ee5\u4e0a"))
-    # https://www.mlit.go.jp/river/shishin_guideline/pdf/manual_kouzuishinsui_1710.pdf
-    attr(sfLNI, "palette") = c("#f7f5a9",
-                               "#f8e1a6",
-                               "#ffd8c0",
-                               "#ffd8c0",
-                               "#ffb7b7",
-                               "#ffb7b7",
-                               "#dc7adc")
-  } else if (max(sfLNI$A31_001) >= 15) {
-    sfLNI$A31_001_label <- factor(sfLNI$A31_001, levels=c(11,12,13,14,15),
-                                  labels=c("0\uff5e0.5\uff4d\u672a\u6e80",
-                                           "0.5\uff5e1.0\uff4d\u672a\u6e80",
-                                           "1.0\uff5e2.0\uff4d\u672a\u6e80",
-                                           "2.0\uff5e5.0\uff4d\u672a\u6e80",
-                                           "5.0\uff4d\u4ee5\u4e0a"))
-    # https://www.mlit.go.jp/river/shishin_guideline/pdf/manual_kouzuishinsui_1710.pdf
-    attr(sfLNI, "palette") = c("#f7f5a9",
-                               "#f8e1a6",
-                               "#ffd8c0",
-                               "#ffb7b7",
-                               "#dc7adc")
+  if (year4digit == 2012){
+    sfLNI <- NULL
+    sfLNI <- read_landnuminfo_by_csv("A31", code_pref, NULL, year4digit, data_dir)
+
+    if (min(sfLNI$A31_001) >= 20) {
+      sfLNI$A31_Label <- factor(sfLNI$A31_001, levels=c(21,22,23,24,25,26,27),
+                                    labels=c("0\uff5e0.5\uff4d\u672a\u6e80",
+                                             "0.5\uff5e1.0\uff4d\u672a\u6e80",
+                                             "1.0\uff5e2.0\uff4d\u672a\u6e80",
+                                             "2.0\uff5e3.0\uff4d\u672a\u6e80",
+                                             "3.0\uff5e4.0\uff4d\u672a\u6e80",
+                                             "4.0\uff5e5.0\uff4d\u672a\u6e80",
+                                             "5.0\uff4d\u4ee5\u4e0a"))
+      # https://www.mlit.go.jp/river/shishin_guideline/pdf/manual_kouzuishinsui_1710.pdf
+      attr(sfLNI, "palette") = c("#f7f5a9",
+                                 "#f8e1a6",
+                                 "#ffd8c0",
+                                 "#ffd8c0",
+                                 "#ffb7b7",
+                                 "#ffb7b7",
+                                 "#dc7adc")
+    } else if (max(sfLNI$A31_001) >= 15) {
+      sfLNI$A31_Label <- factor(sfLNI$A31_001, levels=c(11,12,13,14,15),
+                                    labels=c("0\uff5e0.5\uff4d\u672a\u6e80",
+                                             "0.5\uff5e1.0\uff4d\u672a\u6e80",
+                                             "1.0\uff5e2.0\uff4d\u672a\u6e80",
+                                             "2.0\uff5e5.0\uff4d\u672a\u6e80",
+                                             "5.0\uff4d\u4ee5\u4e0a"))
+      # https://www.mlit.go.jp/river/shishin_guideline/pdf/manual_kouzuishinsui_1710.pdf
+      attr(sfLNI, "palette") = c("#f7f5a9",
+                                 "#f8e1a6",
+                                 "#ffd8c0",
+                                 "#ffb7b7",
+                                 "#dc7adc")
+    } else {
+      sfLNI$A31_001_label = 0
+      sfLNI[sfLNI$A31_001 == 21, "A31_Label"] = 11
+      sfLNI[sfLNI$A31_001 == 22, "A31_Label"] = 12
+      sfLNI[sfLNI$A31_001 == 23, "A31_Label"] = 13
+      sfLNI[sfLNI$A31_001 == 24, "A31_Label"] = 14
+      sfLNI[sfLNI$A31_001 == 25, "A31_Label"] = 14
+      sfLNI[sfLNI$A31_001 == 26, "A31_Label"] = 14
+      sfLNI[sfLNI$A31_001 == 27, "A31_Label"] = 15
+      sfLNI$A31_001_label <- factor(sfLNI$A31_Label, levels=c(11,12,13,14,15),
+                                    labels=c("0\uff5e0.5\uff4d\u672a\u6e80",
+                                             "0.5\uff5e1.0\uff4d\u672a\u6e80",
+                                             "1.0\uff5e2.0\uff4d\u672a\u6e80",
+                                             "2.0\uff5e5.0\uff4d\u672a\u6e80",
+                                             "5.0\uff4d\u4ee5\u4e0a"))
+      # https://www.mlit.go.jp/river/shishin_guideline/pdf/manual_kouzuishinsui_1710.pdf
+      attr(sfLNI, "palette") = c("#f7f5a9",
+                                 "#f8e1a6",
+                                 "#ffd8c0",
+                                 "#ffb7b7",
+                                 "#dc7adc")
+    }
   } else {
-    sfLNI$A31_001_label = 0
-    sfLNI[sfLNI$A31_001 == 21, "A31_001_label"] = 11
-    sfLNI[sfLNI$A31_001 == 22, "A31_001_label"] = 12
-    sfLNI[sfLNI$A31_001 == 23, "A31_001_label"] = 13
-    sfLNI[sfLNI$A31_001 == 24, "A31_001_label"] = 14
-    sfLNI[sfLNI$A31_001 == 25, "A31_001_label"] = 14
-    sfLNI[sfLNI$A31_001 == 26, "A31_001_label"] = 14
-    sfLNI[sfLNI$A31_001 == 27, "A31_001_label"] = 15
-    sfLNI$A31_001_label <- factor(sfLNI$A31_001_label, levels=c(11,12,13,14,15),
-                                  labels=c("0\uff5e0.5\uff4d\u672a\u6e80",
-                                           "0.5\uff5e1.0\uff4d\u672a\u6e80",
-                                           "1.0\uff5e2.0\uff4d\u672a\u6e80",
-                                           "2.0\uff5e5.0\uff4d\u672a\u6e80",
-                                           "5.0\uff4d\u4ee5\u4e0a"))
-    # https://www.mlit.go.jp/river/shishin_guideline/pdf/manual_kouzuishinsui_1710.pdf
-    attr(sfLNI, "palette") = c("#f7f5a9",
-                               "#f8e1a6",
-                               "#ffd8c0",
-                               "#ffb7b7",
-                               "#dc7adc")
+    code_region <- get_region(code_pref)
+    sfLNI <- NULL
+    sfLNI1 <- read_landnuminfo_by_csv("A31", code_region, NULL, year4digit, data_dir, "multiple")
+    sfLNI2 <- read_landnuminfo_by_csv("A31", code_pref, NULL, year4digit, data_dir, "multiple")
+    sfLNI <- rbind(sfLNI1, sfLNI2)
   }
 
-
-  attr(sfLNI, "mapname") = "\u6d2a\u6c34\u6d78\u6c34\u60f3\u5b9a\u533a\u57df"
-  attr(sfLNI, "col") = "A31_001_label"
-  attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u6d2a\u6c34\u6d78\u6c34\u60f3\u5b9a\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
-  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A31.html"
+  if (!is.null(sfLNI)) {
+    attr(sfLNI, "mapname") = "\u6d2a\u6c34\u6d78\u6c34\u60f3\u5b9a\u533a\u57df"
+  }
 
   return(sfLNI)
 }

@@ -398,13 +398,17 @@ check_code_muni_as_char <- function(code_pref = NULL, code_muni){
 
 check_code_pref_as_char <- function(code_pref){
   strCodePref <- ""
-  if (mode(code_pref) != "numeric") code_pref <- as.integer(code_pref)
-  if (code_pref < 0 || code_pref > 47) {
-    stop("Invalid argument: code_pref must be between 1 and 47.")
-  } else if (code_pref < 10) {
-    strCodePref <- paste("0", as.character(code_pref), sep = "")
+  tryCatch(code_pref <- as.integer(code_pref),
+           error = function(cnd){ stop(paste("Invalid argument: code_pref is not an integer:", code_pref)) }
+  )
+  if (code_pref %in% c(1:47,81:90)) {
+    if (code_pref < 10) {
+      strCodePref <- paste("0", as.character(code_pref), sep = "")
+    } else {
+      strCodePref <- as.character(code_pref)
+    }
   } else {
-    strCodePref <- as.character(code_pref)
+    stop(paste("Invalid argument: code_pref must be between 1 and 47 or 81 and 90:", code_pref))
   }
   return(strCodePref)
 }
@@ -467,5 +471,15 @@ get_muni_name <- function(code_pref, code_muni) {
   dfTemp <- dfTemp[dfTemp$code_pref == code_pref & dfTemp$code_muni == code_muni,]
   if (nrow(dfTemp) == 1) {
     return(dfTemp$name_muni)
+  }
+}
+
+get_region <- function(code_pref) {
+  code_pref <- as.integer(code_pref)
+
+  dfTemp <- read.csv(file.path("data","code_pref_muni.csv"))
+  dfTemp <- dfTemp[dfTemp$code_pref == code_pref & dfTemp$code_muni == 0,]
+  if (nrow(dfTemp) == 1) {
+    return(dfTemp$code_region)
   }
 }
