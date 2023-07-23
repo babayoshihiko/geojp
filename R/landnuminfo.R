@@ -419,7 +419,13 @@ read_landnuminfo_flood <- function(code_pref, code_muni = NULL, year = 2012, dat
     sfLNI <- NULL
     sfLNI1 <- read_landnuminfo_by_csv("A31", code_region, NULL, year4digit, data_dir, "multiple")
     sfLNI2 <- read_landnuminfo_by_csv("A31", code_pref, NULL, year4digit, data_dir, "multiple")
-    sfLNI <- rbind(sfLNI1, sfLNI2)
+    if (!is.null(sfLNI1) & !is.null(sfLNI1)) {
+      sfLNI <- rbind(sfLNI1, sfLNI2)
+    } else if (is.null(sfLNI1) & !is.null(sfLNI1)) {
+      sfLNI <- sfLNI2
+    } else if (is.null(sfLNI1) & !is.null(sfLNI1)) {
+      sfLNI <- sfLNI1
+    }
   }
 
   if (!is.null(sfLNI)) {
