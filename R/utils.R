@@ -487,14 +487,11 @@ get_region <- function(code_pref) {
 get_definition <- function(maptype){
   strTempDir <- tempdir()
   strFile <- file.path(strTempDir,paste(maptype,".csv",sep=""))
-  print(strFile)
   if (!file.exists(strFile)){
-    print("492")
     download.file(paste("https://raw.githubusercontent.com/babayoshihiko/geojp/master/data/", maptype, ".csv", sep=""),
                 file.path(strTempDir, paste(maptype, ".csv", sep="")),
                 mode = "wb")
   }
   dfTemp <- read.csv(strFile)
-  print(strFile)
   return(dfTemp)
 }
