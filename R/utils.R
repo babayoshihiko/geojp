@@ -372,7 +372,7 @@ check_data_dir <- function(data_dir){
 check_code_muni_as_char <- function(code_pref = NULL, code_muni){
   strCodeMuni <- ""
   if (!is.null(code_pref)) {
-    dfTemp <- read.csv(file.path("data","code_pref_muni.csv"))
+    dfTemp <- get_definition("code_pref_muni")
     dfTemp <- dfTemp[as.integer(dfTemp$code_pref) == as.integer(code_pref) & as.integer(dfTemp$code_muni) == as.integer(code_muni),]
     if (nrow(dfTemp) == 0) {
       if (!is.null(code_muni)){
@@ -467,7 +467,7 @@ get_muni_name <- function(code_pref, code_muni) {
   code_pref <- as.integer(code_pref)
   code_muni <- as.integer(code_muni)
 
-  dfTemp <- read.csv(file.path("data","code_pref_muni.csv"))
+  dfTemp <- get_definition("code_pref_muni.csv")
   dfTemp <- dfTemp[dfTemp$code_pref == code_pref & dfTemp$code_muni == code_muni,]
   if (nrow(dfTemp) == 1) {
     return(dfTemp$name_muni)
@@ -477,9 +477,24 @@ get_muni_name <- function(code_pref, code_muni) {
 get_region <- function(code_pref) {
   code_pref <- as.integer(code_pref)
 
-  dfTemp <- read.csv(file.path("data","code_pref_muni.csv"))
+  dfTemp <- get_definition("code_pref_muni")
   dfTemp <- dfTemp[dfTemp$code_pref == code_pref & dfTemp$code_muni == 0,]
   if (nrow(dfTemp) == 1) {
     return(dfTemp$code_region)
   }
+}
+
+get_definition <- function(maptype){
+  strTempDir <- tempdir()
+  strFile <- file.path(strTempDir,paste(maptype,".csv",sep=""))
+  print(strFile)
+  if (!file.exists(strFile)){
+    print("492")
+    download.file(paste("https://raw.githubusercontent.com/babayoshihiko/geojp/master/data/", maptype, ".csv", sep=""),
+                file.path(strTempDir, paste(maptype, ".csv", sep="")),
+                mode = "wb")
+  }
+  dfTemp <- read.csv(strFile)
+  print(strFile)
+  return(dfTemp)
 }

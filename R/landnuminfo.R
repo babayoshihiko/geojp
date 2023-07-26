@@ -107,22 +107,22 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL,
   if (code_pref == "47" && year4digit < 1973) stop("No data available for Okinaya before year 1973.")
 
   # Read the MapType definition
-  dfTemp <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
+  dfTemp <- get_definition(maptype)
   dfTemp <- dfTemp[dfTemp$year == year4digit,]
 
   # Set the files
-  strLNIUrl = gsub("code_pref",code_pref,dfTemp$url)
-  strLNIZip = file.path(strTempDir,gsub("code_pref",code_pref,dfTemp$zip))
-  strLNIFile1 = file.path(strTempDir,gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$shp)))
-  strLNIFile2 = file.path(strTempDir,gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$altdir)),gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$shp)))
-  strLNIFile3 = file.path(strTempDir,paste(gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$altdir)),"\\\\",gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp$shp)),sep=""))
+  strLNIUrl <- gsub("code_pref",code_pref,dfTemp[1,"url"])
+  strLNIZip <- file.path(strTempDir,gsub("code_pref",code_pref,dfTemp[1,"zip"]))
+  strLNIFile1 <- file.path(strTempDir,gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp[1,"shp"])))
+  strLNIFile2 <- file.path(strTempDir,gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp[1,"altdir"])),gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp[1,"shp"])))
+  strLNIFile3 <- file.path(strTempDir,paste(gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp[1,"altdir"])),"\\\\",gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp[1,"shp"])),sep=""))
 
   sfLNI <- get_sfLNI(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir, multifiles)
 }
 
 get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir, multifiles){
   # Read the MapType definition
-  dfTemp <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
+  dfTemp <- get_definition(maptype)
   dfTemp <- dfTemp[dfTemp$year == year4digit,]
   if (nrow(dfTemp) != 1) stop(paste("The target year", year, "not found in", paste("data/", maptype, ".csv", sep = "")))
 
@@ -168,7 +168,7 @@ get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl,
       sf::st_crs(sfLNI) <- 4612
     }
     attr(sfLNI, "sourceName") <- "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09" # MLIT
-    attr(sfLNI, "sourceURL") <- dfTemp$source
+    attr(sfLNI, "sourceURL") <- dfTemp[1,"source"]
 
     if (!is.na(dfTemp[1,"levels"])){
       attr(sfLNI, "col") = paste(maptype,"_Label",sep="")
@@ -185,16 +185,16 @@ get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl,
       }
       if (length(temp_levels) > 0){
         if (length(temp_levels) == length(temp_labels)){
-          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp$col]), levels = temp_levels, labels = temp_labels)
+          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels, labels = temp_labels)
         } else {
-          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp$col]), levels = temp_levels)
+          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels)
         }
       }
       if (length(temp_levels) == length(temp_palette)){
         attr(sfLNI, "palette") <- temp_palette
       }
     } else {
-      attr(sfLNI, "col") <- dfTemp$col
+      attr(sfLNI, "col") <- dfTemp[1,"col"]
     }
     attr(sfLNI, "year") <- year4digit
     return(sfLNI)
@@ -791,6 +791,6 @@ read_landnuminfo_preflandprice <- function(code_pref, code_muni = NULL, year = 2
 #'
 #' @export
 list_landnuminfo <- function(){
-  dfTestedMap <- read.csv(file.path("data","landnuminfo.csv"))
+  dfTestedMap <- get_definition("landnuminfo")
   message(dfTestedMap)
 }

@@ -13,23 +13,30 @@ read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NU
   if (nchar(code_mesh) != 4) stop(paste("Invalid argument: code_mesh:", code_mesh))
 
   # Read the MapType definition
-  dfTemp <- read.csv(file.path("data",paste(maptype, ".csv", sep = "")))
+  dfTemp <- get_definition(maptype)
   dfTemp <- dfTemp[dfTemp$year == year4digit,]
 
   # Set the files
-  strLNIUrl = gsub("code_mesh",code_mesh,dfTemp$url)
-  strLNIZip = file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$zip))
-  strLNIFile1 = file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$shp))
-  strLNIFile2 = file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$altdir),gsub("code_mesh",code_mesh,dfTemp$shp))
-  strLNIFile3 = file.path(strTempDir,paste(gsub("code_mesh",code_mesh,dfTemp$altdir),"\\\\",gsub("code_mesh",code_mesh,dfTemp$shp),sep=""))
+  strLNIUrl <- gsub("code_mesh",code_mesh,dfTemp$url)
+  strLNIZip <- file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$zip))
+  strLNIFile1 <- file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$shp))
+  strLNIFile2 <- file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$altdir),gsub("code_mesh",code_mesh,dfTemp$shp))
+  strLNIFile3 <- file.path(strTempDir,paste(gsub("code_mesh",code_mesh,dfTemp$altdir),"\\\\",gsub("code_mesh",code_mesh,dfTemp$shp),sep=""))
 
   sfLNI <- get_sfLNI(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir)
+
+  if (!is.null(sfLNI)) {
+    attr(sfLNI, "year") <- year4digit
+    attr(sfLNI, "col") <- dfTemp[1,"col"]
+    attr(sfLNI, "sourceName") <- "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09" # MLIT
+    attr(sfLNI, "sourceURL") <- dfTemp[1,"source"]
+  }
 
   return(sfLNI)
 }
 
 get_mesh1_by_muni <- function(code_pref, code_muni) {
-  dfTemp <- read.csv(file.path("data","muni_mesh1.csv"))
+  dfTemp <- get_definition("muni_mesh1")
   dfTemp <- dfTemp[dfTemp$code_pref == code_pref & dfTemp$code_muni == code_muni,]
 
   return(dfTemp$code_mesh3)
@@ -60,6 +67,7 @@ get_mesh1_by_muni <- function(code_pref, code_muni) {
 read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir = NULL){
   year4digit <- check_year(year)
 
+  # Get the mesh code
   lstMesh1Codes <- get_mesh1_by_muni(code_pref, code_muni)
 
   sfLNI <- NULL
@@ -82,31 +90,38 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
   }
 
   if (!is.null(sfLNI)) {
-    #sfTemp <- sfLNI[,unlist(lapply(sfLNI, is.numeric))]
+    # Read the MapType definition
+    dfTemp <- get_definition(maptype)
+    dfTemp <- dfTemp[dfTemp$year == year4digit,]
+
     sfTemp <- sfLNI[,-1]
     sfLNI$Max_Column <- colnames(sfTemp)[apply(sfTemp,1,which.max)]
-    attr(sfLNI, "mapname") = "\u571f\u5730\u5229\u75283\u6b21\u30e1\u30c3\u30b7\u30e5"
-    attr(sfLNI, "col") = "Max_Column"
+    attr(sfLNI, "mapname") <- "\u571f\u5730\u5229\u75283\u6b21\u30e1\u30c3\u30b7\u30e5"
+
     # https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-b_r.html
-    # May not be compatible for older years
-
-    if (year4digit > 2006) {
-      sfLNI$Max_Column <- factor(sfLNI$Max_Column, levels = c("\u7530","\u4ed6\u8fb2\u7528\u5730","\u68ee\u6797","\u8352\u5730","\u5efa\u7269\u7528\u5730","\u9053\u8def","\u9244\u9053","\u4ed6\u7528\u5730","\u6cb3\u5ddd\u6e56\u6cbc","\u6d77\u6d5c","\u30b4\u30eb\u30d5\u5834"))
-      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#B4B4B4","#C8460F","#0000FF","#FFFF99","#00CCFF","#00FF00")
-    } else if (year4digit == 1991 || year4digit == 1997 || year4digit == 2006) {
-      # https://nlftp.mlit.go.jp/ksj/gml/codelist/LandUseProperty-77.html
-      sfLNI$Max_Column <- factor(sfLNI$Max_Column, levels = c("L03a_002","L03a_003","L03a_004","L03a_005","L03a_006","L03a_007","L03a_008","L03a_009","L03a_010","L03a_011","L03a_012"))
-      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#C8460F","#0000FF","#FFFF99","#00CCFF","#00FF00")
-    } else if (year4digit == 1987) {
-      # https://nlftp.mlit.go.jp/ksj/gml/codelist/LandUseProperty-77.html
-      sfLNI$Max_Column <- factor(sfLNI$Max_Column, levels = c("L03a_002","L03a_003","L03a_004","L03a_005","L03a_006","L03a_007","L03a_008","L03a_009","L03a_010","L03a_011","L03a_012","L03a_013"))
-      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#FFCC99","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#C8460F","#0000FF","#FFFF99","#00CCFF")
-    } else if (year4digit == 1976) {
-      # https://nlftp.mlit.go.jp/ksj/gml/codelist/LandUseProperty-77.html
-      sfLNI$Max_Column <- factor(sfLNI$Max_Column, levels = c("L03a_002","L03a_003","L03a_004","L03a_005","L03a_006","L03a_007","L03a_008","L03a_009","L03a_010","L03a_011","L03a_012","L03a_013","L03a_014","L03a_015","L03a_016"))
-      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#FFCC99","#FFCC99","#00AA00","#FF9900","#FF0000","#FF0000","#8C8C8C","#C8460F","#0000FF","#0000FF","#0000FF","#FFFF99","#00CCFF")
+    if (!is.na(dfTemp[1,"levels"])){
+      temp_levels <- unlist(strsplit(dfTemp[1,"levels"], " "))
+      if (!is.na(dfTemp[1,"labels"])) {
+        temp_labels <- unlist(strsplit(dfTemp[1,"labels"], " "))
+      } else {
+        temp_labels <- ""
+      }
+      if (!is.na(dfTemp[1,"palette"])) {
+        temp_palette <- unlist(strsplit(dfTemp[1,"palette"], " "))
+      } else {
+        temp_palette <- ""
+      }
+      if (length(temp_levels) > 0){
+        if (length(temp_levels) == length(temp_labels)){
+          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp$col]), levels = temp_levels, labels = temp_labels)
+        } else {
+          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp$col]), levels = temp_levels)
+        }
+      }
+      if (length(temp_levels) == length(temp_palette)){
+        attr(sfLNI, "palette") <- temp_palette
+      }
     }
-
     return(sfLNI)
   } else if (year4digit == 2021) {
     warning("The mesh may not be available for the year 2021.")
@@ -161,34 +176,29 @@ read_landnuminfo_meshsub <- function(code_pref, code_muni, year = 2006, data_dir
 
   if (!is.null(sfLNI)) {
     attr(sfLNI, "mapname") = "\u571f\u5730\u5229\u75283\u6b21\u30e1\u30c3\u30b7\u30e5"
-    if (year4digit == 2016 || year4digit == 2014 || year4digit == 2009) {
-      attr(sfLNI, "col") = "\u571f\u5730\u5229\u7528\u7a2e"
-    } else {
-      attr(sfLNI, "col") = "L03b_002"
-    }
 
-    # https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-b_r.html
-    # May not be compatible for older years
-    if (year4digit == 2021) {
-      sfLNI$L03b_002 <- factor(sfLNI$L03b_002, levels = c("0100","0200","0500","0600","0700","0901","0902","1000","1100","1400","1500","1600"))
-      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#B4B4B4","#C8460F","#0000FF","#FFFF99","#00CCFF","#00FF00")
-    } else  if (year4digit == 2016 || year4digit == 2014 || year4digit == 2009) {
-      # Cannot use sfLNI[,2] due to "In xtfrm.data.frame(x) : cannot xtfrm data frames"
-      # https://community.rstudio.com/t/warning-message-in-xtfrm-data-frame-x-cannot-xtfrm-data-frames/115717
-      # Rename the column name in multibyte to "L03b_002" temporarily
-      colnames(sfLNI)[2] <- "L03b_002"
-      sfLNI$L03b_002 <- factor(sfLNI$L03b_002, levels = c("0100","0200","0500","0600","0700","0901","0902","1000","1100","1400","1500","1600"))
-      colnames(sfLNI)[2] <- "\u571f\u5730\u5229\u7528\u7a2e"
-      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#B4B4B4","#C8460F","#0000FF","#FFFF99","#00CCFF","#00FF00")
-    } else if (year4digit == 1991 || year4digit == 1997 || year4digit == 2006) {
-      sfLNI$L03b_002 <- factor(sfLNI$L03b_002, levels=c("1","2","5","6","7","9","A","B","E","F","G"))
-      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#C8460F","#0000FF","#FFFF99","#00CCFF","#00FF00")
-    } else if (year4digit == 1987) {
-      sfLNI$L03b_002 <- factor(sfLNI$L03b_002, levels=c("1","2","3","4","5","6","7","9","A","B","E","F"))
-      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#FFCC99","#FFCC99","#00AA00","#FF9900","#FF0000","#8C8C8C","#C8460F","#0000FF","#FFFF99","#00CCFF")
-    } else if (year4digit == 1976) {
-      sfLNI$L03b_002 <- factor(sfLNI$L03b_002, levels=c("1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"))
-      attr(sfLNI, "palette") = c("#FFFF00","#FFCC99","#FFCC99","#FFCC99","#00AA00","#FF9900","#FF0000","#FF0000","#8C8C8C","#C8460F","#0000FF","#0000FF","#0000FF","#FFFF99","#00CCFF")
+    if (!is.na(dfTemp[1,"levels"])){
+      temp_levels <- unlist(strsplit(dfTemp[1,"levels"], " "))
+      if (!is.na(dfTemp[1,"labels"])) {
+        temp_labels <- unlist(strsplit(dfTemp[1,"labels"], " "))
+      } else {
+        temp_labels <- ""
+      }
+      if (!is.na(dfTemp[1,"palette"])) {
+        temp_palette <- unlist(strsplit(dfTemp[1,"palette"], " "))
+      } else {
+        temp_palette <- ""
+      }
+      if (length(temp_levels) > 0){
+        if (length(temp_levels) == length(temp_labels)){
+          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp$col]), levels = temp_levels, labels = temp_labels)
+        } else {
+          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp$col]), levels = temp_levels)
+        }
+      }
+      if (length(temp_levels) == length(temp_palette)){
+        attr(sfLNI, "palette") <- temp_palette
+      }
     }
 
     return(sfLNI)
