@@ -169,14 +169,16 @@ get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl,
     }
     attr(sfLNI, "sourceName") <- "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09" # MLIT
     attr(sfLNI, "sourceURL") <- dfTemp[1,"source"]
+    attr(sfLNI, "col") = dfTemp[1,"col"]
+    attr(sfLNI, "year") <- year4digit
 
     if (!is.na(dfTemp[1,"levels"])){
-      attr(sfLNI, "col") = paste(maptype,"_Label",sep="")
       temp_levels <- unlist(strsplit(dfTemp[1,"levels"], " "))
-      if (!is.na(dfTemp[1,"labels"])) {
-        temp_labels <- unlist(strsplit(dfTemp[1,"labels"], " "))
-      } else {
-        temp_labels <- ""
+      temp_labels <- ""
+      if ("labels" %in% colnames(dfTemp)){
+        if (!is.na(dfTemp[1,"labels"])) {
+          temp_labels <- unlist(strsplit(dfTemp[1,"labels"], " "))
+        }
       }
       if (!is.na(dfTemp[1,"palette"])) {
         temp_palette <- unlist(strsplit(dfTemp[1,"palette"], " "))
@@ -184,19 +186,19 @@ get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl,
         temp_palette <- ""
       }
       if (length(temp_levels) > 0){
-        if (length(temp_levels) == length(temp_labels)){
-          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels, labels = temp_labels)
-        } else {
-          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels)
+        if (dfTemp[1,"col"] %in% colnames(sfLNI)){
+          if (length(temp_levels) == length(temp_labels)){
+            sfLNI[,dfTemp[1,"col"]] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels, labels = temp_labels)
+          } else {
+            sfLNI[,dfTemp[1,"col"]] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels)
+          }
         }
       }
       if (length(temp_levels) == length(temp_palette)){
         attr(sfLNI, "palette") <- temp_palette
       }
-    } else {
-      attr(sfLNI, "col") <- dfTemp[1,"col"]
     }
-    attr(sfLNI, "year") <- year4digit
+
     return(sfLNI)
   }
 }
@@ -740,7 +742,7 @@ read_landnuminfo_urbanarea_2011 <- function(code_pref, data_dir = NULL){
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 #'
 #' @export
-read_landnuminfo_preflandprice <- function(code_pref, code_muni = NULL, year = 2023, data_dir = NULL){
+read_landnuminfo_preflandprice <- function(code_pref, code_muni = NULL, year = 2022, data_dir = NULL){
   year4digit <- check_year(year)
 
   sfLNI <- NULL

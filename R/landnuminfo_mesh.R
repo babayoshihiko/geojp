@@ -17,11 +17,11 @@ read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NU
   dfTemp <- dfTemp[dfTemp$year == year4digit,]
 
   # Set the files
-  strLNIUrl <- gsub("code_mesh",code_mesh,dfTemp$url)
-  strLNIZip <- file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$zip))
-  strLNIFile1 <- file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$shp))
-  strLNIFile2 <- file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp$altdir),gsub("code_mesh",code_mesh,dfTemp$shp))
-  strLNIFile3 <- file.path(strTempDir,paste(gsub("code_mesh",code_mesh,dfTemp$altdir),"\\\\",gsub("code_mesh",code_mesh,dfTemp$shp),sep=""))
+  strLNIUrl <- gsub("code_mesh",code_mesh,dfTemp[1,"url"])
+  strLNIZip <- file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp[1,"zip"]))
+  strLNIFile1 <- file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp[1,"shp"]))
+  strLNIFile2 <- file.path(strTempDir,gsub("code_mesh",code_mesh,dfTemp[1,"altdir"]),gsub("code_mesh",code_mesh,dfTemp[1,"shp"]))
+  strLNIFile3 <- file.path(strTempDir,paste(gsub("code_mesh",code_mesh,dfTemp[1,"altdir"]),"\\\\",gsub("code_mesh",code_mesh,dfTemp[1,"shp"]),sep=""))
 
   sfLNI <- get_sfLNI(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir)
 
@@ -95,16 +95,17 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
     dfTemp <- dfTemp[dfTemp$year == year4digit,]
 
     sfTemp <- sfLNI[,-1]
-    sfLNI$Max_Column <- colnames(sfTemp)[apply(sfTemp,1,which.max)]
+    sfLNI[,dfTemp[1,"col"]] <- colnames(sfTemp)[apply(sfTemp,1,which.max)]
     attr(sfLNI, "mapname") <- "\u571f\u5730\u5229\u75283\u6b21\u30e1\u30c3\u30b7\u30e5"
 
     # https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-b_r.html
     if (!is.na(dfTemp[1,"levels"])){
       temp_levels <- unlist(strsplit(dfTemp[1,"levels"], " "))
-      if (!is.na(dfTemp[1,"labels"])) {
-        temp_labels <- unlist(strsplit(dfTemp[1,"labels"], " "))
-      } else {
-        temp_labels <- ""
+      temp_labels <- ""
+      if ("labels" %in% colnames(dfTemp)){
+        if (!is.na(dfTemp[1,"labels"])) {
+          temp_labels <- unlist(strsplit(dfTemp[1,"labels"], " "))
+        }
       }
       if (!is.na(dfTemp[1,"palette"])) {
         temp_palette <- unlist(strsplit(dfTemp[1,"palette"], " "))
@@ -113,9 +114,9 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
       }
       if (length(temp_levels) > 0){
         if (length(temp_levels) == length(temp_labels)){
-          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp$col]), levels = temp_levels, labels = temp_labels)
+          sfLNI[,dfTemp[1,"col"]] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels, labels = temp_labels)
         } else {
-          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp$col]), levels = temp_levels)
+          sfLNI[,dfTemp[1,"col"]] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels)
         }
       }
       if (length(temp_levels) == length(temp_palette)){
@@ -179,10 +180,11 @@ read_landnuminfo_meshsub <- function(code_pref, code_muni, year = 2006, data_dir
 
     if (!is.na(dfTemp[1,"levels"])){
       temp_levels <- unlist(strsplit(dfTemp[1,"levels"], " "))
-      if (!is.na(dfTemp[1,"labels"])) {
-        temp_labels <- unlist(strsplit(dfTemp[1,"labels"], " "))
-      } else {
-        temp_labels <- ""
+      temp_labels <- ""
+      if ("labels" %in% colnames(dfTemp)){
+        if (!is.na(dfTemp[1,"labels"])) {
+          temp_labels <- unlist(strsplit(dfTemp[1,"labels"], " "))
+        }
       }
       if (!is.na(dfTemp[1,"palette"])) {
         temp_palette <- unlist(strsplit(dfTemp[1,"palette"], " "))
@@ -191,9 +193,9 @@ read_landnuminfo_meshsub <- function(code_pref, code_muni, year = 2006, data_dir
       }
       if (length(temp_levels) > 0){
         if (length(temp_levels) == length(temp_labels)){
-          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp$col]), levels = temp_levels, labels = temp_labels)
+          sfLNI[,dfTemp[1,"col"]] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels, labels = temp_labels)
         } else {
-          sfLNI[,paste(maptype,"_Label",sep="")] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp$col]), levels = temp_levels)
+          sfLNI[,dfTemp[1,"col"]] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels)
         }
       }
       if (length(temp_levels) == length(temp_palette)){

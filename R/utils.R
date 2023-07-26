@@ -467,7 +467,7 @@ get_muni_name <- function(code_pref, code_muni) {
   code_pref <- as.integer(code_pref)
   code_muni <- as.integer(code_muni)
 
-  dfTemp <- get_definition("code_pref_muni.csv")
+  dfTemp <- get_definition("code_pref_muni")
   dfTemp <- dfTemp[dfTemp$code_pref == code_pref & dfTemp$code_muni == code_muni,]
   if (nrow(dfTemp) == 1) {
     return(dfTemp$name_muni)
