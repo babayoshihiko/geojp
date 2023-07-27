@@ -40,7 +40,7 @@ sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215)
 head(sfCensus)
 ```
 ```{r, echo = F, eval = T}
-sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215, data_dir = "/var/data.noindex")
+sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215, data_dir = "~/data.noindex/Census")
 head(sfCensus)
 ```
 
@@ -53,7 +53,7 @@ sfCensus2 <- geojp::read_census_odcity("京都市")
 head(sfCensus2)
 ```
 ```{r, echo = F, eval = T}
-sfCensus2 <- geojp::read_census_odcity("京都市", data_dir = "/var/data.noindex")
+sfCensus2 <- geojp::read_census_odcity("京都市", data_dir = "~/data.noindex/Census")
 head(sfCensus2)
 ```
 
@@ -76,7 +76,7 @@ The return value is an `sf` object.
 sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011)
 ```
 ```{r, echo = F, eval = T}
-sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011, data_dir = "/var/data.noindex")
+sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011, data_dir = "~/data.noindex/A29")
 ```
 
 Columns `A29_004` and `A29_005`, which indicate the zoning class, are of type factor.

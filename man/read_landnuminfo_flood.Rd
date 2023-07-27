@@ -25,4 +25,6 @@ An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 }
 \description{
 Function to download spatial data of Flood Inundation Risk of Japan. The returned value is an sf object.
+
+Note that the data of year 2012 is available for all prefectures, but not of other years.
 }

@@ -7,7 +7,7 @@
 read_landnuminfo_preflandprice(
   code_pref,
   code_muni = NULL,
-  year = 2023,
+  year = 2022,
   data_dir = NULL
 )
 }
