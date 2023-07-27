@@ -73,10 +73,10 @@ For more information on the National Geodetic Information, see [National Land Nu
 The return value is an `sf` object.
 
 ```{r, echo = T, eval = F}
-sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011)
+sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, 100)
 ```
 ```{r, echo = F, eval = T}
-sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011, data_dir = "~/data.noindex/A29")
+sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, 100, data_dir = "~/data.noindex/A29")
 ```
 
 Columns `A29_004` and `A29_005`, which indicate the zoning class, are of type factor.

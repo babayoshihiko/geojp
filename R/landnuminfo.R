@@ -292,24 +292,32 @@ read_landnuminfo_landuse <- function(code_pref, code_muni, year = 2019, data_dir
   year4digit <- check_year(year)
 
   sfLNI <- NULL
-  sfLNI <- read_landnuminfo_by_csv("A29", code_pref, code_muni, year4digit, data_dir)
 
-  if (!is.null(sfLNI)) {
-    if (!is.null(code_muni)){
-      lstCodeMuni <- get_wards(code_pref, code_muni, year4digit)
-      if (length(lstCodeMuni) > 0) {
-        sfLNI2 <- NULL
-        for (code_muni_single in lstCodeMuni){
-          strNameMuni <- get_muni_name(code_pref, code_muni_single)
-          if (is.null(sfLNI2)) {
-            sfLNI2 <- subset(sfLNI, A29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
-          } else {
-            sfLNI2 <- rbind(sfLNI2, subset(sfLNI, A29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+  if (year4digit == 2019) {
+    sfLNI <- read_landnuminfo_by_csv("A29", code_pref, code_muni, year4digit, data_dir)
+  } else {
+    sfLNI <- read_landnuminfo_by_csv("A29", code_pref, code_muni, year4digit, data_dir)
+
+    if (!is.null(sfLNI)) {
+      if (!is.null(code_muni)){
+        lstCodeMuni <- get_wards(code_pref, code_muni, year4digit)
+        if (length(lstCodeMuni) > 0) {
+          sfLNI2 <- NULL
+          for (code_muni_single in lstCodeMuni){
+            strNameMuni <- get_muni_name(code_pref, code_muni_single)
+            if (is.null(sfLNI2)) {
+              sfLNI2 <- subset(sfLNI, A29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+            } else {
+              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, A29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+            }
           }
         }
+        if (!is.null(sfLNI2)) sfLNI <- sfLNI2
       }
-      if (!is.null(sfLNI2)) sfLNI <- sfLNI2
     }
+  }
+
+  if (!is.null(sfLNI)){
     attr(sfLNI, "mapname") = "\u7528\u9014\u5730\u57df"
     return(sfLNI)
   }
