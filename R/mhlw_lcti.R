@@ -44,10 +44,13 @@ read_mhlw_lcti <- function(code_type = NULL, name_type = NULL, code_pref = NULL,
   } else {
     dfTemp <- dfTemp[dfTemp$name_type == name_type,]
   }
-
-  strUrl <- dfTemp[1,"url"] # Get URL from the first row
-  strZip <- basename(strUrl)
-  strCSV <- gsub(".zip", ".csv", strZip)
+  if (nrow(dfTemp) >= 1) {
+    strUrl <- dfTemp[1,"url"] # Get URL from the first row
+    strZip <- basename(strUrl)
+    strCSV <- dfTemp[1,"csv"]
+  } else {
+    stop("ERROR: Cannot find the definition (read_mhlw_lcti).")
+  }
 
   if (!file.exists(file.path(strTempDir, strCSV))){
     if (!file.exists(file.path(strTempDir, strZip))){
