@@ -52,6 +52,7 @@ read_mhlw_lcti <- function(code_type = NULL, name_type = NULL, code_pref = NULL,
     stop("ERROR: Cannot find the definition (read_mhlw_lcti).")
   }
 
+  print(strCSV)
   if (!file.exists(file.path(strTempDir, strCSV))){
     if (!file.exists(file.path(strTempDir, strZip))){
       print(strUrl)
