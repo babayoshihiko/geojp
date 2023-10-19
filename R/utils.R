@@ -369,28 +369,25 @@ check_data_dir <- function(data_dir){
   return(strTempDir)
 }
 
-check_code_muni_as_char <- function(code_pref = NULL, code_muni){
+check_code_muni_as_char <- function(code_pref = NULL, code_muni, return = "code_muni"){
   strCodeMuni <- ""
   if (!is.null(code_pref)) {
     dfTemp <- get_definition("code_pref_muni")
     dfTemp <- dfTemp[as.integer(dfTemp$code_pref) == as.integer(code_pref) & as.integer(dfTemp$code_muni) == as.integer(code_muni),]
-    if (nrow(dfTemp) == 0) {
-      if (!is.null(code_muni)){
-        warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist."))
-      }
-    } else if (nrow(dfTemp) == 1) {
-      strCodeMuni <- sprintf("%02d", as.integer(code_muni))
-    } else {
-      warning(paste("Pref:", code_pref, ", Muni:", code_muni, " somehow matched two or more municipalities."))
-      strCodeMuni <- sprintf("%02d", as.integer(code_muni))
-    }
-  } else {
-    if (mode(code_muni) == "numeric") {
-      if (code_muni < 100 || code_muni > 700) {
-        warning("Invalid argument: code_muni must be between 100 and 700.")
+    if (return == "code_muni"){
+      if (nrow(dfTemp) == 0) {
+        if (!is.null(code_muni)){
+          warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist."))
+          strCodeMuni <- code_muni
+        }
+      } else if (nrow(dfTemp) == 1) {
+        strCodeMuni <- sprintf("%03d", as.integer(code_muni))
       } else {
-        strCodeMuni <- sprintf("%02d", as.integer(code_muni))
+        warning(paste("Pref:", code_pref, ", Muni:", code_muni, " somehow matched two or more municipalities."))
+        strCodeMuni <- sprintf("%03d", as.integer(code_muni))
       }
+    } else if (return == "code_dantai"){
+      strCodeMuni <- sprintf("%06d", as.integer(dfTemp[1,"code_dantai"]))
     }
   }
   return(strCodeMuni)
