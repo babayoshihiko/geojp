@@ -52,10 +52,9 @@ read_mhlw_lcti <- function(code_type = NULL, name_type = NULL, code_pref = NULL,
     stop("ERROR: Cannot find the definition (read_mhlw_lcti).")
   }
 
-  print(strCSV)
+  # Checks if the CSV file exists. If not, download and unzip the file.
   if (!file.exists(file.path(strTempDir, strCSV))){
     if (!file.exists(file.path(strTempDir, strZip))){
-      print(strUrl)
       utils::download.file(strUrl, file.path(strTempDir, strZip), mode="wb")
     }
     unzip_ja(file.path(strTempDir, strZip), exdir = strTempDir)
