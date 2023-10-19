@@ -387,7 +387,17 @@ check_code_muni_as_char <- function(code_pref = NULL, code_muni, return = "code_
         strCodeMuni <- sprintf("%03d", as.integer(code_muni))
       }
     } else if (return == "code_dantai"){
-      strCodeMuni <- sprintf("%06d", as.integer(dfTemp[1,"code_dantai"]))
+      if (nrow(dfTemp) == 0) {
+        if (!is.null(code_muni)){
+          warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist. Returns NULL."))
+          strCodeMuni <- NULL
+        }
+      } else if (nrow(dfTemp) == 1) {
+        strCodeMuni <- sprintf("%06d", as.integer(dfTemp[1,"code_dantai"]))
+      } else {
+        warning(paste("Pref:", code_pref, ", Muni:", code_muni, " somehow matched two or more municipalities."))
+        strCodeMuni <- sprintf("%06d", as.integer(dfTemp[1,"code_dantai"]))
+      }
     }
   }
   return(strCodeMuni)
@@ -458,6 +468,16 @@ get_wards <- function(code_pref, code_muni, year4digit = 2021){
     lstMuni <- c(101,102,103,104,105)
   }
   return(lstMuni)
+}
+
+get_pref_name <- function(code_pref) {
+  code_pref <- as.integer(code_pref)
+
+  dfTemp <- get_definition("code_pref_muni")
+  dfTemp <- dfTemp[dfTemp$code_pref == code_pref,]
+  if (nrow(dfTemp) >= 1) {
+    return(dfTemp$name_pref[1])
+  }
 }
 
 get_muni_name <- function(code_pref, code_muni) {
