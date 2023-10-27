@@ -13,8 +13,8 @@
 #' The available years are: 2023, 2022, 2021 and 2020 (month = 12 only for 2020).
 #' The default year is 2023.
 #'
-#' @param code_type LCTI service code, e.g. 110 = Home-Visit Care.  See attribute sourceURL for details.
-#' @param name_type LCTI service name in Japanese.
+#' @param code_type LTCI service code, e.g. 110 = Home-Visit Care.  See attribute sourceURL for details.
+#' @param name_type LTCI service name in Japanese.
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Optional. The 3-digit code of municipality.
 #' @param year Year of the data.
@@ -24,7 +24,7 @@
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 #'
 #' @export
-read_mhlw_lcti <- function(code_type = NULL, name_type = NULL, code_pref = NULL, code_muni = NULL, year = 2023, month = 6, data_dir = NULL){
+read_mhlw_ltci <- function(code_type = NULL, name_type = NULL, code_pref = NULL, code_muni = NULL, year = 2023, month = 6, data_dir = NULL){
   if (is.null(code_type) & is.null(code_type)) stop("Please give code_type or name_type")
   year4digit <- check_year(year)
   strTempDir <- check_data_dir(data_dir)
@@ -49,7 +49,7 @@ read_mhlw_lcti <- function(code_type = NULL, name_type = NULL, code_pref = NULL,
     strZip <- basename(strUrl)
     strCSV <- dfTemp[1,"csv"]
   } else {
-    stop("ERROR: Cannot find the definition (read_mhlw_lcti).")
+    stop("ERROR: Cannot find the definition (read_mhlw_ltci).")
   }
 
   # Checks if the CSV file exists. If not, download and unzip the file.

@@ -96,7 +96,8 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
 read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL,
                                     year,
                                     data_dir = NULL,
-                                    multifiles = "error"){
+                                    multifiles = "error",
+                                    encoding = "CP932"){
   # Checks the arguments
   year4digit <- check_year(year)
   strTempDir <- check_data_dir(data_dir)
@@ -117,16 +118,20 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL,
   strLNIFile2 <- file.path(strTempDir,gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp[1,"altdir"])),gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp[1,"shp"])))
   strLNIFile3 <- file.path(strTempDir,paste(gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp[1,"altdir"])),"\\\\",gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp[1,"shp"])),sep=""))
 
-  sfLNI <- get_sfLNI(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir, multifiles)
+  sfLNI <- get_sfLNI(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir, multifiles, encoding)
 }
 
-get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir, multifiles){
+get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit,
+                      strTempDir,
+                      multifiles,
+                      encoding = "CP932"){
   # Read the MapType definition
   dfTemp <- get_definition(maptype)
   dfTemp <- dfTemp[dfTemp$year == year4digit,]
   if (nrow(dfTemp) != 1) stop(paste("The target year", year, "not found in", paste("data/", maptype, ".csv", sep = "")))
 
   strLNIFile <- ""
+  strOptions <- paste("ENCODING=", encoding, sep="")
 
   # Checks if the shp file exists
   strLNIFile <- get_sfLNI_file(strLNIFile1, strLNIFile2, strLNIFile3, strTempDir, multifiles)
@@ -148,15 +153,15 @@ get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl,
     if (strLNIFile == ""){
       stop(paste("Cannot find the file:", strLNIFile1))
     } else {
-      sfLNI <- sf::read_sf(strLNIFile, options = "ENCODING=CP932", stringsAsFactors=FALSE)
+      sfLNI <- sf::read_sf(strLNIFile, options = strOptions, stringsAsFactors=FALSE)
     }
   } else {
     sfLNI <- NULL
     for (strLNIFile_single in strLNIFile){
       if (is.null(sfLNI)) {
-        sfLNI <- sf::read_sf(strLNIFile_single, options = "ENCODING=CP932", stringsAsFactors=FALSE)
+        sfLNI <- sf::read_sf(strLNIFile_single, options = strOptions, stringsAsFactors=FALSE)
       } else {
-        sfLNI <- rbind(sfLNI, sf::read_sf(strLNIFile_single, options = "ENCODING=CP932", stringsAsFactors=FALSE))
+        sfLNI <- rbind(sfLNI, sf::read_sf(strLNIFile_single, options = strOptions, stringsAsFactors=FALSE))
       }
     }
 
@@ -168,29 +173,29 @@ get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl,
       sf::st_crs(sfLNI) <- 4612
     }
     attr(sfLNI, "sourceName") <- "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09" # MLIT
-    attr(sfLNI, "sourceURL") <- dfTemp[1,"source"]
-    attr(sfLNI, "col") = dfTemp[1,"col"]
+    attr(sfLNI, "sourceURL") <- as.character(dfTemp[1,"source"])
+    attr(sfLNI, "col") = as.character(dfTemp[1,"col"])
     attr(sfLNI, "year") <- year4digit
 
     if (!is.na(dfTemp[1,"levels"])){
-      temp_levels <- unlist(strsplit(dfTemp[1,"levels"], " "))
+      temp_levels <- unlist(strsplit(as.character(dfTemp[1,"levels"]), " "))
       temp_labels <- ""
       if ("labels" %in% colnames(dfTemp)){
         if (!is.na(dfTemp[1,"labels"])) {
-          temp_labels <- unlist(strsplit(dfTemp[1,"labels"], " "))
+          temp_labels <- unlist(strsplit(as.character(dfTemp[1,"labels"]), " "))
         }
       }
       if (!is.na(dfTemp[1,"palette"])) {
-        temp_palette <- unlist(strsplit(dfTemp[1,"palette"], " "))
+        temp_palette <- unlist(strsplit(as.character(dfTemp[1,"palette"]), " "))
       } else {
         temp_palette <- ""
       }
       if (length(temp_levels) > 0){
-        if (dfTemp[1,"col"] %in% colnames(sfLNI)){
+        if (as.character(dfTemp[1,"col"]) %in% colnames(sfLNI)){
           if (length(temp_levels) == length(temp_labels)){
-            sfLNI[,dfTemp[1,"col"]] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels, labels = temp_labels)
+            sfLNI[,as.character(dfTemp[1,"col"])] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,as.character(dfTemp[1,"col"])]), levels = temp_levels, labels = temp_labels)
           } else {
-            sfLNI[,dfTemp[1,"col"]] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels)
+            sfLNI[,as.character(dfTemp[1,"col"])] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,as.character(dfTemp[1,"col"])]), levels = temp_levels)
           }
         }
       }
@@ -209,6 +214,9 @@ get_sfLNI_file <- function(strLNIFile1, strLNIFile2, strLNIFile3, strTempDir, mu
   strLNIFile4 <- gsub(strTempDir, paste(strTempDir,"*",sep="/"), strLNIFile1)
   strLNIFile5 <- gsub(strTempDir, paste(strTempDir,"*",sep="/"), strLNIFile2)
   strLNIFile6 <- gsub(strTempDir, paste(strTempDir,"*",sep="/"), strLNIFile3)
+  strLNIFile7 <- gsub(strTempDir, paste(strTempDir,"*","*",sep="/"), strLNIFile1)
+  strLNIFile8 <- gsub(strTempDir, paste(strTempDir,"*","*",sep="/"), strLNIFile2)
+  strLNIFile9 <- gsub(strTempDir, paste(strTempDir,"*","*",sep="/"), strLNIFile3)
 
   strLNIFile <- ""
   if (length(Sys.glob(strLNIFile1)) == 1){
@@ -223,6 +231,12 @@ get_sfLNI_file <- function(strLNIFile1, strLNIFile2, strLNIFile3, strTempDir, mu
     strLNIFile <- Sys.glob(strLNIFile5)
   } else if (length(Sys.glob(strLNIFile6)) == 1){
     strLNIFile <- Sys.glob(strLNIFile6)
+  } else if (length(Sys.glob(strLNIFile7)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile7)
+  } else if (length(Sys.glob(strLNIFile8)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile8)
+  } else if (length(Sys.glob(strLNIFile9)) == 1){
+    strLNIFile <- Sys.glob(strLNIFile9)
   } else {
     if (multifiles == "error"){
       if (length(Sys.glob(strLNIFile1)) > 1){
@@ -237,6 +251,12 @@ get_sfLNI_file <- function(strLNIFile1, strLNIFile2, strLNIFile3, strTempDir, mu
         stop(paste("Found more than 1 files:", strLNIFile5))
       } else if (length(Sys.glob(strLNIFile6)) > 1){
         stop(paste("Found more than 1 files:", strLNIFile6))
+      } else if (length(Sys.glob(strLNIFile7)) > 1){
+        stop(paste("Found more than 1 files:", strLNIFile7))
+      } else if (length(Sys.glob(strLNIFile8)) > 1){
+        stop(paste("Found more than 1 files:", strLNIFile8))
+      } else if (length(Sys.glob(strLNIFile9)) > 1){
+        stop(paste("Found more than 1 files:", strLNIFile9))
       }
     } else if (multifiles == "first"){
       if (length(Sys.glob(strLNIFile1)) > 1){
@@ -251,6 +271,12 @@ get_sfLNI_file <- function(strLNIFile1, strLNIFile2, strLNIFile3, strTempDir, mu
         strLNIFile <- Sys.glob(strLNIFile5)[1]
       } else if (length(Sys.glob(strLNIFile6)) > 1){
         strLNIFile <- Sys.glob(strLNIFile6)[1]
+      } else if (length(Sys.glob(strLNIFile7)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile7)[1]
+      } else if (length(Sys.glob(strLNIFile8)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile8)[1]
+      } else if (length(Sys.glob(strLNIFile9)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile9)[1]
       }
     } else if (multifiles == "multiple"){
       if (length(Sys.glob(strLNIFile1)) > 1){
@@ -265,6 +291,12 @@ get_sfLNI_file <- function(strLNIFile1, strLNIFile2, strLNIFile3, strTempDir, mu
         strLNIFile <- Sys.glob(strLNIFile5)
       } else if (length(Sys.glob(strLNIFile6)) > 1){
         strLNIFile <- Sys.glob(strLNIFile6)
+      } else if (length(Sys.glob(strLNIFile7)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile7)
+      } else if (length(Sys.glob(strLNIFile8)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile8)
+      } else if (length(Sys.glob(strLNIFile9)) > 1){
+        strLNIFile <- Sys.glob(strLNIFile9)
       }
     }
 
@@ -341,7 +373,7 @@ read_landnuminfo_locnorm <- function(code_pref, code_muni, year = 2020, data_dir
   year4digit <- check_year(year)
 
   sfLNI <- NULL
-  sfLNI <- read_landnuminfo_by_csv("A50", code_pref, code_muni, year4digit, data_dir)
+  sfLNI <- read_landnuminfo_by_csv("A50", code_pref, code_muni, year4digit, data_dir, encoding = "UTF-8")
 
   if (!is.null(sfLNI)){
     attr(sfLNI, "mapname") = "\u7acb\u5730\u9069\u6b63\u5316\u8a08\u753b\u533a\u57df"

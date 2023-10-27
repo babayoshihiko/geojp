@@ -371,31 +371,34 @@ check_data_dir <- function(data_dir){
 
 check_code_muni_as_char <- function(code_pref = NULL, code_muni, return = "code_muni"){
   strCodeMuni <- ""
+  if (is.null(code_muni)) {
+    code_muni <- 0
+  }
   if (!is.null(code_pref)) {
     dfTemp <- get_definition("code_pref_muni")
     dfTemp <- dfTemp[as.integer(dfTemp$code_pref) == as.integer(code_pref) & as.integer(dfTemp$code_muni) == as.integer(code_muni),]
     if (return == "code_muni"){
       if (nrow(dfTemp) == 0) {
         if (!is.null(code_muni)){
-          warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist."))
+          warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist (check_code_muni_as_char)."))
           strCodeMuni <- code_muni
         }
       } else if (nrow(dfTemp) == 1) {
         strCodeMuni <- sprintf("%03d", as.integer(code_muni))
       } else {
-        warning(paste("Pref:", code_pref, ", Muni:", code_muni, " somehow matched two or more municipalities."))
+        warning(paste("Pref:", code_pref, ", Muni:", code_muni, " somehow matched two or more municipalities (check_code_muni_as_char)."))
         strCodeMuni <- sprintf("%03d", as.integer(code_muni))
       }
     } else if (return == "code_dantai"){
       if (nrow(dfTemp) == 0) {
         if (!is.null(code_muni)){
-          warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist. Returns NULL."))
+          warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist. Returns NULL (check_code_muni_as_char)."))
           strCodeMuni <- NULL
         }
       } else if (nrow(dfTemp) == 1) {
         strCodeMuni <- sprintf("%06d", as.integer(dfTemp[1,"code_dantai"]))
       } else {
-        warning(paste("Pref:", code_pref, ", Muni:", code_muni, " somehow matched two or more municipalities."))
+        warning(paste("Pref:", code_pref, ", Muni:", code_muni, " somehow matched two or more municipalities (check_code_muni_as_char)."))
         strCodeMuni <- sprintf("%06d", as.integer(dfTemp[1,"code_dantai"]))
       }
     }
@@ -502,13 +505,16 @@ get_region <- function(code_pref) {
 }
 
 get_definition <- function(maptype){
-  strTempDir <- tempdir()
-  strFile <- file.path(strTempDir,paste(maptype,".csv",sep=""))
-  if (!file.exists(strFile)){
-    download.file(paste("https://raw.githubusercontent.com/babayoshihiko/geojp/master/data/", maptype, ".csv", sep=""),
-                file.path(strTempDir, paste(maptype, ".csv", sep="")),
-                mode = "wb")
+  if (maptype == "code_pref_muni") {
+    dfTemp <- df_code_pref_muni
+  } else if (maptype == "muni_mesh1") {
+    dfTemp <- df_muni_mesh1
+  } else if (maptype == "muni_mesh3") {
+    dfTemp <- df_muni_mesh3
+  } else if (maptype == "mhlw_ltci") {
+    dfTemp <- df_mhlw_ltci
+  } else {
+    dfTemp <- df_landnuminfo[df_landnuminfo$maptype == maptype,]
   }
-  dfTemp <- read.csv(strFile)
   return(dfTemp)
 }

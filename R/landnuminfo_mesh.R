@@ -27,7 +27,7 @@ read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NU
 
   if (!is.null(sfLNI)) {
     attr(sfLNI, "year") <- year4digit
-    attr(sfLNI, "col") <- dfTemp[1,"col"]
+    attr(sfLNI, "col") <- as.character(dfTemp[1,"col"])
     attr(sfLNI, "sourceName") <- "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09" # MLIT
     attr(sfLNI, "sourceURL") <- dfTemp[1,"source"]
   }
@@ -95,28 +95,28 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
     dfTemp <- dfTemp[dfTemp$year == year4digit,]
 
     sfTemp <- sfLNI[,-1]
-    sfLNI[,dfTemp[1,"col"]] <- colnames(sfTemp)[apply(sfTemp,1,which.max)]
+    sfLNI[,as.character(dfTemp[1,"col"])] <- colnames(sfTemp)[apply(sfTemp,1,which.max)]
     attr(sfLNI, "mapname") <- "\u571f\u5730\u5229\u75283\u6b21\u30e1\u30c3\u30b7\u30e5"
 
     # https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-b_r.html
     if (!is.na(dfTemp[1,"levels"])){
-      temp_levels <- unlist(strsplit(dfTemp[1,"levels"], " "))
+      temp_levels <- unlist(strsplit(as.character(dfTemp[1,"levels"]), " "))
       temp_labels <- ""
       if ("labels" %in% colnames(dfTemp)){
         if (!is.na(dfTemp[1,"labels"])) {
-          temp_labels <- unlist(strsplit(dfTemp[1,"labels"], " "))
+          temp_labels <- unlist(strsplit(as.character(dfTemp[1,"labels"]), " "))
         }
       }
       if (!is.na(dfTemp[1,"palette"])) {
-        temp_palette <- unlist(strsplit(dfTemp[1,"palette"], " "))
+        temp_palette <- unlist(strsplit(as.character(dfTemp[1,"palette"]), " "))
       } else {
         temp_palette <- ""
       }
       if (length(temp_levels) > 0){
         if (length(temp_levels) == length(temp_labels)){
-          sfLNI[,dfTemp[1,"col"]] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels, labels = temp_labels)
+          sfLNI[,as.character(dfTemp[1,"col"])] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,as.character(dfTemp[1,"col"])]), levels = temp_levels, labels = temp_labels)
         } else {
-          sfLNI[,dfTemp[1,"col"]] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels)
+          sfLNI[,as.character(dfTemp[1,"col"])] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,as.character(dfTemp[1,"col"])]), levels = temp_levels)
         }
       }
       if (length(temp_levels) == length(temp_palette)){
@@ -179,23 +179,23 @@ read_landnuminfo_meshsub <- function(code_pref, code_muni, year = 2006, data_dir
     attr(sfLNI, "mapname") = "\u571f\u5730\u5229\u75283\u6b21\u30e1\u30c3\u30b7\u30e5"
 
     if (!is.na(dfTemp[1,"levels"])){
-      temp_levels <- unlist(strsplit(dfTemp[1,"levels"], " "))
+      temp_levels <- unlist(strsplit(as.character(dfTemp[1,"levels"]), " "))
       temp_labels <- ""
       if ("labels" %in% colnames(dfTemp)){
         if (!is.na(dfTemp[1,"labels"])) {
-          temp_labels <- unlist(strsplit(dfTemp[1,"labels"], " "))
+          temp_labels <- unlist(strsplit(as.character(dfTemp[1,"labels"]), " "))
         }
       }
       if (!is.na(dfTemp[1,"palette"])) {
-        temp_palette <- unlist(strsplit(dfTemp[1,"palette"], " "))
+        temp_palette <- unlist(strsplit(as.character(dfTemp[1,"palette"]), " "))
       } else {
         temp_palette <- ""
       }
       if (length(temp_levels) > 0){
         if (length(temp_levels) == length(temp_labels)){
-          sfLNI[,dfTemp[1,"col"]] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels, labels = temp_labels)
+          sfLNI[,as.character(dfTemp[1,"col"])] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,as.character(dfTemp[1,"col"])]), levels = temp_levels, labels = temp_labels)
         } else {
-          sfLNI[,dfTemp[1,"col"]] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,dfTemp[1,"col"]]), levels = temp_levels)
+          sfLNI[,as.character(dfTemp[1,"col"])] <- factor(unlist(sf::st_drop_geometry(sfLNI)[,as.character(dfTemp[1,"col"])]), levels = temp_levels)
         }
       }
       if (length(temp_levels) == length(temp_palette)){
