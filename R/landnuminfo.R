@@ -15,6 +15,10 @@
 #'
 #' @return An `"sf" "data.frame"` object
 #'
+#' @importFrom utils download.file
+#' @importFrom sf read_sf
+#' @importFrom sf st_crs
+#' @importFrom lwgeom lwgeom_make_valid
 #' @export
 read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
                              filetype = "geojson",
@@ -121,6 +125,8 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL,
   sfLNI <- get_sfLNI(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir, multifiles, encoding)
 }
 
+#' @importFrom utils download.file
+#' @importFrom sf read_sf
 get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit,
                       strTempDir,
                       multifiles,
@@ -170,7 +176,15 @@ get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl,
   if (!is.null("sfLNI")) {
     # Older data may not have *.prj. Set CRS manually.
     if (is.na(sf::st_crs(sfLNI))) {
-      sf::st_crs(sfLNI) <- 4612
+      # The new CRSs reflect  crustal movements by the Great East Japan Earthquake in 2011.
+      # The new CRSs (EPSG codes) were defined by EPSG v 8.4 (2014).
+      if (year >= 2014) {
+        warning("CRS is not set. Defaults to 6668 (geojp::get_sfLNI).")
+        sf::st_crs(sfLNI) <- 6668
+      } else {
+        sf::st_crs(sfLNI) <- 4612
+        warning("CRS is not set. Defaults to 4612 (geojp::get_sfLNI).")
+      }
     }
     attr(sfLNI, "sourceName") <- "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u884c\u653f\u533a\u57df\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09" # MLIT
     attr(sfLNI, "sourceURL") <- as.character(dfTemp[1,"source"])
@@ -712,6 +726,10 @@ read_landnuminfo_urbanarea <- function(code_pref, code_muni, year = 2018, data_d
   return(sfLNI)
 }
 
+#' @importFrom utils download.file
+#' @importFrom sf read_sf
+#' @importFrom sf st_collection_extract
+#' @importFrom sf st_make_valid
 read_landnuminfo_urbanarea_2011 <- function(code_pref, data_dir = NULL){
   strTempDir = check_data_dir(data_dir)
   year4digit = 2011

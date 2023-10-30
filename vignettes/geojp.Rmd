@@ -14,6 +14,7 @@ knitr::opts_chunk$set(
 )
 library(tmap)
 library(mapview)
+library(leaflegend) # for tmap v4
 ```
 
 ## Installation and load
@@ -104,12 +105,29 @@ You can use the package **tmap** to display the intended use area. The last font
 
 ```{r}
 library(tmap)
-# Create a map.
+# Create a map with tmap (v4).
+myTm <- tm_shape(sfYouto) +
+      tm_polygons(fill = attr(sfYouto, "col"), 
+              palette = attr(sfYouto, "palette"), 
+              alpha = 0.8) + 
+      tm_borders()
+myTm <- myTm +
+      tm_scalebar() +
+      tm_layout(tm_title = "京都市",
+              legend.outside = FALSE, 
+              legend.text.fontfamily = "HiraginoSans-W3")
+```
+
+For reference purpose, the below uses tmap(v3).
+
+```{r eval = FALSE}
+library(tmap)
+# Create a map with tmap (v3).
 myTm <- tm_shape(sfYouto) +
           tm_polygons(col = attr(sfYouto, "col"), palette = attr(sfYouto, "palette"), alpha = 0.8) + 
            tm_borders()
 myTm <- myTm +
-      tm_scale_bar() +
+      tm_scalebar() +
       tm_layout(title = "京都市",
                 legend.outside = FALSE, 
                 fontfamily = "HiraginoSans-W3")
@@ -137,20 +155,21 @@ tmap_mode("view")
 
 base_map = geojp::get_tile_server()
 
-# Create a map.
+# Create a map with tmap (v4).
 myTm <- tm_shape(sfCensus2) +
           tm_polygons("JINKO", alpha = 0.8) 
 myTm <- myTm +
           tm_shape(sfYouto) +
-          tm_polygons(col = attr(sfYouto, "col"), palette = attr(sfYouto, "palette"), alpha = 0.8) + 
-           tm_borders()
+          tm_polygons(fill = attr(sfYouto, "col"), 
+                      palette = attr(sfYouto, "palette"), alpha = 0.8) + 
+          tm_borders()
 myTm <- myTm +
       tm_basemap(server = base_map$server)
 myTm <- myTm +
-      tm_scale_bar() +
-      tm_layout(title = "京都市",
+      tm_scalebar() +
+      tm_layout(tm_title = "京都市",
                 legend.outside = FALSE, 
-                fontfamily = "HiraginoSans-W3")
+                legend.text.fontfamily = "HiraginoSans-W3")
 myTm
 ```
 

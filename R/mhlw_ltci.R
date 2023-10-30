@@ -23,6 +23,9 @@
 #'
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 #'
+#' @importFrom utils download.file
+#' @importFrom sf read_sf
+#' @importFrom sf st_drop_geometry
 #' @export
 read_mhlw_ltci <- function(code_type = NULL, name_type = NULL, code_pref = NULL, code_muni = NULL, year = 2023, month = 6, data_dir = NULL){
   if (is.null(code_type) & is.null(code_type)) stop("Please give code_type or name_type")

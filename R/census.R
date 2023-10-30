@@ -10,6 +10,9 @@
 #'
 #' @return An `"sf" "data.frame"` object
 #'
+#' @importFrom utils download.file
+#' @importFrom sf read_sf
+#' @importFrom sf st_make_valid
 #' @export
 read_census_tract <- function(code_pref, code_muni, year = 2020, data_dir = NULL){
   strTempDir <- check_data_dir(data_dir)

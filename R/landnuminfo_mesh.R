@@ -63,6 +63,7 @@ get_mesh1_by_muni <- function(code_pref, code_muni) {
 #'
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 #'
+#' @importFrom sf st_drop_geometry
 #' @export
 read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir = NULL){
   year4digit <- check_year(year)

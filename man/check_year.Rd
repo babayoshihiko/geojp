@@ -7,7 +7,7 @@
 check_year(x)
 }
 \arguments{
-\item{x}{year in Gregorian or Japanese calendar (eg "R2" and "\u5e73\u6210\u5143\u5e74\u5ea6")}
+\item{x}{year in Gregorian or Japanese calendar (eg "R2" and "Heisei Gan Nen Do" in Kanji)}
 }
 \value{
 year in Gregorian calendar

@@ -8,7 +8,7 @@
 #' @description
 #' Function to check and validate year
 #'
-#' @param x year in Gregorian or Japanese calendar (eg "R2" and "\u5e73\u6210\u5143\u5e74\u5ea6")
+#' @param x year in Gregorian or Japanese calendar (eg "R2" and "Heisei Gan Nen Do" in Kanji)
 #'
 #' @return year in Gregorian calendar
 #'
