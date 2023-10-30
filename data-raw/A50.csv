@@ -1,0 +1,2 @@
+year,url,zip,shp,geojson,altdir,source,col,levels,labels,palette
+2020,https://nlftp.mlit.go.jp/ksj/gml/data/A50/A50-20/A50-20_code_pref_GML.zip,A50-20_code_pref_GML.zip,A50-20_code_pref_GML/code_pref*/A50-20_code_prefcode_muni.shp,,,https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A50.html,A50_006,1 2 3,立地適正化計画区域 居住誘導区域 都市機能誘導区域,#E2FFE3 #99CDFD #F87E88
