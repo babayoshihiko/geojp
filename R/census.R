@@ -18,27 +18,18 @@ read_census_tract <- function(code_pref, code_muni, year = 2020, data_dir = NULL
   strTempDir <- check_data_dir(data_dir)
 
   if (mode(code_pref) == "numeric"){
-    if (code_pref < 0 || code_pref > 47) {
-      stop("Invalid argument: code_pref must be between 1 and 47.")
-    } else if (code_pref < 10) {
-      code_pref = paste("0", as.character(code_pref), sep = "")
-    } else {
-      code_pref = as.character(code_pref)
-    }
+    code_pref <- check_code_pref_as_char(code_pref)
   }
   if (mode(code_muni) == "numeric"){
-    if (code_muni < 100 || code_muni > 700) {
-      stop("Invalid argument: code_muni must be between 100 and 700.")
-    } else {
-      code_muni = as.character(code_muni)
-    }
+    code_muni <- check_code_muni_as_char(code_pref, code_muni)
   }
+  year4digit <- check_year(year)
   if (mode(year) == "numeric"){
-    if (year != 2020 && year != 2015 && year != 2010 && year != 2005 && year != 2000) {
+    if (year4digit != 2020 && year4digit != 2015 && year4digit != 2010 && year4digit != 2005 && year4digit != 2000) {
       stop("Invalid argument: year must be one of 2020, 2015, 2010, 2005 or 2000.")
     }
   }
-  year = as.character(year)
+  year = as.character(year4digit)
   if (nchar(code_pref) != 2) stop(paste("Invalid argument: code_pref:", code_pref))
   if (nchar(code_muni) != 3) stop(paste("Invalid argument: code_muni:", code_muni))
   if (year == "2020") {
@@ -56,30 +47,40 @@ read_census_tract <- function(code_pref, code_muni, year = 2020, data_dir = NULL
   }
 
 
-  strCensusUrl = paste("https://www.e-stat.go.jp/gis/statmap-search/data?dlserveyId=A00200521",
+  strCensusUrl <- paste("https://www.e-stat.go.jp/gis/statmap-search/data?dlserveyId=A00200521",
                        year,
                        "&code=",
                        code_pref, code_muni,
                        "&coordSys=1&format=shape&downloadType=5&datum=2000",
                        sep = "")
-  strCensusZip = file.path(strTempDir,
+  strCensusZip <- file.path(strTempDir,
                            paste("A00200521", year, "DDSWC", code_pref, code_muni, ".zip", sep = ""))
-  strCensusFile = file.path(strTempDir,
+  strCensusFile <- file.path(strTempDir,
                             paste(year_suffix, code_pref, code_muni, ".shp", sep = ""))
 
-  if (!file.exists(strCensusZip)) utils::download.file(strCensusUrl, strCensusZip, mode="wb")
-  if (!file.exists(strCensusFile)) utils::unzip(strCensusZip, exdir = strTempDir)
-  sfCensus = sf::read_sf(strCensusFile,
+
+  if (!file.exists(strCensusFile)) {
+    if (!file.exists(strCensusZip)) {
+      tryCatch( {utils::download.file(strCensusUrl, strCensusZip, mode="wb") },
+        error = function(cnd){ stop(paste("Failed to download the file at", strCensusUrl, "(read_census_tract).")) }
+      )
+    }
+    utils::unzip(strCensusZip, exdir = strTempDir)
+  }
+  if (!file.exists(strCensusFile)) {
+    stop(paste("The file", strCensusFile, "does not exist (read_census_tract)."))
+  }
+  sfCensus <- sf::read_sf(strCensusFile,
                       options = "ENCODING=CP932",
                       stringsAsFactors=FALSE)
-  sfCensus = sfCensus[,c("KEY_CODE","AREA","PERIMETER","JINKO","SETAI")]
+  sfCensus <- sfCensus[,c("KEY_CODE","AREA","PERIMETER","JINKO","SETAI")]
   # sfCensus = sf::st_transform(sfCensus, "EPSG:6668")
-  sfCensus = sf::st_make_valid(sfCensus)
+  sfCensus <- sf::st_make_valid(sfCensus)
 
-  attr(sfCensus, "year") = year
-  attr(sfCensus, "mapname") = "\u56fd\u52e2\u8abf\u67fb"
-  attr(sfCensus, "sourceName") = "\u300c\u653f\u5e9c\u7d71\u8a08\u306e\u7dcf\u5408\u7a93\u53e3(e-Stat)\u300d"
-  attr(sfCensus, "sourceURL") = "https://www.e-stat.go.jp/gis/"
+  attr(sfCensus, "year") <- year
+  attr(sfCensus, "mapname") <- "\u56fd\u52e2\u8abf\u67fb"
+  attr(sfCensus, "sourceName") <- "\u300c\u653f\u5e9c\u7d71\u8a08\u306e\u7dcf\u5408\u7a93\u53e3(e-Stat)\u300d"
+  attr(sfCensus, "sourceURL") <- "https://www.e-stat.go.jp/gis/"
 
   return(sfCensus)
 }
