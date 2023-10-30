@@ -380,7 +380,7 @@ check_code_muni_as_char <- function(code_pref = NULL, code_muni, return = "code_
     if (return == "code_muni"){
       if (nrow(dfTemp) == 0) {
         if (!is.null(code_muni)){
-          warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist (check_code_muni_as_char)."))
+          stop(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist (check_code_muni_as_char)."))
           strCodeMuni <- code_muni
         }
       } else if (nrow(dfTemp) == 1) {
