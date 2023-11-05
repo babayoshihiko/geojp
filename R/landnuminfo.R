@@ -134,7 +134,7 @@ get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl,
   # Read the MapType definition
   dfTemp <- get_definition(maptype)
   dfTemp <- dfTemp[dfTemp$year == year4digit,]
-  if (nrow(dfTemp) != 1) stop(paste("The target year", year, "not found in", paste("data/", maptype, ".csv", sep = "")))
+  if (nrow(dfTemp) != 1) stop(paste("The target year", year4digit, "not found in", paste("data/", maptype, ".csv", sep = "")))
 
   strLNIFile <- ""
   strOptions <- paste("ENCODING=", encoding, sep="")
@@ -178,7 +178,7 @@ get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl,
     if (is.na(sf::st_crs(sfLNI))) {
       # The new CRSs reflect  crustal movements by the Great East Japan Earthquake in 2011.
       # The new CRSs (EPSG codes) were defined by EPSG v 8.4 (2014).
-      if (year >= 2014) {
+      if (year4digit >= 2014) {
         warning("CRS is not set. Defaults to 6668 (geojp::get_sfLNI).")
         sf::st_crs(sfLNI) <- 6668
       } else {
@@ -500,7 +500,7 @@ read_landnuminfo_flood <- function(code_pref, code_muni = NULL, year = 2012, dat
 #'
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Optional. The 3-digit code of municipality.
-#' @param year Year of the data. Defaults based on pref_code.
+#' @param year Year of the data. Ignored. Defaults based on pref_code.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
@@ -516,7 +516,7 @@ read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, dat
              || num_code_pref == 28
              || num_code_pref == 29
              || num_code_pref == 30) {
-    year = 2009
+    year4digit <- 2009
   } else if (num_code_pref == 8
              || num_code_pref == 9
              || num_code_pref == 10
@@ -536,7 +536,7 @@ read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, dat
              || num_code_pref == 34
              || num_code_pref == 35
   ) {
-    year = 2008
+    year4digit <- 2008
   } else if (num_code_pref == 2
              || num_code_pref == 3
              || num_code_pref == 4
@@ -556,17 +556,15 @@ read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, dat
              || num_code_pref == 46
              || num_code_pref == 47
              || num_code_pref == 48) {
-    year = 2007
+    year4digit <- 2007
   } else if (num_code_pref == 36
              || num_code_pref == 37
              || num_code_pref == 38
              || num_code_pref == 39) {
-    year = 2006
+    year4digit <- 2006
   } else {
     stop("Invalid pref_code.")
   }
-
-  year4digit <- check_year(year)
 
   sfLNI <- NULL
   sfLNI <- read_landnuminfo_by_csv("W05", code_pref, NULL, year4digit, data_dir)

@@ -5,7 +5,7 @@ year,month,code_type,name_type,url,csv
 2023,6,140,訪問リハビリテーション,https://www.mhlw.go.jp/content/12300000/jigyosho_140_all_20230703110549.zip,jigyosho_140_all_20230703110549.csv
 2023,6,150,通所介護,https://www.mhlw.go.jp/content/12300000/jigyosho_150_all_20230703110619.zip,jigyosho_150_all_20230703110619.csv
 2023,6,155,通所介護（療養通所介護）,https://www.mhlw.go.jp/content/12300000/jigyosho_155_all_20230703110622.zip,jigyosho_155_all_20230703110622.csv
-2023,6,160,通所リハビリテーション,https://www.mhlw.go.jp/content/12300000/jigyosho_170_all_20230703110632.zip,jigyosho_170_all_20230703110632.csv
+2023,6,160,通所リハビリテーション,https://www.mhlw.go.jp/content/12300000/jigyosho_160_all_20230111180223,jigyosho_160_all_20230111180223.csv
 2023,6,170,福祉用具貸与,https://www.mhlw.go.jp/content/12300000/jigyosho_170_all_20230703110632.zip,jigyosho_170_all_20230703110632.csv
 2023,6,210,短期入所生活介護,https://www.mhlw.go.jp/content/12300000/jigyosho_210_all_20230703110648.zip,jigyosho_210_all_20230703110648.csv
 2023,6,220,短期入所療養介護（介護老人保健施設）,https://www.mhlw.go.jp/content/12300000/jigyosho_220_all_20230703110653.zip,jigyosho_220_all_20230703110653.csv
