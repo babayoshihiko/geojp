@@ -27,30 +27,28 @@
 #' @importFrom sf read_sf
 #' @importFrom sf st_drop_geometry
 #' @export
-read_mhlw_ltci <- function(code_type = NULL, name_type = NULL, code_pref = NULL, code_muni = NULL, year = 2023, month = 6, data_dir = NULL){
+read_mhlw_ltci <- function(code_type = NULL, name_type = NULL,
+                           code_pref = NULL, code_muni = NULL,
+                           year = 2023, month = 6,
+                           data_dir = NULL,
+                           exclude_if_outside = FALSE){
   if (is.null(code_type) & is.null(code_type)) stop("Please give code_type or name_type")
   year4digit <- check_year(year)
   strTempDir <- check_data_dir(data_dir)
-  if (!is.null(code_pref)) {
-    code_pref <- check_code_pref_as_char(code_pref)
-    if (!is.null(code_muni)) {
-      code_muni <- check_code_muni_as_char(code_pref, code_muni)
-    }
-  }
 
   # Read the MapType definition
   dfTemp <- get_definition("mhlw_ltci")
 
-  dfTemp <- dfTemp[dfTemp$year == year4digit,]
+  dfTemp <- dfTemp[dfTemp$year == year4digit & dfTemp$month == month,]
   if (!is.null(code_type)){
     dfTemp <- dfTemp[dfTemp$code_type == code_type,]
   } else {
     dfTemp <- dfTemp[dfTemp$name_type == name_type,]
   }
   if (nrow(dfTemp) >= 1) {
-    strUrl <- dfTemp[1,"url"] # Get URL from the first row
+    strUrl <- as.character(dfTemp[1,"url"]) # Get URL from the first row
     strZip <- basename(strUrl)
-    strCSV <- dfTemp[1,"csv"]
+    strCSV <- as.character(dfTemp[1,"csv"])
   } else {
     stop("ERROR: Cannot find the definition (read_mhlw_ltci).")
   }
@@ -67,6 +65,7 @@ read_mhlw_ltci <- function(code_type = NULL, name_type = NULL, code_pref = NULL,
 
   # Subset by pref and muni
   if (!is.null(code_pref)) {
+    code_pref <- check_code_pref_as_char(code_pref)
     if (!is.null(code_muni)) {
       temp_rows <- sf::st_drop_geometry(sfMHLW[,1])
       sfMHLW <- sfMHLW[temp_rows == check_code_muni_as_char(code_pref, code_muni, return = "code_dantai"),]
@@ -76,8 +75,12 @@ read_mhlw_ltci <- function(code_type = NULL, name_type = NULL, code_pref = NULL,
     }
   }
 
+  if (exclude_if_outside) {
+
+  }
+
   # Set attributes
-  attr(sfMHLW, "mapname") = dfTemp[1,"map_type"]
+  attr(sfMHLW, "mapname") = as.character(dfTemp[1,"name_type"])
   attr(sfMHLW, "source") = "\u539a\u751f\u52b4\u50cd\u7701"
   attr(sfMHLW, "sourceURL") = "https://www.mhlw.go.jp/stf/kaigo-kouhyou_opendata.html"
 

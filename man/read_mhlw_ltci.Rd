@@ -11,7 +11,8 @@ read_mhlw_ltci(
   code_muni = NULL,
   year = 2023,
   month = 6,
-  data_dir = NULL
+  data_dir = NULL,
+  exclude_if_outside = FALSE
 )
 }
 \arguments{
