@@ -112,7 +112,7 @@ myTm <- tm_shape(sfYouto) +
               alpha = 0.8) + 
       tm_borders()
 myTm <- myTm +
-      tm_scalebar() +
+      tm_scale_bar() +
       tm_layout(tm_title = "京都市",
               legend.outside = FALSE, 
               legend.text.fontfamily = "HiraginoSans-W3")
