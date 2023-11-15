@@ -14,6 +14,9 @@
 #'
 #' @export
 check_year <- function(x) {
+  if (missing(x)) stop("The argument is missing (check_year)")
+  if (is.null(x)) stop("The argument is missing (check_year)")
+
   intYear = 0
   if (mode(x) == "numeric") {
     intYear = x
@@ -25,11 +28,11 @@ check_year <- function(x) {
     x = sub("\u5e73\u6210", "H", x)
     x = sub("\u662d\u548c", "S", x)
     x = sub("\u5927\u6b63", "T", x)
-    if (x == "R5") intYear = 2023
-    if (x == "R4") intYear = 2022
-    if (x == "R3") intYear = 2021
-    if (x == "R2") intYear = 2020
-    if (x == "R1" || x == "H31") intYear = 2019
+    if (x == "R5" || x == "R05" || x == "H35") intYear = 2023
+    if (x == "R4" || x == "R04" || x == "H34") intYear = 2022
+    if (x == "R3" || x == "R03" || x == "H33") intYear = 2021
+    if (x == "R2" || x == "R02" || x == "H32") intYear = 2020
+    if (x == "R1" || x == "R01" || x == "H31") intYear = 2019
     if (x == "H30") intYear = 2018
     if (x == "H29") intYear = 2017
     if (x == "H28") intYear = 2016
@@ -370,19 +373,19 @@ check_data_dir <- function(data_dir){
 }
 
 check_code_muni_as_char <- function(code_pref = NULL, code_muni, return = "code_muni"){
+  if (missing(code_muni)) stop("code_muni is missing (check_code_muni_as_char)")
+  if (is.null(code_muni)) stop("code_muni is NULL (check_code_muni_as_char)")
+  if (is.character(code_muni)) code_muni <- as.integer(code_muni)
+  if (!is.numeric(code_muni)) stop("Invalid code_muni (check_code_muni_as_char)")
+
   strCodeMuni <- ""
-  if (is.null(code_muni)) {
-    code_muni <- 0
-  }
   if (!is.null(code_pref)) {
     dfTemp <- get_definition("code_pref_muni")
     dfTemp <- dfTemp[as.integer(dfTemp$code_pref) == as.integer(code_pref) & as.integer(dfTemp$code_muni) == as.integer(code_muni),]
     if (return == "code_muni"){
       if (nrow(dfTemp) == 0) {
-        if (!is.null(code_muni)){
-          stop(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist (check_code_muni_as_char)."))
-          strCodeMuni <- code_muni
-        }
+        stop(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist (check_code_muni_as_char)."))
+        strCodeMuni <- code_muni
       } else if (nrow(dfTemp) == 1) {
         strCodeMuni <- sprintf("%03d", as.integer(code_muni))
       } else {
@@ -391,10 +394,8 @@ check_code_muni_as_char <- function(code_pref = NULL, code_muni, return = "code_
       }
     } else if (return == "code_dantai"){
       if (nrow(dfTemp) == 0) {
-        if (!is.null(code_muni)){
-          warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist. Returns NULL (check_code_muni_as_char)."))
-          strCodeMuni <- NULL
-        }
+        warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist. Returns NULL (check_code_muni_as_char)."))
+        strCodeMuni <- NULL
       } else if (nrow(dfTemp) == 1) {
         strCodeMuni <- sprintf("%06d", as.integer(dfTemp[1,"code_dantai"]))
       } else {
@@ -407,10 +408,13 @@ check_code_muni_as_char <- function(code_pref = NULL, code_muni, return = "code_
 }
 
 check_code_pref_as_char <- function(code_pref){
+  if (missing(code_pref)) stop("code_pref is missing (check_code_pref_as_char)")
+  if (is.null(code_pref)) stop("code_pref is NULL (check_code_pref_as_char)")
+  if (is.character(code_pref)) code_pref <- as.integer(code_pref)
+  if (!is.numeric(code_pref)) stop("Invalid code_pref (check_code_pref_as_char)")
+
   strCodePref <- ""
-  tryCatch(code_pref <- as.integer(code_pref),
-           error = function(cnd){ stop(paste("Invalid argument: code_pref is not an integer:", code_pref)) }
-  )
+  code_pref <- as.integer(code_pref)
   if (code_pref %in% c(1:47,81:90)) {
     if (code_pref < 10) {
       strCodePref <- paste("0", as.character(code_pref), sep = "")
@@ -426,8 +430,8 @@ check_code_pref_as_char <- function(code_pref){
 get_wards <- function(code_pref, code_muni, year4digit = 2021){
   lstMuni <- code_muni
 
-  code_pref <- as.integer(code_pref)
-  code_muni <- as.integer(code_muni)
+  code_pref <- as.integer(check_code_pref_as_char(code_pref))
+  code_muni <- as.integer(check_code_muni_as_char(code_muni))
 
   if (code_pref == 1 & code_muni == 100 & year4digit >= 1972){
     lstMuni <- c(101,102,103,104,105,106,107,108,109,110)
@@ -474,7 +478,7 @@ get_wards <- function(code_pref, code_muni, year4digit = 2021){
 }
 
 get_pref_name <- function(code_pref) {
-  code_pref <- as.integer(code_pref)
+  code_pref <- as.integer(check_code_pref_as_char(code_pref))
 
   dfTemp <- get_definition("code_pref_muni")
   dfTemp <- dfTemp[dfTemp$code_pref == code_pref,]
@@ -484,8 +488,8 @@ get_pref_name <- function(code_pref) {
 }
 
 get_muni_name <- function(code_pref, code_muni) {
-  code_pref <- as.integer(code_pref)
-  code_muni <- as.integer(code_muni)
+  code_pref <- as.integer(check_code_pref_as_char(code_pref))
+  code_muni <- as.integer(check_code_muni_as_char(code_muni))
 
   dfTemp <- get_definition("code_pref_muni")
   dfTemp <- dfTemp[dfTemp$code_pref == code_pref & dfTemp$code_muni == code_muni,]
@@ -495,7 +499,7 @@ get_muni_name <- function(code_pref, code_muni) {
 }
 
 get_region <- function(code_pref) {
-  code_pref <- as.integer(code_pref)
+  code_pref <- as.integer(check_code_pref_as_char(code_pref))
 
   dfTemp <- get_definition("code_pref_muni")
   dfTemp <- dfTemp[dfTemp$code_pref == code_pref & dfTemp$code_muni == 0,]
@@ -506,11 +510,11 @@ get_region <- function(code_pref) {
 
 get_definition <- function(maptype){
   if (maptype == "code_pref_muni") {
-    dfTemp <- df_code_pref_muni
+    dfTemp <- geojp::df_code_pref_muni
   } else if (maptype == "muni_mesh1") {
-    dfTemp <- df_muni_mesh1
+    dfTemp <- geojp::df_muni_mesh3
   } else if (maptype == "muni_mesh3") {
-    dfTemp <- df_muni_mesh3
+    dfTemp <- geojp::df_muni_mesh3
   } else if (maptype == "mhlw_ltci") {
     dfTemp <- df_mhlw_ltci
   } else {

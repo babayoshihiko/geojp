@@ -36,10 +36,12 @@ read_landnuminfo_mesh_by_csv <- function(maptype, code_mesh, year, data_dir = NU
 }
 
 get_mesh1_by_muni <- function(code_pref, code_muni) {
+
   dfTemp <- get_definition("muni_mesh1")
   dfTemp <- dfTemp[dfTemp$code_pref == code_pref & dfTemp$code_muni == code_muni,]
-
-  return(dfTemp$code_mesh3)
+  mesh1 <- unique(dfTemp$code_mesh1)
+  mesh1 <- mesh1[!is.na(mesh1)]
+  return(mesh1)
 }
 
 #' Download spatial data of Mesh 3 of Japan
