@@ -516,9 +516,28 @@ get_definition <- function(maptype){
   } else if (maptype == "muni_mesh3") {
     dfTemp <- geojp::df_muni_mesh3
   } else if (maptype == "mhlw_ltci") {
+    # df_mhlw_ltci from sysdata.rda
     dfTemp <- df_mhlw_ltci
   } else {
+    # df_landnuminfo from sysdata.rda
     dfTemp <- df_landnuminfo[df_landnuminfo$maptype == maptype,]
   }
   return(dfTemp)
+}
+
+exclude_outside_Japan <- function(x){
+  if (is.null(x)) stop("The argument is NULL (exclude_outside_Japan).")
+  if (!("sf" %in% class(x))) stop("The argument is not an sf object (exclude_outside_Japan).")
+
+  # sf_Japan_6668 from sysdata.rda
+  # Converts the CRS if necessary
+  if (sf::st_crs(sf_Japan_6668) != sf::st_crs(x)){
+    sf_Japan_6668 <- sf::st_transform(sf_Japan_6668,
+                       crs = sf::st_crs(x))
+  }
+
+  x <- sf::st_intersection(x = x,
+                       y = sf_Japan_6668)
+
+  return(x)
 }

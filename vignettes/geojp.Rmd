@@ -112,7 +112,7 @@ myTm <- tm_shape(sfYouto) +
               alpha = 0.8) + 
       tm_borders()
 myTm <- myTm +
-      tm_scale_bar() +
+      tm_scalebar() +
       tm_layout(tm_title = "京都市",
               legend.outside = FALSE, 
               legend.text.fontfamily = "HiraginoSans-W3")
@@ -127,7 +127,7 @@ myTm <- tm_shape(sfYouto) +
           tm_polygons(col = attr(sfYouto, "col"), palette = attr(sfYouto, "palette"), alpha = 0.8) + 
            tm_borders()
 myTm <- myTm +
-      tm_scalebar() +
+      tm_scale_bar() +
       tm_layout(title = "京都市",
                 legend.outside = FALSE, 
                 fontfamily = "HiraginoSans-W3")
