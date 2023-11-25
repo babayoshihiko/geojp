@@ -29,7 +29,7 @@ read_landnuminfo <- function(maptype, code_pref, code_muni = NULL, year = 2020,
   year4digit <- check_year(year)
   strTempDir <- check_data_dir(data_dir)
   code_pref <- check_code_pref_as_char(code_pref)
-  code_muni <- check_code_muni_as_char(code_muni, code_pref)
+  code_muni <- check_code_muni_as_char(code_pref, code_muni)
 
   if (mode(year) == "numeric"){
     year = year_2digit(year)
@@ -150,6 +150,7 @@ get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl,
         message(paste("Downloaded the file and saved in", strTempDir))
       }
       unzip_ja(strLNIZip, exdir = strTempDir)
+      message(paste("Unipped the file in", strTempDir))
       # Checks if the shp file exists
       strLNIFile <- get_sfLNI_file(strLNIFile1, strLNIFile2, strLNIFile3, strTempDir, multifiles)
     }
@@ -668,27 +669,28 @@ read_landnuminfo_officiallandprice <- function(code_pref, code_muni = NULL, year
 #'
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.
-#' @param year Year of the data. Defaults to 2018.
+#' @param year Year of the data. The available years are 2018, 2011 and 2006. Defaults to 2018.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
 #'
 #' @return An `"sf" "data.frame"` object with extra attr "col" for tmap.
 #'
 #' @export
-read_landnuminfo_urbanarea <- function(code_pref, code_muni, year = 2018, data_dir = NULL){
+read_landnuminfo_urbanarea <- function(code_pref,
+                                       code_muni,
+                                       year = 2018,
+                                       data_dir = NULL){
   year = check_year(year)
-  if (year != 2011 && year != 2018) stop(paste("The data is not available for year", year))
   if (year == 2018 && code_pref == 23) {
     year = 2011
     warning("The data is not available for year 2018 for Aichi prefcture. Uses year 2011 instead.")
   }
 
-  if (year == 2006) {
-    sfLNI = read_landnuminfo("A09", code_pref, code_muni, year, filetype = "shp", geometry = "POLYGON", data_dir = data_dir)
-  } else if (year == 2011) {
-    sfLNI = read_landnuminfo_urbanarea_2011(code_pref, data_dir = data_dir)
+  if (year == 2011) {
+    sfLNI <- read_landnuminfo_urbanarea_2011(code_pref, data_dir = data_dir)
   } else {
-    sfLNI = read_landnuminfo("A09", code_pref, code_muni, year, filetype = "geojson", geometry = "POLYGON", data_dir = data_dir)
+    #sfLNI = read_landnuminfo("A09", code_pref, code_muni, year, filetype = "shp", geometry = "POLYGON", data_dir = data_dir)
+    sfLNI <- read_landnuminfo_by_csv("A09", code_pref, code_muni, year, data_dir = data_dir)
   }
 
   sfLNI$layer = NA
@@ -698,28 +700,13 @@ read_landnuminfo_urbanarea <- function(code_pref, code_muni, year = 2018, data_d
                                                "\u7528\u9014\u672a\u8a2d\u5b9a",
                                                "\u90fd\u5e02\u5730\u57df"))
   # 2011
-  if (year == 2011 || year == 2006) {
+  if (year == 2011) {
     st_crs(sfLNI) <- "EPSG:4612"
     sfLNI[sfLNI$layer_no == 1, "layer"] <- "\u90fd\u5e02\u5730\u57df"
     sfLNI[sfLNI$layer_no == 2, "layer"] <- "\u5e02\u8857\u5316\u533a\u57df"
     sfLNI[sfLNI$layer_no == 3, "layer"] <- "\u5e02\u8857\u5316\u8abf\u6574\u533a\u57df"
     sfLNI[sfLNI$layer_no == 4, "layer"] <- "\u305d\u306e\u4ed6\u7528\u9014\u5730\u57df"
-  } else {
-    # 2018
-    st_crs(sfLNI) <- "EPSG:6668"
-    sfLNI[sfLNI$layer_no == 1, "layer"] <- "\u5e02\u8857\u5316\u533a\u57df"
-    sfLNI[sfLNI$layer_no == 2, "layer"] <- "\u5e02\u8857\u5316\u8abf\u6574\u533a\u57df"
-    sfLNI[sfLNI$layer_no == 3, "layer"] <- "\u305d\u306e\u4ed6\u7528\u9014\u5730\u57df"
-    sfLNI[sfLNI$layer_no == 4, "layer"] <- "\u7528\u9014\u672a\u8a2d\u5b9a"
   }
-
-  sfLNI$layer_no = factor(sfLNI$layer_no,
-    levels = c(1,2,3,4))
-  attr(sfLNI, "mapname") = "\u90fd\u5e02\u5730\u57df\u30c7\u30fc\u30bf"
-  attr(sfLNI, "sourceName") = "\u300c\u56fd\u571f\u6570\u5024\u60c5\u5831\uff08\u5730\u4fa1\u516c\u793a\u30c7\u30fc\u30bf\uff09\u300d\uff08\u56fd\u571f\u4ea4\u901a\u7701\uff09"
-  attr(sfLNI, "sourceURL") = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A09.html"
-  attr(sfLNI, "col") = "layer"
-  # attr(sfLNI, "palette") = c("#16A085","#D1F2EB","#1F618D","#229954","#BA4A00","#E74C3C","#808B96")
 
   return(sfLNI)
 }

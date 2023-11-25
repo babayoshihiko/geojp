@@ -15,7 +15,7 @@
 #' @export
 check_year <- function(x) {
   if (missing(x)) stop("The argument is missing (check_year)")
-  if (is.null(x)) stop("The argument is missing (check_year)")
+  if (is.null(x)) stop("The argument is NULL (check_year)")
 
   intYear = 0
   if (mode(x) == "numeric") {
@@ -349,6 +349,10 @@ unzip_ja <- function(zipfile, files = NULL, exdir) {
 #'
 #' @export
 year_2digit <- function(year) {
+  if (missing(year)) stop("The argument is missing (year_2digit)")
+  if (is.null(year)) stop("The argument is NULL (year_2digit)")
+  year <- as.integer(year)
+
   if (year > 2009) {
     year_2d = as.character(as.integer(year) - 2000)
   } else if (year > 1999) {
@@ -361,6 +365,9 @@ year_2digit <- function(year) {
 }
 
 check_data_dir <- function(data_dir){
+  if (missing(data_dir)) stop("The argument is missing (check_data_dir)")
+  if (is.null(data_dir)) stop("The argument is NULL (check_data_dir)")
+
   strTempDir = tempdir()
   if (!is.null(data_dir)) {
     if (dir.exists(data_dir)) {
