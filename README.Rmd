@@ -46,7 +46,7 @@ head(sfCensus)
 ```
 
 ```{r echo=F, eval=T}
-sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215, data_dir = "~/Download/data.noindex")
+sfCensus <- geojp::read_census_tract(code_pref = 4, code_muni = 215, data_dir = "~/data.noindex/Census")
 head(sfCensus)
 ```
 
@@ -60,7 +60,7 @@ head(sfCensus2)
 ```
 
 ```{r echo=F, eval=T}
-sfCensus2 <- geojp::read_census_odcity("京都市", data_dir = "~/Downloads/data.noindex")
+sfCensus2 <- geojp::read_census_odcity("京都市", data_dir = "~/data.noindex/Census")
 head(sfCensus2)
 ```
 
@@ -80,11 +80,11 @@ For more information about the National Land Information, see [National Land Inf
 The return value is an `sf` object.
 
 ```{r  echo=T, eval=F}
-sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011)
+sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2019)
 ```
 
 ```{r  echo=F, eval=T}
-sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011, data_dir = "~/Download/data.noindex")
+sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2019, data_dir = "~/data.noindex/A29")
 ```
 
 The `A29_004` and `A29_005` columns, which indicate the zoning class, are of type factor.
@@ -114,13 +114,13 @@ Use package **tmap** to display the usage area. The last font specification is r
 library(tmap)
 # Create a map.
 myTm <- tm_shape(sfYouto) +
-          tm_polygons(col = attr(sfYouto, "col"), palette = attr(sfYouto, "palette"), alpha = 0.8) + 
+          tm_polygons(fill = attr(sfYouto, "col"), 
+                      palette = attr(sfYouto, "palette"), alpha = 0.8) + 
            tm_borders()
 myTm <- myTm +
       tm_scale_bar() +
-      tm_layout(title = "京都市",
-                legend.outside = FALSE, 
-                fontfamily = "HiraginoSans-W3")
+      tm_layout(tm_title = "京都市",
+                legend.text.fontfamily = "HiraginoSans-W3")
 ```
 
 Display the plot.
@@ -149,21 +149,21 @@ myTm <- tm_shape(sfCensus2) +
           tm_polygons("JINKO", alpha = 0.8) 
 myTm <- myTm +
           tm_shape(sfYouto) +
-          tm_polygons(col = attr(sfYouto, "col"), palette = attr(sfYouto, "palette"), alpha = 0.8) + 
+          tm_polygons(fill = attr(sfYouto, "col"), 
+                      palette = attr(sfYouto, "palette"), alpha = 0.8) + 
            tm_borders()
 myTm <- myTm +
       tm_basemap(server = "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png")
 myTm <- myTm +
       tm_scale_bar() +
-      tm_layout(title = "京都市",
-                legend.outside = FALSE, 
-                fontfamily = "HiraginoSans-W3")
+      tm_layout(tm_title = "京都市",
+                legend.text.fontfamily = "HiraginoSans-W3")
 myTm
 ```
 
 ## mapview
 
-```{r}
+```{r eval=FALSE}
 library(mapview)
 mapviewOptions(fgb = FALSE) # needed when creating web pages
 mapview(sfYouto[attr(sfYouto, "col")], col.regions = attr(sfYouto, "palette"), fgb = FALSE)

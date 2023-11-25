@@ -4,6 +4,8 @@
 # geojp
 
 <!-- badges: start -->
+
+[![DOI](https://zenodo.org/badge/527063683.svg)](https://zenodo.org/doi/10.5281/zenodo.10205233)
 <!-- badges: end -->
 
 The goal of geojp is to provide an easy access to various geographical
@@ -28,7 +30,7 @@ library(geojp)
 ## Census
 
 Load census boundary information. Specify the prefecture code
-(code\_pref) and municipality code (code\_muni). Here is an example for
+(code_pref) and municipality code (code_muni). Here is an example for
 Osaki City (215) in Miyagi Prefecture (4).
 
 ``` r
@@ -92,7 +94,7 @@ attr(sfCensus2, "sourceURL")
 ## National Land Information
 
 Load the zoning information from the National Land Information. Specify
-the prefecture code (code\_pref) and municipality code (code\_muni). The
+the prefecture code (code_pref) and municipality code (code_muni). The
 2011 and 2019 versions are available, so we will try the 2011 version
 this time.
 
@@ -103,14 +105,8 @@ Service](https://nlftp.mlit.go.jp/ksj/index.html).
 The return value is an `sf` object.
 
 ``` r
-sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2011)
+sfYouto <- geojp::read_landnuminfo_landuse(code_pref = 26, code_muni = 100, year = 2019)
 ```
-
-    #> [1] "Downloaded the file and saved in https://nlftp.mlit.go.jp/ksj/gml/data/A29/A29-11/A29-11_26_GML.zip"
-    #> Warning in utils::unzip(strLNIZip, files = SHPFiles, exdir = strTempDir): zip フ
-    #> ァイル中には、要求されたファイルは存在しません
-    #> Warning in st_collection_extract.sf(sfLNI, type = "POLYGON"): x is already of
-    #> type POLYGON.
 
 The `A29_004` and `A29_005` columns, which indicate the zoning class,
 are of type factor.
@@ -132,7 +128,7 @@ source. The source can be retrieved as follows
 
 ``` r
 attr(sfYouto, "sourceName")
-#> [1] "「国土数値情報（用途地域データ）」（国土交通省）"
+#> [1] "「国土数値情報（行政区域データ）」（国土交通省）"
 attr(sfYouto, "sourceURL")
 #> [1] "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A29-v2_1.html"
 ```
@@ -155,24 +151,29 @@ specification is required only for macOS.
 
 ``` r
 library(tmap)
+#> 
+#> Attaching package: 'tmap'
+#> The following object is masked from 'package:datasets':
+#> 
+#>     rivers
 # Create a map.
 myTm <- tm_shape(sfYouto) +
-          tm_polygons(col = attr(sfYouto, "col"), palette = attr(sfYouto, "palette"), alpha = 0.8) + 
+          tm_polygons(fill = attr(sfYouto, "col"), 
+                      palette = attr(sfYouto, "palette"), alpha = 0.8) + 
            tm_borders()
+#> Deprecated tmap v3 code detected. Code translated to v4
 myTm <- myTm +
       tm_scale_bar() +
-      tm_layout(title = "京都市",
-                legend.outside = FALSE, 
-                fontfamily = "HiraginoSans-W3")
+      tm_layout(tm_title = "京都市",
+                legend.text.fontfamily = "HiraginoSans-W3")
+#> Warning: As of version 4.0, tm_scale_bar has been renamed to tm_scalebar and is
+#> therefore deprecated
 ```
 
 Display the plot.
 
 ``` r
 myTm
-#> Warning: One tm layer group has duplicated layer types, which are omitted. To
-#> draw multiple layers of the same type, use multiple layer groups (i.e. specify
-#> tm_shape prior to each of them).
 ```
 
 <img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
@@ -193,28 +194,27 @@ standard map in tiled format as a base map.
 ``` r
 library(tmap)
 tmap_mode("view")
-#> tmap mode set to interactive viewing
+#> tmap mode set to 'view'
 # Create a map.
 myTm <- tm_shape(sfCensus2) +
           tm_polygons("JINKO", alpha = 0.8) 
+#> Deprecated tmap v3 code detected. Code translated to v4
 myTm <- myTm +
           tm_shape(sfYouto) +
-          tm_polygons(col = attr(sfYouto, "col"), palette = attr(sfYouto, "palette"), alpha = 0.8) + 
+          tm_polygons(fill = attr(sfYouto, "col"), 
+                      palette = attr(sfYouto, "palette"), alpha = 0.8) + 
            tm_borders()
+#> Deprecated tmap v3 code detected. Code translated to v4
 myTm <- myTm +
       tm_basemap(server = "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png")
 myTm <- myTm +
       tm_scale_bar() +
-      tm_layout(title = "京都市",
-                legend.outside = FALSE, 
-                fontfamily = "HiraginoSans-W3")
+      tm_layout(tm_title = "京都市",
+                legend.text.fontfamily = "HiraginoSans-W3")
+#> Warning: As of version 4.0, tm_scale_bar has been renamed to tm_scalebar and is
+#> therefore deprecated
 myTm
-#> Warning: One tm layer group has duplicated layer types, which are omitted. To
-#> draw multiple layers of the same type, use multiple layer groups (i.e. specify
-#> tm_shape prior to each of them).
 ```
-
-<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
 
 ## mapview
 
@@ -223,5 +223,3 @@ library(mapview)
 mapviewOptions(fgb = FALSE) # needed when creating web pages
 mapview(sfYouto[attr(sfYouto, "col")], col.regions = attr(sfYouto, "palette"), fgb = FALSE)
 ```
-
-<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
