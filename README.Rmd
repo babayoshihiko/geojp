@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # geojp
 
 <!-- badges: start -->
+[![DOI](https://zenodo.org/badge/527063683.svg)](https://zenodo.org/doi/10.5281/zenodo.10205233)
 <!-- badges: end -->
 
 The goal of geojp is to provide an easy access to various geographical data of Japan.
