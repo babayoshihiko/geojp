@@ -106,7 +106,11 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL,
   year4digit <- check_year(year)
   strTempDir <- check_data_dir(data_dir)
   code_pref <- check_code_pref_as_char(code_pref)
-  code_muni <- check_code_muni_as_char(code_pref, code_muni)
+  if (!is.null(code_muni)){
+    code_muni <- check_code_muni_as_char(code_pref, code_muni)
+  } else {
+    code_muni <- ""
+  }
 
   if (nchar(code_pref) != 2) stop(paste("Invalid argument: code_pref:", code_pref))
   if (code_pref == "47" && year4digit < 1973) stop("No data available for Okinaya before year 1973.")
@@ -150,7 +154,7 @@ get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl,
         message(paste("Downloaded the file and saved in", strTempDir))
       }
       unzip_ja(strLNIZip, exdir = strTempDir)
-      message(paste("Unipped the file in", strTempDir))
+      message(paste("Unzipped the file in", strTempDir))
       # Checks if the shp file exists
       strLNIFile <- get_sfLNI_file(strLNIFile1, strLNIFile2, strLNIFile3, strTempDir, multifiles)
     }
