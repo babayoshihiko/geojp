@@ -8,7 +8,7 @@
 #' @description
 #' Function to download spatial data of Welfare Facilities of Japan. The returned value is an sf object.
 #'
-#' The data is avaiable for years 2021, 2015 and 2011. Somehow, the data for Osaka year 2011 is not available.
+#' The data is available for years 2021, 2015 and 2011. Somehow, the data for Osaka year 2011 is not available.
 #'
 #' Please note that the welfare facility data is NOT accurate.
 #'
@@ -87,7 +87,7 @@ read_landnuminfo_welfare <- function(code_pref, code_muni = NULL, year = 2021, d
 #' @description
 #' Function to download spatial data of Hospitals of Japan. The returned value is an sf object.
 #'
-#' The data is avaiable for years 2020, 2014 and 2010.
+#' The data is available for years 2020, 2014 and 2010.
 #'
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Ignored.
@@ -114,7 +114,7 @@ read_landnuminfo_hospital <- function(code_pref, code_muni = NULL, year = 2020, 
 #' @description
 #' Function to download spatial data of Schools of Japan. The returned value is an sf object.
 #'
-#' The data is avaiable for years 2021 and 2013.
+#' The data is available for years 2021 and 2013.
 #'
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Optional. The 3-digit code of municipality.

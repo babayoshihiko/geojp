@@ -89,9 +89,9 @@ read_census_tract <- function(code_pref, code_muni, year = 2020, data_dir = NULL
 #'
 #' @description
 #' Download spatial data of census tracts of the Japanese Population Census
-#' of an Ordnance-Disignated City of all wards (ku) combined.
+#' of an Ordnance-Designated City of all wards (ku) combined.
 #'
-#' @param city_name an Ordnance-Disignated City in Japanese.
+#' @param city_name an Ordnance-Designated City in Japanese.
 #' @param year Year of the data. Defaults to 2020.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'

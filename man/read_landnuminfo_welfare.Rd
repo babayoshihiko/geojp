@@ -26,7 +26,7 @@ An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 \description{
 Function to download spatial data of Welfare Facilities of Japan. The returned value is an sf object.
 
-The data is avaiable for years 2021, 2015 and 2011. Somehow, the data for Osaka year 2011 is not available.
+The data is available for years 2021, 2015 and 2011. Somehow, the data for Osaka year 2011 is not available.
 
 Please note that the welfare facility data is NOT accurate.
 }
