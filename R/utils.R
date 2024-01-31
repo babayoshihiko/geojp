@@ -448,7 +448,7 @@ get_wards <- function(code_pref, code_muni, year4digit = 2021){
   lstMuni <- code_muni
 
   code_pref <- as.integer(check_code_pref_as_char(code_pref))
-  code_muni <- as.integer(check_code_muni_as_char(code_muni = code_muni))
+  code_muni <- as.integer(check_code_muni_as_char(code_pref, code_muni))
 
   if (code_pref == 1 & code_muni == 100 & year4digit >= 1972){
     lstMuni <- c(101,102,103,104,105,106,107,108,109,110)
