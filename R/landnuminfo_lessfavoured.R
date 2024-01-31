@@ -18,7 +18,7 @@ read_landnuminfo_underpopulated <- function(code_pref, code_muni = NULL, year = 
   if (code_pref == 27 & year4digit < 2016) {
       stop(paste("The data is not available for prefecture", code_pref, "for year", year4digit))
   }
-  if (code_pref == 47 & year4digit < 1973){
+  if (code_pref == 47 & year4digit <= 1975){
     stop(paste("The data is not available for prefecture", code_pref, "for year", year4digit))
   }
 
@@ -26,7 +26,8 @@ read_landnuminfo_underpopulated <- function(code_pref, code_muni = NULL, year = 
   sfLNI <- read_landnuminfo_by_csv("A17", code_pref, NULL, year4digit, data_dir)
 
   if (!is.null(code_muni)){
-    sfLNI <- subset(sfLNI, A17_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    #sfLNI <- subset(sfLNI, A17_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    sfLNI <- sfLNI[sfLNI$A17_002 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
   }
 
   if (!is.null(sfLNI)) {
@@ -60,7 +61,8 @@ read_landnuminfo_peninsulas_development_implementation <- function(code_pref, co
   sfLNI <- read_landnuminfo_by_csv("A18", code_pref, NULL, year4digit, data_dir)
 
   if (!is.null(code_muni)){
-    sfLNI <- subset(sfLNI, A18_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    #sfLNI <- subset(sfLNI, A18_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    sfLNI <- sfLNI[sfLNI$A18_002 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
   }
 
   if (!is.null(sfLNI)) {
@@ -100,7 +102,8 @@ read_landnuminfo_remote_island_development_implementation <- function(code_pref,
   sfLNI <- read_landnuminfo_by_csv("A19", code_pref, NULL, year4digit, data_dir)
 
   if (!is.null(code_muni)){
-    sfLNI <- subset(sfLNI, A19_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    #sfLNI <- subset(sfLNI, A19_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    sfLNI <- sfLNI[sfLNI$A19_002 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
   }
 
   if (!is.null(sfLNI)) {
@@ -132,7 +135,8 @@ read_landnuminfo_heavy_snowfall <- function(code_pref, code_muni = NULL, year = 
   sfLNI <- read_landnuminfo_by_csv("A22", code_pref, NULL, year4digit, data_dir)
 
   if (!is.null(code_muni)){
-    sfLNI <- subset(sfLNI, A22_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    #sfLNI <- subset(sfLNI, A22_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    sfLNI <- sfLNI[sfLNI$A22_002 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
   }
 
   if (!is.null(sfLNI)) {
@@ -163,7 +167,8 @@ read_landnuminfo_particular_soil <- function(code_pref, code_muni = NULL, year =
   sfLNI <- read_landnuminfo_by_csv("A23", code_pref, NULL, year4digit, data_dir)
 
   if (!is.null(code_muni)){
-    sfLNI <- subset(sfLNI, A23_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    #sfLNI <- subset(sfLNI, A23_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    sfLNI <- sfLNI[sfLNI$A23_002 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
   }
 
   if (!is.null(sfLNI)) {
@@ -198,7 +203,8 @@ read_landnuminfo_development_mountain_village <- function(code_pref, code_muni =
   sfLNI <- read_landnuminfo_by_csv("A24", code_pref, NULL, year4digit, data_dir)
 
   if (!is.null(code_muni)){
-    sfLNI <- subset(sfLNI, A24_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    #sfLNI <- subset(sfLNI, A24_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    sfLNI <- sfLNI[sfLNI$A24_002 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
   }
 
   if (!is.null(sfLNI)) {
@@ -227,7 +233,8 @@ read_landnuminfo_designated_rural <- function(code_pref, code_muni = NULL, year 
   sfLNI <- read_landnuminfo_by_csv("A25", code_pref, NULL, year4digit, data_dir)
 
   if (!is.null(code_muni)){
-    sfLNI <- subset(sfLNI, A25_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    #sfLNI <- subset(sfLNI, A25_002 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+    sfLNI <- sfLNI[sfLNI$A25_002 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
   }
 
   if (!is.null(sfLNI)) {

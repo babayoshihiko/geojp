@@ -94,7 +94,7 @@ read_landnuminfo_mesh3 <- function(code_pref, code_muni, year = 2016, data_dir =
 
   if (!is.null(sfLNI)) {
     # Read the MapType definition
-    dfTemp <- get_definition(maptype)
+    dfTemp <- get_definition("L03")
     dfTemp <- dfTemp[dfTemp$year == year4digit,]
 
     sfTemp <- sfLNI[,-1]
@@ -181,6 +181,8 @@ read_landnuminfo_meshsub <- function(code_pref, code_muni, year = 2006, data_dir
   if (!is.null(sfLNI)) {
     attr(sfLNI, "mapname") = "\u571f\u5730\u5229\u75283\u6b21\u30e1\u30c3\u30b7\u30e5"
 
+    dfTemp <- get_definition("L03-b")
+    dfTemp <- dfTemp[dfTemp$year == year4digit,]
     if (!is.na(dfTemp[1,"levels"])){
       temp_levels <- unlist(strsplit(as.character(dfTemp[1,"levels"]), " "))
       temp_labels <- ""

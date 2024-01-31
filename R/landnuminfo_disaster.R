@@ -39,9 +39,11 @@ read_landnuminfo_hazard <- function(code_pref, code_muni = NULL, year = 2021, da
         for (code_muni_single in lstCodeMuni){
           strNameMuni <- get_muni_name(code_pref, code_muni_single)
           if (is.null(sfLNI2)) {
-            sfLNI2 <- subset(sfLNI, A48_003 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+            #sfLNI2 <- subset(sfLNI, A48_003 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+            sfLNI2 <- sfLNI[sfLNI$A48_003 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
           } else {
-            sfLNI2 <- rbind(sfLNI2, subset(sfLNI, A48_003 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+            #sfLNI2 <- rbind(sfLNI2, subset(sfLNI, A48_003 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+            sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$A48_003 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),])
           }
         }
       }

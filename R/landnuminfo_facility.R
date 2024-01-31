@@ -36,16 +36,19 @@ read_landnuminfo_welfare <- function(code_pref, code_muni = NULL, year = 2021, d
         for (code_muni_single in lstCodeMuni){
           strNameMuni <- get_muni_name(code_pref, code_muni_single)
           if (is.null(sfLNI2)) {
-            sfLNI2 <- subset(sfLNI, P14_002 == strNameMuni)
+            #sfLNI2 <- subset(sfLNI, P14_002 == strNameMuni)
+            sfLNI2 <- sfLNI[sfLNI$P14_002 == strNameMuni,]
           } else {
-            sfLNI2 <- rbind(sfLNI2, subset(sfLNI, P14_002 == strNameMuni))
+            #sfLNI2 <- rbind(sfLNI2, subset(sfLNI, P14_002 == strNameMuni))
+            sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$P14_002 == strNameMuni,])
           }
         }
       }
       if (!is.null(sfLNI2)) sfLNI <- sfLNI2
     } else {
       strNameMuni = get_muni_name(code_pref, code_muni)
-      sfLNI <- subset(sfLNI, P14_002 == strNameMuni)
+      #sfLNI <- subset(sfLNI, P14_002 == strNameMuni)
+      sfLNI <- sfLNI[sfLNI$P14_002 == strNameMuni,]
     }
   }
 
@@ -137,9 +140,11 @@ read_landnuminfo_school <- function(code_pref, code_muni = NULL, year = 2021, da
       for (code_muni_single in lstCodeMuni){
         strNameMuni <- get_muni_name(code_pref, code_muni_single)
         if (is.null(sfLNI2)) {
-          sfLNI2 <- subset(sfLNI, P29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+          #sfLNI2 <- subset(sfLNI, P29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+          sfLNI2 <- sfLNI[sfLNI$P29_001 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
         } else {
-          sfLNI2 <- rbind(sfLNI2, subset(sfLNI, P29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+          #sfLNI2 <- rbind(sfLNI2, subset(sfLNI, P29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+          sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$P29_001 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),])
         }
       }
     }

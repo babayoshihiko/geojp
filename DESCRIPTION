@@ -1,7 +1,7 @@
 Package: geojp
 Type: Package
 Title: Download Spatial Data Sets of Japan
-Version: 0.0.9
+Version: 0.0.10
 Authors@R: person("Yoshihiko", "Baba", role = c("aut", "cre"), email = "babayoshihiko@mac.com", comment = c(ORCID = "0000-0001-7034-9724"))
 Description: Easy access to various spatial data sets of Japan as 'sf' objects in R. The package includes a wide range of geospatial data available at various geographic scales and for various years with harmonized attributes, projection and fixed topology.
 License: MIT + file LICENSE
@@ -13,10 +13,11 @@ Imports:
 RoxygenNote: 7.3.0
 Suggests: 
     knitr,
+    unittest,
+    testthat (>= 3.0.0),
     leaflegend,
     mapview,
     rmarkdown,
-    testthat (>= 3.0.0),
     tmap
 Config/testthat/edition: 3
 VignetteBuilder: knitr

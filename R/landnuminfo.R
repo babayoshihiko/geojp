@@ -355,11 +355,13 @@ read_landnuminfo_landuse <- function(code_pref, code_muni, year = 2019, data_dir
         if (length(lstCodeMuni) > 0) {
           sfLNI2 <- NULL
           for (code_muni_single in lstCodeMuni){
-            strNameMuni <- get_muni_name(code_pref, code_muni_single)
+            #strNameMuni <- get_muni_name(code_pref, code_muni_single)
             if (is.null(sfLNI2)) {
-              sfLNI2 <- subset(sfLNI, A29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+              #sfLNI2 <- subset(sfLNI, A29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+              sfLNI2 <- sfLNI[sfLNI$A29_001 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
             } else {
-              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, A29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+              #sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$A29_001 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),])
+              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$A29_001 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
             }
           }
         }
@@ -582,32 +584,6 @@ read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, dat
   return(sfLNI)
 }
 
-#' Download spatial data of Administrative Boundary of Japan
-#'
-#' @description
-#' Function to download spatial data of Administrative Boundary of Japan. The returned value is an sf object.
-#'
-#' @param code_pref The 2-digit code of prefecture.
-#' @param code_muni Optional. The 3-digit code of municipality.
-#' @param year Year of the data. Defaults to 2023.
-#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
-#'
-#'
-#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
-#'
-#' @export
-read_landnuminfo_admin <- function(code_pref, code_muni = NULL, year = 2023, data_dir = NULL){
-
-  # Administrative Boundaries data
-  sfLNI = read_landnuminfo_by_csv("N03", code_pref, , year, data_dir)
-
-  attr(sfLNI, "mapname") = "\u884c\u653f\u533a\u57df"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
-
-  return(sfLNI)
-}
-
 #' Download spatial data of Official Land Price of Japan
 #'
 #' @description
@@ -634,22 +610,21 @@ read_landnuminfo_officiallandprice <- function(code_pref, code_muni = NULL, year
       if (length(lstCodeMuni) > 0) {
         sfLNI2 <- NULL
         for (code_muni_single in lstCodeMuni){
-          strNameMuni <- get_muni_name(code_pref, code_muni_single)
           if (is.null(sfLNI2)) {
             if (year4digit == 2022) {
-              sfLNI2 <- subset(sfLNI, L01_022 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+              sfLNI2 <- sfLNI[sfLNI$L01_022 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
             } else if (year4digit %in% c(2021, 2020, 2019, 2018)) {
-              sfLNI2 <- subset(sfLNI, L01_021 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+              sfLNI2 <- sfLNI[sfLNI$L01_021 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
             } else {
-              sfLNI2 <- subset(sfLNI, L01_017 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+              sfLNI2 <- sfLNI[sfLNI$L01_017 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
             }
           } else {
             if (year4digit == 2022) {
-              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, L01_020 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$L01_022 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
             } else if (year4digit %in% c(2021, 2020, 2019, 2018)) {
-              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, L01_021 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$L01_021 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
             } else {
-              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, L01_017 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$L01_017 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
             }
           }
         }
@@ -693,7 +668,6 @@ read_landnuminfo_urbanarea <- function(code_pref,
   if (year == 2011) {
     sfLNI <- read_landnuminfo_urbanarea_2011(code_pref, data_dir = data_dir)
   } else {
-    #sfLNI = read_landnuminfo("A09", code_pref, code_muni, year, filetype = "shp", geometry = "POLYGON", data_dir = data_dir)
     sfLNI <- read_landnuminfo_by_csv("A09", code_pref, code_muni, year, data_dir = data_dir)
   }
 
@@ -705,7 +679,7 @@ read_landnuminfo_urbanarea <- function(code_pref,
                                                "\u90fd\u5e02\u5730\u57df"))
   # 2011
   if (year == 2011) {
-    st_crs(sfLNI) <- "EPSG:4612"
+    sf::st_crs(sfLNI) <- "EPSG:4612"
     sfLNI[sfLNI$layer_no == 1, "layer"] <- "\u90fd\u5e02\u5730\u57df"
     sfLNI[sfLNI$layer_no == 2, "layer"] <- "\u5e02\u8857\u5316\u533a\u57df"
     sfLNI[sfLNI$layer_no == 3, "layer"] <- "\u5e02\u8857\u5316\u8abf\u6574\u533a\u57df"
@@ -801,22 +775,21 @@ read_landnuminfo_preflandprice <- function(code_pref, code_muni = NULL, year = 2
       if (length(lstCodeMuni) > 0) {
         sfLNI2 <- NULL
         for (code_muni_single in lstCodeMuni){
-          strNameMuni <- get_muni_name(code_pref, code_muni_single)
           if (is.null(sfLNI2)) {
             if (year4digit == 2022 || year4digit == 2021) {
-              sfLNI2 <- subset(sfLNI, L02_020 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+              sfLNI[sfLNI$L02_020 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
             } else if (year4digit %in% c(2020, 2018, 2017)) {
-              sfLNI2 <- subset(sfLNI, L02_021 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+              sfLNI[sfLNI$L02_021 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
             } else {
-              sfLNI2 <- subset(sfLNI, L02_017 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
+              sfLNI[sfLNI$L02_017 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
             }
           } else {
             if (year4digit == 2022 || year4digit == 2021) {
-              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, L02_020 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$L02_020 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
             } else if (year4digit %in% c(2020, 2018, 2017)) {
-              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, L02_021 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$L02_021 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
             } else {
-              sfLNI2 <- rbind(sfLNI2, subset(sfLNI, L02_017 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep="")))
+              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$L02_017 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
             }
           }
         }
