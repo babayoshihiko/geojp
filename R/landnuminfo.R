@@ -6,7 +6,7 @@
 #'
 #' @param maptype The map type code (e.g. "A01").
 #' @param code_pref The 2-digit code of prefecture.
-#' @param code_muni The 3-digit code of municipality (city, town, or village).
+#' @param code_muni Optional. The 3-digit code of municipality (city, town, or village).
 #' @param year Year of the data. Defaults to 2020.
 #' @param filetype either "geojson" or "shp".
 #' @param geometry "POINT", "LINESTRING", or "POLYGON"
@@ -127,6 +127,39 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL,
   strLNIFile3 <- file.path(strTempDir,paste(gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp[1,"altdir"])),"\\\\",gsub("code_muni",code_muni,gsub("code_pref",code_pref,dfTemp[1,"shp"])),sep=""))
 
   sfLNI <- get_sfLNI(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit, strTempDir, multifiles, encoding)
+
+  # Subset the data by municipality
+  if (!is.null("sfLNI") & code_muni != "" & !is.na(dfTemp[1,"muni_column"])) {
+    # If the municipality is Ordnance Disignated, then
+    # several municipality codes
+    lstCodeMuni <- get_wards(code_pref, code_muni, year4digit)
+    if (length(lstCodeMuni) > 0) {
+      sfLNI2 <- NULL
+      for (code_muni_single in lstCodeMuni){
+        if (is.null(sfLNI2)) {
+          sfLNI2 <-
+            sfLNI[sfLNI[[as.character(dfTemp[1,"muni_column"])]] ==
+                    check_code_muni_as_char(code_pref,
+                                            code_muni_single,
+                                            return=dfTemp[1,"muni_type"]),]
+        } else {
+          sfLNI2 <- rbind(sfLNI2,
+            sfLNI[sfLNI[[as.character(dfTemp[1,"muni_column"])]] ==
+                    check_code_muni_as_char(code_pref,
+                                            code_muni_single,
+                                            return=dfTemp[1,"muni_type"]),]
+          )
+        }
+      }
+      if (!is.null(sfLNI2)) {
+        sfLNI <- sfLNI2
+      } else {
+        warning("Not subsetted. The given code_pref and code_muni matched none (geojp::read_landnuminfo_by_csv).")
+      }
+    }
+  }
+
+  return(sfLNI)
 }
 
 #' @importFrom utils download.file
@@ -339,41 +372,23 @@ get_sfLNI_file <- function(strLNIFile1, strLNIFile2, strLNIFile3, strTempDir, mu
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 #'
 #' @export
-read_landnuminfo_landuse <- function(code_pref, code_muni, year = 2019, data_dir = NULL){
+read_landnuminfo_landuse <- function(code_pref, code_muni = NULL, year = 2019, data_dir = NULL){
   year4digit <- check_year(year)
 
   sfLNI <- NULL
 
-  if (year4digit == 2019) {
-    sfLNI <- read_landnuminfo_by_csv("A29", code_pref, code_muni, year4digit, data_dir)
-  } else {
-    sfLNI <- read_landnuminfo_by_csv("A29", code_pref, code_muni, year4digit, data_dir)
-
-    if (!is.null(sfLNI)) {
-      if (!is.null(code_muni)){
-        lstCodeMuni <- get_wards(code_pref, code_muni, year4digit)
-        if (length(lstCodeMuni) > 0) {
-          sfLNI2 <- NULL
-          for (code_muni_single in lstCodeMuni){
-            #strNameMuni <- get_muni_name(code_pref, code_muni_single)
-            if (is.null(sfLNI2)) {
-              #sfLNI2 <- subset(sfLNI, A29_001 == paste(check_code_pref_as_char(code_pref),check_code_muni_as_char(code_pref,code_muni),sep=""))
-              sfLNI2 <- sfLNI[sfLNI$A29_001 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
-            } else {
-              #sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$A29_001 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),])
-              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$A29_001 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
-            }
-          }
-        }
-        if (!is.null(sfLNI2)) sfLNI <- sfLNI2
-      }
-    }
+  if (year4digit == 2019 & is.null(code_muni)) {
+    # The year 2019 is very unique. It has A29-19_code_pref000.shp.
+    code_muni = 0
   }
+
+  sfLNI <- read_landnuminfo_by_csv("A29", code_pref, code_muni, year4digit, data_dir)
 
   if (!is.null(sfLNI)){
     attr(sfLNI, "mapname") = "\u7528\u9014\u5730\u57df"
-    return(sfLNI)
   }
+
+  return(sfLNI)
 }
 
 #' Download spatial data of Location Normalization of Japan
@@ -602,43 +617,13 @@ read_landnuminfo_officiallandprice <- function(code_pref, code_muni = NULL, year
   year4digit <- check_year(year)
 
   sfLNI <- NULL
-  sfLNI <- read_landnuminfo_by_csv("L01", code_pref, NULL, year4digit, data_dir)
+  sfLNI <- read_landnuminfo_by_csv("L01", code_pref, code_muni, year4digit, data_dir)
 
   if (!is.null(sfLNI)) {
-    if (!is.null(code_muni)){
-      lstCodeMuni <- get_wards(code_pref, code_muni, year4digit)
-      if (length(lstCodeMuni) > 0) {
-        sfLNI2 <- NULL
-        for (code_muni_single in lstCodeMuni){
-          if (is.null(sfLNI2)) {
-            if (year4digit == 2022) {
-              sfLNI2 <- sfLNI[sfLNI$L01_022 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
-            } else if (year4digit %in% c(2021, 2020, 2019, 2018)) {
-              sfLNI2 <- sfLNI[sfLNI$L01_021 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
-            } else {
-              sfLNI2 <- sfLNI[sfLNI$L01_017 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
-            }
-          } else {
-            if (year4digit == 2022) {
-              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$L01_022 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
-            } else if (year4digit %in% c(2021, 2020, 2019, 2018)) {
-              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$L01_021 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
-            } else {
-              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$L01_017 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
-            }
-          }
-        }
-      }
-      if (!is.null(sfLNI2)) sfLNI <- sfLNI2
-    }
-
-    if (!is.null(sfLNI)) {
-      attr(sfLNI, "mapname") = "\u5730\u4fa1\u516c\u793a"
-      attr(sfLNI, "palette") = ""
-    }
-
-    return(sfLNI)
+    attr(sfLNI, "mapname") = "\u5730\u4fa1\u516c\u793a"
   }
+
+  return(sfLNI)
 }
 
 #' Download spatial data of Urbanized Areas of Japan
@@ -767,43 +752,13 @@ read_landnuminfo_preflandprice <- function(code_pref, code_muni = NULL, year = 2
   year4digit <- check_year(year)
 
   sfLNI <- NULL
-  sfLNI <- read_landnuminfo_by_csv("L02", code_pref, NULL, year4digit, data_dir)
+  sfLNI <- read_landnuminfo_by_csv("L02", code_pref, code_muni, year4digit, data_dir)
 
   if (!is.null(sfLNI)) {
-    if (!is.null(code_muni)){
-      lstCodeMuni <- get_wards(code_pref, code_muni, year4digit)
-      if (length(lstCodeMuni) > 0) {
-        sfLNI2 <- NULL
-        for (code_muni_single in lstCodeMuni){
-          if (is.null(sfLNI2)) {
-            if (year4digit == 2022 || year4digit == 2021) {
-              sfLNI[sfLNI$L02_020 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
-            } else if (year4digit %in% c(2020, 2018, 2017)) {
-              sfLNI[sfLNI$L02_021 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
-            } else {
-              sfLNI[sfLNI$L02_017 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),]
-            }
-          } else {
-            if (year4digit == 2022 || year4digit == 2021) {
-              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$L02_020 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
-            } else if (year4digit %in% c(2020, 2018, 2017)) {
-              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$L02_021 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
-            } else {
-              sfLNI2 <- rbind(sfLNI2, sfLNI[sfLNI$L02_017 == check_code_muni_as_char(code_pref,code_muni_single,return="code_pref_muni"),])
-            }
-          }
-        }
-      }
-      if (!is.null(sfLNI2)) sfLNI <- sfLNI2
-    }
-
-    if (!is.null(sfLNI)) {
-      attr(sfLNI, "mapname") = "\u90fd\u9053\u5e9c\u770c\u5730\u4fa1\u8abf\u67fb"
-      attr(sfLNI, "palette") = ""
-    }
-
-    return(sfLNI)
+    attr(sfLNI, "mapname") = "\u90fd\u9053\u5e9c\u770c\u5730\u4fa1\u8abf\u67fb"
   }
+
+  return(sfLNI)
 }
 
 #' message the list of available Land Numerical Information data.

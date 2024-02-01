@@ -4,7 +4,12 @@
 \alias{read_landnuminfo_landuse}
 \title{Download spatial data of Land Use of Japan}
 \usage{
-read_landnuminfo_landuse(code_pref, code_muni, year = 2019, data_dir = NULL)
+read_landnuminfo_landuse(
+  code_pref,
+  code_muni = NULL,
+  year = 2019,
+  data_dir = NULL
+)
 }
 \arguments{
 \item{code_pref}{The 2-digit code of prefecture.}

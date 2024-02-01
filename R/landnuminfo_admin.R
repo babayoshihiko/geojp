@@ -15,15 +15,10 @@
 read_landnuminfo_admin <- function(code_pref, code_muni = NULL, year = 2023, data_dir = NULL){
 
   # Administrative Boundaries data
-  sfLNI = read_landnuminfo_by_csv("N03", code_pref, , year, data_dir)
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("N03", code_pref, code_muni, year, data_dir)
 
-  if (!is.null(code_muni)){
-    sfLNI <- sfLNI[sfLNI$N03_007 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
-  }
-
-  attr(sfLNI, "mapname") = "\u884c\u653f\u533a\u57df"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  attr(sfLNI, "mapname") <- "\u884c\u653f\u533a\u57df"
 
   return(sfLNI)
 }
@@ -44,15 +39,10 @@ read_landnuminfo_admin <- function(code_pref, code_muni = NULL, year = 2023, dat
 #' @export
 read_landnuminfo_jhighschool_district <- function(code_pref, code_muni = NULL, year = 2021, data_dir = NULL){
 
-  sfLNI = read_landnuminfo_by_csv("A32", code_pref, , year, data_dir)
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A32", code_pref, code_muni, year, data_dir)
 
-  if (!is.null(code_muni)){
-    sfLNI <- sfLNI[sfLNI$A32_001 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
-  }
-
-  attr(sfLNI, "mapname") = "\u4e2d\u5b66\u6821\u533a"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  attr(sfLNI, "mapname") <- "\u4e2d\u5b66\u6821\u533a"
 
   return(sfLNI)
 }
@@ -73,15 +63,10 @@ read_landnuminfo_jhighschool_district <- function(code_pref, code_muni = NULL, y
 #' @export
 read_landnuminfo_elementaryschool_district <- function(code_pref, code_muni = NULL, year = 2021, data_dir = NULL){
 
-  sfLNI = read_landnuminfo_by_csv("A27", code_pref, , year, data_dir)
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A27", code_pref, code_muni, year, data_dir)
 
-  if (!is.null(code_muni)){
-    sfLNI <- sfLNI[sfLNI$A27_001 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
-  }
-
-  attr(sfLNI, "mapname") = "\u5c0f\u5b66\u6821\u533a"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  attr(sfLNI, "mapname") <- "\u5c0f\u5b66\u6821\u533a"
 
   return(sfLNI)
 }
@@ -102,11 +87,10 @@ read_landnuminfo_elementaryschool_district <- function(code_pref, code_muni = NU
 #' @export
 read_landnuminfo_first_medical_area <- function(code_pref, code_muni = NULL, year = 2020, data_dir = NULL){
 
-  sfLNI = read_landnuminfo_by_csv("A38-1", code_pref, , year, data_dir)
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A38-1", code_pref, NULL, year, data_dir)
 
-  attr(sfLNI, "mapname") = "\u5c0f\u5b66\u6821\u533a"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  attr(sfLNI, "mapname") <- "\u5c0f\u5b66\u6821\u533a"
 
   return(sfLNI)
 }
@@ -127,11 +111,10 @@ read_landnuminfo_first_medical_area <- function(code_pref, code_muni = NULL, yea
 #' @export
 read_landnuminfo_second_medical_area <- function(code_pref, code_muni = NULL, year = 2020, data_dir = NULL){
 
-  sfLNI = read_landnuminfo_by_csv("A38-2", code_pref, , year, data_dir)
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A38-2", code_pref, NULL, year, data_dir)
 
-  attr(sfLNI, "mapname") = "\u5c0f\u5b66\u6821\u533a"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  attr(sfLNI, "mapname") <- "\u5c0f\u5b66\u6821\u533a"
 
   return(sfLNI)
 }
@@ -152,11 +135,10 @@ read_landnuminfo_second_medical_area <- function(code_pref, code_muni = NULL, ye
 #' @export
 read_landnuminfo_third_medical_area <- function(code_pref, code_muni = NULL, year = 2020, data_dir = NULL){
 
-  sfLNI = read_landnuminfo_by_csv("A38-3", code_pref, , year, data_dir)
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A38-3", code_pref, NULL, year, data_dir)
 
-  attr(sfLNI, "mapname") = "\u5c0f\u5b66\u6821\u533a"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  attr(sfLNI, "mapname") <- "\u5c0f\u5b66\u6821\u533a"
 
   return(sfLNI)
 }
@@ -177,15 +159,10 @@ read_landnuminfo_third_medical_area <- function(code_pref, code_muni = NULL, yea
 #' @export
 read_landnuminfo_landscapeplan_area <- function(code_pref, code_muni = NULL, year = 2014, data_dir = NULL){
 
-  sfLNI = read_landnuminfo_by_csv("A35a", code_pref, , year, data_dir)
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A35a", code_pref, code_muni, year, data_dir)
 
-  if (!is.null(code_muni)){
-    sfLNI <- sfLNI[sfLNI$A35a_004 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
-  }
-
-  attr(sfLNI, "mapname") = "\u666f\u89b3\u8a08\u753b\u533a\u57df"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  attr(sfLNI, "mapname") <- "\u666f\u89b3\u8a08\u753b\u533a\u57df"
 
   return(sfLNI)
 }
@@ -206,15 +183,10 @@ read_landnuminfo_landscapeplan_area <- function(code_pref, code_muni = NULL, yea
 #' @export
 read_landnuminfo_landscapeemphasis_area <- function(code_pref, code_muni = NULL, year = 2014, data_dir = NULL){
 
-  sfLNI = read_landnuminfo_by_csv("A35c", code_pref, , year, data_dir)
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A35c", code_pref, code_muni, year, data_dir)
 
-  if (!is.null(code_muni)){
-    sfLNI <- sfLNI[sfLNI$A35c_004 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
-  }
-
-  attr(sfLNI, "mapname") = "\u666f\u89b3\u91cd\u70b9\u5730\u533a"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  attr(sfLNI, "mapname") <- "\u666f\u89b3\u91cd\u70b9\u5730\u533a"
 
   return(sfLNI)
 }
@@ -237,15 +209,10 @@ read_landnuminfo_landscape_area <- function(code_pref, code_muni = NULL, year = 
 
   if (!(code_pref %in% c(1, 3, 4, 13, 14, 21, 22, 26, 28, 30, 32, 33, 34, 44, 46, 47))) stop(paste("The data is not available for prefecture", code_pref))
 
-  sfLNI = read_landnuminfo_by_csv("A35d", code_pref, , year, data_dir)
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A35d", code_pref, code_muni, year, data_dir)
 
-  if (!is.null(code_muni)){
-    sfLNI <- sfLNI[sfLNI$A35d_004 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
-  }
-
-  attr(sfLNI, "mapname") = "\u666f\u89b3\u5730\u533a\u30fb\u6e96\u666f\u89b3\u5730\u533a"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  attr(sfLNI, "mapname") <- "\u666f\u89b3\u5730\u533a\u30fb\u6e96\u666f\u89b3\u5730\u533a"
 
   return(sfLNI)
 }
@@ -268,15 +235,10 @@ read_landnuminfo_landscape_zone <- function(code_pref, code_muni = NULL, year = 
 
   if (!(code_pref %in% c(1, 3, 4, 13, 14, 21, 22, 26, 28, 30, 32, 33, 34, 44, 46, 47))) stop(paste("The data is not available for prefecture", code_pref))
 
-  sfLNI = read_landnuminfo_by_csv("A35f", code_pref, , year, data_dir)
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A35f", code_pref, code_muni, year, data_dir)
 
-  if (!is.null(code_muni)){
-    sfLNI <- sfLNI[sfLNI$A35f_004 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
-  }
-
-  attr(sfLNI, "mapname") = "\u666f\u89b3\u5730\u533a\u30fb\u6e96\u666f\u89b3\u5730\u533a"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  attr(sfLNI, "mapname") <- "\u666f\u89b3\u5730\u533a\u30fb\u6e96\u666f\u89b3\u5730\u533a"
 
   return(sfLNI)
 }
@@ -299,16 +261,10 @@ read_landnuminfo_landscape_building <- function(code_pref, code_muni = NULL, yea
 
   if (!(code_pref %in% c(1, 2, 3, 6, 7, 8, 10, 11, 12, 13, 14, 17, 20, 21:25, 27, 28, 30, 33, 35, 39:43, 45, 46))) stop(paste("The data is not available for prefecture", code_pref))
 
-  sfLNI = read_landnuminfo_by_csv("A35g", code_pref, , year, data_dir)
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A35g", code_pref, code_muni, year, data_dir)
 
-  if (!is.null(code_muni)){
-    #sfLNI <- subset(sfLNI, A35g_004 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"))
-    sfLNI <- sfLNI[sfLNI$A35g_004 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
-  }
-
-  attr(sfLNI, "mapname") = "\u666f\u89b3\u91cd\u8981\u5efa\u9020\u7269"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  attr(sfLNI, "mapname") <- "\u666f\u89b3\u91cd\u8981\u5efa\u9020\u7269"
 
   return(sfLNI)
 }
@@ -331,16 +287,10 @@ read_landnuminfo_landscape_tree <- function(code_pref, code_muni = NULL, year = 
 
   if (!(code_pref %in% c(6, 8, 11, 12, 13, 14, 17, 20, 21, 22, 24, 25, 26, 29, 32, 39, 43, 45, 46))) stop(paste("The data is not available for prefecture", code_pref))
 
-  sfLNI = read_landnuminfo_by_csv("A35h", code_pref, , year, data_dir)
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A35h", code_pref, code_muni, year, data_dir)
 
-  if (!is.null(code_muni)){
-    #sfLNI <- subset(sfLNI, A35h_004 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"))
-    sfLNI <- sfLNI[sfLNI$A35h_004 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
-  }
-
-  attr(sfLNI, "mapname") = "\u666f\u89b3\u91cd\u8981\u6a39\u6728"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  attr(sfLNI, "mapname") <- "\u666f\u89b3\u91cd\u8981\u6a39\u6728"
 
   return(sfLNI)
 }
@@ -362,11 +312,12 @@ read_landnuminfo_landscape_tree <- function(code_pref, code_muni = NULL, year = 
 read_landnuminfo_preservationarea_historiclandscape <- function(code_pref = NULL, code_muni = NULL, year = 2018, data_dir = NULL){
 
   # Dummy pref_code
-  sfLNI = read_landnuminfo_by_csv("A42", 13, , year, data_dir)
+  if (is.null(code_pref)) code_pref <- 13
 
-  attr(sfLNI, "mapname") = "\u6b74\u53f2\u7684\u98a8\u571f\u4fdd\u5b58\u533a\u57df"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A42", code_pref, NULL, year, data_dir)
+
+  attr(sfLNI, "mapname") <- "\u6b74\u53f2\u7684\u98a8\u571f\u4fdd\u5b58\u533a\u57df"
 
   return(sfLNI)
 }
@@ -388,11 +339,12 @@ read_landnuminfo_preservationarea_historiclandscape <- function(code_pref = NULL
 read_landnuminfo_specialpreservationarea_historiclandscape <- function(code_pref = NULL, code_muni = NULL, year = 2018, data_dir = NULL){
 
   # Dummy pref_code
-  sfLNI = read_landnuminfo_by_csv("A42s", 13, , year, data_dir)
+  if (is.null(code_pref)) code_pref <- 13
 
-  attr(sfLNI, "mapname") = "\u6b74\u53f2\u7684\u98a8\u571f\u7279\u5225\u4fdd\u5b58\u5730\u533a"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A42s", code_pref, NULL, year, data_dir)
+
+  attr(sfLNI, "mapname") <- "\u6b74\u53f2\u7684\u98a8\u571f\u7279\u5225\u4fdd\u5b58\u5730\u533a"
 
   return(sfLNI)
 }
@@ -414,15 +366,12 @@ read_landnuminfo_specialpreservationarea_historiclandscape <- function(code_pref
 read_landnuminfo_historicscenicbeauty <- function(code_pref = NULL, code_muni = NULL, year = 2018, data_dir = NULL){
 
   # Dummy pref_code
-  sfLNI = read_landnuminfo_by_csv("A44", 13, , year, data_dir)
+  if (is.null(code_pref)) code_pref <- 13
 
-  if (!is.null(code_muni)){
-    sfLNI <- sfLNI[sfLNI$A44_003 == check_code_muni_as_char(code_pref,code_muni,return="code_pref_muni"),]
-  }
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A44", code_pref, code_muni, year, data_dir)
 
-  attr(sfLNI, "mapname") = "\u6b74\u53f2\u7684\u98a8\u81f4\u7dad\u6301\u5411\u4e0a\u8a08\u753b\u306e\u91cd\u70b9\u5730\u533a"
-  attr(sfLNI, "col") = ""
-  attr(sfLNI, "palette") = ""
+  attr(sfLNI, "mapname") <- "\u6b74\u53f2\u7684\u98a8\u81f4\u7dad\u6301\u5411\u4e0a\u8a08\u753b\u306e\u91cd\u70b9\u5730\u533a"
 
   return(sfLNI)
 }

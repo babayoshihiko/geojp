@@ -7,7 +7,7 @@
 read_census_odcity(city_name, year = 2020, data_dir = NULL)
 }
 \arguments{
-\item{city_name}{an Ordnance-Disignated City in Japanese.}
+\item{city_name}{an Ordnance-Designated City in Japanese.}
 
 \item{year}{Year of the data. Defaults to 2020.}
 
@@ -18,5 +18,5 @@ An `"sf" "data.frame"` object
 }
 \description{
 Download spatial data of census tracts of the Japanese Population Census
-of an Ordnance-Disignated City of all wards (ku) combined.
+of an Ordnance-Designated City of all wards (ku) combined.
 }
