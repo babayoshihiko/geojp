@@ -166,12 +166,12 @@ read_landnuminfo_by_csv <- function(maptype, code_pref, code_muni = NULL,
 #' @importFrom sf read_sf
 get_sfLNI <- function(maptype, strLNIFile1, strLNIFile2, strLNIFile3, strLNIUrl, strLNIZip, year4digit,
                       strTempDir,
-                      multifiles,
+                      multifiles = "error",
                       encoding = "CP932"){
   # Read the MapType definition
   dfTemp <- get_definition(maptype)
   dfTemp <- dfTemp[dfTemp$year == year4digit,]
-  if (nrow(dfTemp) != 1) stop(paste("The target year", year4digit, "not found in", paste("data/", maptype, ".csv", sep = "")))
+  if (nrow(dfTemp) != 1) stop(paste("The target year", year4digit, "not found in", paste("data-raw/", maptype, ".csv", sep = "")))
 
   strLNIFile <- ""
   strOptions <- paste("ENCODING=", encoding, sep="")
@@ -508,92 +508,6 @@ read_landnuminfo_flood <- function(code_pref, code_muni = NULL, year = 2012, dat
 
   if (!is.null(sfLNI)) {
     attr(sfLNI, "mapname") = "\u6d2a\u6c34\u6d78\u6c34\u60f3\u5b9a\u533a\u57df"
-  }
-
-  return(sfLNI)
-}
-
-#' Download spatial data of rivers of Japan
-#'
-#' @description
-#' Function to download spatial data of rivers of Japan. The returned value is an sf object.
-#'
-#' Please note that the river data has a lot of invalid geometries.
-#'
-#' @param code_pref The 2-digit code of prefecture.
-#' @param code_muni Optional. The 3-digit code of municipality.
-#' @param year Year of the data. Ignored. Defaults based on pref_code.
-#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
-#'
-#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
-#'
-#' @export
-read_landnuminfo_river <- function(code_pref, code_muni = NULL, year = NULL, data_dir = NULL){
-  # Ignore year argument
-  num_code_pref = as.integer(code_pref)
-  if (num_code_pref == 1
-             || num_code_pref == 25
-             || num_code_pref == 26
-             || num_code_pref == 27
-             || num_code_pref == 28
-             || num_code_pref == 29
-             || num_code_pref == 30) {
-    year4digit <- 2009
-  } else if (num_code_pref == 8
-             || num_code_pref == 9
-             || num_code_pref == 10
-             || num_code_pref == 11
-             || num_code_pref == 12
-             || num_code_pref == 13
-             || num_code_pref == 14
-             || num_code_pref == 19
-             || num_code_pref == 20
-             || num_code_pref == 21
-             || num_code_pref == 22
-             || num_code_pref == 23
-             || num_code_pref == 24
-             || num_code_pref == 31
-             || num_code_pref == 32
-             || num_code_pref == 33
-             || num_code_pref == 34
-             || num_code_pref == 35
-  ) {
-    year4digit <- 2008
-  } else if (num_code_pref == 2
-             || num_code_pref == 3
-             || num_code_pref == 4
-             || num_code_pref == 5
-             || num_code_pref == 6
-             || num_code_pref == 7
-             || num_code_pref == 15
-             || num_code_pref == 16
-             || num_code_pref == 17
-             || num_code_pref == 18
-             || num_code_pref == 40
-             || num_code_pref == 41
-             || num_code_pref == 42
-             || num_code_pref == 43
-             || num_code_pref == 44
-             || num_code_pref == 45
-             || num_code_pref == 46
-             || num_code_pref == 47
-             || num_code_pref == 48) {
-    year4digit <- 2007
-  } else if (num_code_pref == 36
-             || num_code_pref == 37
-             || num_code_pref == 38
-             || num_code_pref == 39) {
-    year4digit <- 2006
-  } else {
-    stop("Invalid pref_code.")
-  }
-
-  sfLNI <- NULL
-  sfLNI <- read_landnuminfo_by_csv("W05", code_pref, NULL, year4digit, data_dir)
-
-  if (!is.null(sfLNI)) {
-    attr(sfLNI, "mapname") = "\u6cb3\u5ddd"
-    attr(sfLNI, "palette") = ""
   }
 
   return(sfLNI)

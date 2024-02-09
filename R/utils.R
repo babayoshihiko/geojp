@@ -410,7 +410,7 @@ check_code_muni_as_char <- function(code_pref = NULL, code_muni, return = "code_
         warning(paste("Pref:", code_pref, ", Muni:", code_muni, " somehow matched two or more municipalities (check_code_muni_as_char)."))
         strCodeMuni <- sprintf("%03d", as.integer(code_pref) * 1000 + as.integer(code_muni))
       }
-    } else if (return == "code_dantai")　{
+    } else if (return == "code_dantai") {
       if (nrow(dfTemp) == 0) {
         warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist. Returns NULL (check_code_muni_as_char)."))
         strCodeMuni <- NULL
@@ -420,7 +420,7 @@ check_code_muni_as_char <- function(code_pref = NULL, code_muni, return = "code_
         warning(paste("Pref:", code_pref, ", Muni:", code_muni, " somehow matched two or more municipalities (check_code_muni_as_char)."))
         strCodeMuni <- sprintf("%06d", as.integer(dfTemp[1,"code_dantai"]))
       }
-    } else if (return == "name_muni")　{
+    } else if (return == "name_muni") {
       if (nrow(dfTemp) == 0) {
         warning(paste("Pref:", code_pref, ", Muni:", code_muni, " does not seem to exist. Returns NULL (check_code_muni_as_char)."))
         strCodeMuni <- NULL

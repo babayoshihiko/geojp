@@ -349,6 +349,33 @@ read_landnuminfo_specialpreservationarea_historiclandscape <- function(code_pref
   return(sfLNI)
 }
 
+#' Download spatial data of Preservation District of Histric Buildings of Japan
+#'
+#' @description
+#' Function to download spatial data of Preservation District of Histric Buildings of Japan. The returned value is an sf object.
+#'
+#' @param code_pref The 2-digit code of prefecture.
+#' @param code_muni Optional. The 3-digit code of municipality.
+#' @param year Year of the data. Defaults to 2018.
+#' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
+#'
+#'
+#' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
+#'
+#' @export
+read_landnuminfo_preservationdistrict_historicbuildings <- function(code_pref = NULL, code_muni = NULL, year = 2018, data_dir = NULL){
+
+  # Dummy pref_code
+  if (is.null(code_pref)) code_pref <- 13
+
+  sfLNI <- NULL
+  sfLNI <- read_landnuminfo_by_csv("A43", code_pref, code_muni, year, data_dir)
+
+  attr(sfLNI, "mapname") <- ""
+
+  return(sfLNI)
+}
+
 #' Download spatial data of Priority Areas of Plan for the Maintenance and Improvement of Historical Scenic Beauty of Japan
 #'
 #' @description
