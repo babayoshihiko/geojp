@@ -5,14 +5,14 @@
 #'
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Optional. The 3-digit code of municipality.
-#' @param year Year of the data. Defaults to 2023.
+#' @param year Year of the data. Defaults to 2024.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
 #'
 #' @return An `"sf" "data.frame"` object with extra attr "col" and "palette" for tmap.
 #'
 #' @export
-read_landnuminfo_admin <- function(code_pref, code_muni = NULL, year = 2023, data_dir = NULL){
+read_landnuminfo_admin <- function(code_pref, code_muni = NULL, year = 2024, data_dir = NULL){
 
   # Administrative Boundaries data
   sfLNI <- NULL

@@ -7,7 +7,7 @@
 read_landnuminfo_admin(
   code_pref,
   code_muni = NULL,
-  year = 2023,
+  year = 2024,
   data_dir = NULL
 )
 }
@@ -16,7 +16,7 @@ read_landnuminfo_admin(
 
 \item{code_muni}{Optional. The 3-digit code of municipality.}
 
-\item{year}{Year of the data. Defaults to 2023.}
+\item{year}{Year of the data. Defaults to 2024.}
 
 \item{data_dir}{The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.}
 }
