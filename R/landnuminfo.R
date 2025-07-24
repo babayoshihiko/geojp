@@ -459,14 +459,14 @@ read_landnuminfo_flood <- function(code_pref, code_muni = NULL, year = 2012, dat
 #'
 #' @param code_pref The 2-digit code of prefecture.
 #' @param code_muni Optional. The 3-digit code of municipality. If specified, subtract the data by the column A48_003.
-#' @param year Year of the data. Defaults to 2021.
+#' @param year Year of the data. Defaults to 2025.
 #' @param data_dir The directory to store downloaded zip and extracted files. If not specified, the data will be stored in a temp directory and will be deleted after you quit the session.
 #'
 #'
 #' @return An `"sf" "data.frame"` object with extra attr "col" for tmap.
 #'
 #' @export
-read_landnuminfo_officiallandprice <- function(code_pref, code_muni = NULL, year = 2021, data_dir = NULL){
+read_landnuminfo_officiallandprice <- function(code_pref, code_muni = NULL, year = 2025, data_dir = NULL){
   year4digit <- check_year(year)
 
   sfLNI <- NULL
