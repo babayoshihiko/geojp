@@ -12,6 +12,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+library(sf)
 library(tmap)
 library(mapview)
 library(leaflegend) # for tmap v4
@@ -149,11 +150,11 @@ It is also possible to overlay census and zoning maps.
 
 In addition, you can use Geospatial Information Authority of Japan's standard maps in tiled format as a base map.
 
-```{r}
+```{r eval = FALSE}
 library(tmap)
 tmap_mode("view")
 
-base_map = geojp::get_tile_server()
+base_map <- geojp::get_tile_server()
 
 # Create a map with tmap (v4).
 myTm <- tm_shape(sfCensus2) +
@@ -173,12 +174,3 @@ myTm <- myTm +
 myTm
 ```
 
-Source: `r base_map$reference`
-
-## mapview
-
-```{r}
-library(mapview)
-mapviewOptions(fgb = FALSE) # needed when creating web pages
-mapview(sfYouto[attr(sfYouto, "col")], col.regions = attr(sfYouto, "palette"), fgb = FALSE)
-```

@@ -18,9 +18,10 @@ Suggests:
     leaflegend,
     mapview,
     rmarkdown,
+    tibble,
     tmap
 Config/testthat/edition: 3
-VignetteBuilder: knitr
+VignetteBuilder: knitr, tibble
 URL: https://github.com/babayoshihiko/geojp
 BugReports: https://github.com/babayoshihiko/geojp/issues
 LazyData: true
