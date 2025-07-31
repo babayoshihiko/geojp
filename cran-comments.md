@@ -1,10 +1,8 @@
-## Test environments
-
-* local: darwin15.6.0-3.5.1
-
 ## R CMD check results
-0 errors | 0 warnings | 4 notes
 
-## revdepcheck results
+0 errors | 0 warnings | 0 note
 
-There are currently no downstream dependencies for this package
+* This is a new release.
+
+* The data folder may be >1 MB. The data include lists of various geographical data entries; prefectural/municipal names and codes.
+
