@@ -315,29 +315,40 @@ epsg_Japan_Plane_Rectangular <- function(code_pref, code_muni = NULL, crs_type =
 #'
 #' @export
 unzip_ja <- function(zipfile, files = NULL, exdir) {
-  if (!dir.exists(file.path(exdir,sub(".zip", "", zipfile)))){
-    if(Sys.info()['sysname'] == "Darwin"){
-      system(paste("ditto -V -x -k --sequesterRsrc --rsrc", zipfile, exdir, sep = " "), ignore.stdout = TRUE, ignore.stderr = TRUE)
-    } else if(Sys.info()['sysname'] == "Linux") {
-      system(paste("unzip -O CP932", zipfile, exdir, sep = " "), ignore.stdout = TRUE, ignore.stderr = TRUE)
+  if (!dir.exists(file.path(exdir, sub(".zip$", "", basename(zipfile))))) {
+
+    sysname <- Sys.info()['sysname']
+    zipfile <- normalizePath(zipfile, winslash = "\\", mustWork = FALSE)
+    exdir   <- normalizePath(exdir, winslash = "\\", mustWork = FALSE)
+
+    if (sysname == "Darwin") {
+      system(paste("ditto -V -x -k --sequesterRsrc --rsrc", shQuote(zipfile), shQuote(exdir)),
+             ignore.stdout = TRUE, ignore.stderr = TRUE)
+
+    } else if (sysname == "Linux") {
+      system(paste("unzip -O CP932", shQuote(zipfile), "-d", shQuote(exdir)),
+             ignore.stdout = TRUE, ignore.stderr = TRUE)
+
     } else {
-      # This still causes "mojibake" on directories with Japanese characters
-      # beucase zip expects UTF-8 while the files/folders are in SJIS.
-      #zip::unzip(zipfile, exdir = exdir)
-      zipfile = gsub("~", Sys.getenv("HOME"), zipfile)
-      zipfile = gsub("/", "\\\\", zipfile)
-      #zipfile = gsub("\\\\", "\\", zipfile)
-      exdir = gsub("~", Sys.getenv("HOME"), exdir)
-      exdir = gsub("/", "\\\\", exdir)
-      #exdir = gsub("\\\\", "\\", exdir)
-      ret = system(paste("powershell \"Expand-Archive -Path", zipfile, "-DestinationPath", exdir, "\"", sep = " "), ignore.stdout = TRUE, ignore.stderr = TRUE)
+      # Try PowerShell Expand-Archive first
+      ret <- system(paste0(
+        'powershell -Command "Expand-Archive -Path \\"', zipfile,
+        '\\" -DestinationPath \\"', exdir, '\\""'
+      ), ignore.stdout = TRUE, ignore.stderr = TRUE)
+
       if (ret != 0) {
-        ret = system(paste("7zip e  -o", exdir, " -ir!", zipfile, sep = ""), ignore.stdout = TRUE, ignore.stderr = TRUE)
+        # Try 7-Zip fallback
+        ret <- system(paste0('7z x "', zipfile, '" -o"', exdir, '" -y'),
+                      ignore.stdout = TRUE, ignore.stderr = TRUE)
       }
-      if (ret != 0) stop("Please install 7zip at https://www.7-zip.org/download.html and try again.")
+
+      if (ret != 0) {
+        stop("Unzip failed. Please ensure PowerShell or 7-Zip is installed.")
+      }
     }
   }
 }
+
 
 #' Converts 4-digit year to 2-digit
 #'
