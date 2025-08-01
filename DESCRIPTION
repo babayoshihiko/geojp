@@ -16,7 +16,6 @@ Suggests:
     unittest,
     testthat (>= 3.0.0),
     leaflegend,
-    mapview,
     rmarkdown,
     tibble,
     tmap
